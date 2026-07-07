@@ -1,0 +1,17 @@
+{
+    "_hash": "b68ff510d1dc75a45551206b9685baadf61f9971861247d055f54491af800aa3",
+    "patches": {
+        "symfony/type-info": [
+            {
+                "package": "symfony/type-info",
+                "description": "Fix: Cannot create union with both object and class type (api-platform/core#8312)",
+                "url": "patches/symfony-type-info-union-fix.patch",
+                "sha256": "9775c76692fd65bb07d55747393e3d4c90d184e330ae29f0be921b3fa293cafa",
+                "depth": 1,
+                "extra": {
+                    "provenance": "root"
+                }
+            }
+        ]
+    }
+}

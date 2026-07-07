@@ -1,6 +1,7 @@
 imports:
     - { resource: "@AcmeSyliusExamplePlugin/config/config.yaml" }
     - { resource: "services_test.php" }
+    - { resource: "packages/security.yaml" }
 
 twig:
     paths:
