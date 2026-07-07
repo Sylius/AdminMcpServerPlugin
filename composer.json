@@ -11,7 +11,7 @@
     "require": {
         "php": "^8.2",
         "cweagans/composer-patches": "^2.0",
-        "sylius/sylius": "^2.0",
+        "sylius/sylius": "^2.1",
         "symfony/mcp-bundle": "^0.9"
     },
     "require-dev": {
