@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Acme\SyliusExamplePlugin\Tool\Product;
 
-use Acme\SyliusExamplePlugin\Http\AdminApiClient;
+use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
@@ -14,7 +14,7 @@ use Mcp\Capability\Attribute\McpTool;
 final readonly class Delete
 {
     public function __construct(
-        private AdminApiClient $client,
+        private ApiClientInterface $client,
     ) {
     }
 

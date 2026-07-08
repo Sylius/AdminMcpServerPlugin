@@ -1,5 +1,0 @@
-# Define your own admin routes here
-
-acme_admin_mcp:
-    resource: .
-    type: mcp
