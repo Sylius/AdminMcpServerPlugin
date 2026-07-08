@@ -11,6 +11,20 @@ use Acme\SyliusExamplePlugin\Tool\Administrator\Delete as AdministratorDelete;
 use Acme\SyliusExamplePlugin\Tool\Administrator\Index as AdministratorIndex;
 use Acme\SyliusExamplePlugin\Tool\Administrator\Show as AdministratorShow;
 use Acme\SyliusExamplePlugin\Tool\Administrator\Update as AdministratorUpdate;
+use Acme\SyliusExamplePlugin\Tool\Product\Create as ProductCreate;
+use Acme\SyliusExamplePlugin\Tool\Product\Delete as ProductDelete;
+use Acme\SyliusExamplePlugin\Tool\Product\Index as ProductIndex;
+use Acme\SyliusExamplePlugin\Tool\Product\Show as ProductShow;
+use Acme\SyliusExamplePlugin\Tool\Product\Update as ProductUpdate;
+use Acme\SyliusExamplePlugin\Tool\Taxon\Create as TaxonCreate;
+use Acme\SyliusExamplePlugin\Tool\Taxon\Delete as TaxonDelete;
+use Acme\SyliusExamplePlugin\Tool\Taxon\Index as TaxonIndex;
+use Acme\SyliusExamplePlugin\Tool\Taxon\Show as TaxonShow;
+use Acme\SyliusExamplePlugin\Tool\Taxon\Update as TaxonUpdate;
+use Acme\SyliusExamplePlugin\Tool\ProductTaxon\Create as ProductTaxonCreate;
+use Acme\SyliusExamplePlugin\Tool\ProductTaxon\Delete as ProductTaxonDelete;
+use Acme\SyliusExamplePlugin\Tool\ProductTaxon\Index as ProductTaxonIndex;
+use Acme\SyliusExamplePlugin\Tool\ProductTaxon\Update as ProductTaxonUpdate;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -45,6 +59,62 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool');
 
     $services->set(AdministratorDelete::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductShow::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductDelete::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(TaxonIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(TaxonShow::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(TaxonCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(TaxonUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(TaxonDelete::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductTaxonIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductTaxonCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductTaxonUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ProductTaxonDelete::class)
         ->args([service(AdminApiClient::class)])
         ->tag('mcp.tool');
 };
