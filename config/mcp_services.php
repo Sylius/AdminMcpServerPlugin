@@ -26,6 +26,10 @@ use Acme\SyliusExamplePlugin\Tool\TaxRate\Create as TaxRateCreate;
 use Acme\SyliusExamplePlugin\Tool\TaxRate\Index as TaxRateIndex;
 use Acme\SyliusExamplePlugin\Tool\TaxRate\Show as TaxRateShow;
 use Acme\SyliusExamplePlugin\Tool\TaxRate\Update as TaxRateUpdate;
+use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Create as PaymentMethodCreate;
+use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Index as PaymentMethodIndex;
+use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Show as PaymentMethodShow;
+use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Update as PaymentMethodUpdate;
 use Acme\SyliusExamplePlugin\Tool\Customer\Create as CustomerCreate;
 use Acme\SyliusExamplePlugin\Tool\Customer\DeleteUser as CustomerDeleteUser;
 use Acme\SyliusExamplePlugin\Tool\Customer\GetStatistics as CustomerGetStatistics;
@@ -195,6 +199,22 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool');
 
     $services->set(TaxRateUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(PaymentMethodIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(PaymentMethodShow::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(PaymentMethodCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(PaymentMethodUpdate::class)
         ->args([service(AdminApiClient::class)])
         ->tag('mcp.tool');
 };
