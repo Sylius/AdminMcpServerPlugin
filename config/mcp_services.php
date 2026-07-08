@@ -30,6 +30,23 @@ use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Create as PaymentMethodCreate;
 use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Index as PaymentMethodIndex;
 use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Show as PaymentMethodShow;
 use Acme\SyliusExamplePlugin\Tool\PaymentMethod\Update as PaymentMethodUpdate;
+use Acme\SyliusExamplePlugin\Tool\Channel\Create as ChannelCreate;
+use Acme\SyliusExamplePlugin\Tool\Channel\Delete as ChannelDelete;
+use Acme\SyliusExamplePlugin\Tool\Channel\Index as ChannelIndex;
+use Acme\SyliusExamplePlugin\Tool\Channel\Show as ChannelShow;
+use Acme\SyliusExamplePlugin\Tool\Channel\Update as ChannelUpdate;
+use Acme\SyliusExamplePlugin\Tool\Currency\Create as CurrencyCreate;
+use Acme\SyliusExamplePlugin\Tool\Currency\Index as CurrencyIndex;
+use Acme\SyliusExamplePlugin\Tool\ExchangeRate\Create as ExchangeRateCreate;
+use Acme\SyliusExamplePlugin\Tool\ExchangeRate\Index as ExchangeRateIndex;
+use Acme\SyliusExamplePlugin\Tool\ExchangeRate\Update as ExchangeRateUpdate;
+use Acme\SyliusExamplePlugin\Tool\Locale\Create as LocaleCreate;
+use Acme\SyliusExamplePlugin\Tool\Locale\Delete as LocaleDelete;
+use Acme\SyliusExamplePlugin\Tool\Locale\Index as LocaleIndex;
+use Acme\SyliusExamplePlugin\Tool\Country\Create as CountryCreate;
+use Acme\SyliusExamplePlugin\Tool\Country\Index as CountryIndex;
+use Acme\SyliusExamplePlugin\Tool\Country\Show as CountryShow;
+use Acme\SyliusExamplePlugin\Tool\Country\Update as CountryUpdate;
 use Acme\SyliusExamplePlugin\Tool\Customer\Create as CustomerCreate;
 use Acme\SyliusExamplePlugin\Tool\Customer\DeleteUser as CustomerDeleteUser;
 use Acme\SyliusExamplePlugin\Tool\Customer\GetStatistics as CustomerGetStatistics;
@@ -215,6 +232,74 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool');
 
     $services->set(PaymentMethodUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ChannelIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ChannelShow::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ChannelCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ChannelUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ChannelDelete::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CurrencyIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CurrencyCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ExchangeRateIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ExchangeRateCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(ExchangeRateUpdate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(LocaleIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(LocaleCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(LocaleDelete::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CountryIndex::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CountryShow::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CountryCreate::class)
+        ->args([service(AdminApiClient::class)])
+        ->tag('mcp.tool');
+
+    $services->set(CountryUpdate::class)
         ->args([service(AdminApiClient::class)])
         ->tag('mcp.tool');
 };
