@@ -7,20 +7,27 @@ parameters:
     env(ACME_ADMIN_MCP_API_BASE_URI): 'https://127.0.0.1:8090/api/v2/admin/'
     env(ACME_ADMIN_MCP_API_EMAIL): 'sylius@example.com'
     env(ACME_ADMIN_MCP_API_PASSWORD): 'sylius'
-    acme_admin_mcp.api.base_uri: '%env(ACME_ADMIN_MCP_API_BASE_URI)%'
-    acme_admin_mcp.api.email: '%env(ACME_ADMIN_MCP_API_EMAIL)%'
-    acme_admin_mcp.api.password: '%env(ACME_ADMIN_MCP_API_PASSWORD)%'
+    sylius_admin_mcp_server.api.base_uri: '%env(ACME_ADMIN_MCP_API_BASE_URI)%'
+    sylius_admin_mcp_server.api.email: '%env(ACME_ADMIN_MCP_API_EMAIL)%'
+    sylius_admin_mcp_server.api.password: '%env(ACME_ADMIN_MCP_API_PASSWORD)%'
 
 framework:
     http_client:
         scoped_clients:
-            acme_admin_mcp.http_client:
-                base_uri: '%acme_admin_mcp.api.base_uri%'
+            sylius_admin_mcp_server.http_client.api:
+                base_uri: '%sylius_admin_mcp_server.api.base_uri%'
                 verify_peer: false
                 verify_host: false
                 headers:
                     Accept: 'application/ld+json'
                     Content-Type: 'application/ld+json'
+            sylius_admin_mcp_server.http_client.api_merge_patch:
+                base_uri: '%sylius_admin_mcp_server.api.base_uri%'
+                verify_peer: false
+                verify_host: false
+                headers:
+                    Accept: 'application/ld+json'
+                    Content-Type: 'application/merge-patch+json'
 
 mcp:
     app: 'Sylius Admin MCP Server'

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Mcp\Loader;
+namespace Acme\SyliusExamplePlugin\Loader;
 
 use Mcp\Capability\Discovery\Discoverer;
 use Mcp\Capability\Registry\Loader\LoaderInterface;
@@ -20,7 +20,7 @@ final readonly class PluginDiscoveryLoader implements LoaderInterface
     {
         $discoverer = new Discoverer($this->logger);
         $state = $discoverer->discover(
-            basePath: dirname(__DIR__, 3),
+            basePath: dirname(__DIR__, 2),
             directories: ['src/Tool'],
         );
 
