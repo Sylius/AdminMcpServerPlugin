@@ -49,10 +49,9 @@ final readonly class Update
             $existing = json_decode($this->client->get(sprintf('products/%s', $code)), true);
             $translations = $existing['translations'] ?? [];
 
-            $translations[$localeCode] = array_merge(
-                $translations[$localeCode] ?? [],
-                ['@id' => sprintf('/api/v2/admin/products/%s/translations/%s', $code, $localeCode), 'locale' => $localeCode],
-            );
+            if (!isset($translations[$localeCode])) {
+                $translations[$localeCode] = ['locale' => $localeCode];
+            }
 
             if ($name !== '') {
                 $translations[$localeCode]['name'] = $name;

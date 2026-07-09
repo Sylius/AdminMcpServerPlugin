@@ -50,10 +50,9 @@ final readonly class Update
         if ($hasTranslationFields) {
             $translations = $existing['translations'] ?? [];
 
-            $translations[$localeCode] = array_merge(
-                $translations[$localeCode] ?? [],
-                ['@id' => sprintf('/api/v2/admin/taxon/%s/translations/%s', $code, $localeCode), 'locale' => $localeCode],
-            );
+            if (!isset($translations[$localeCode])) {
+                $translations[$localeCode] = ['locale' => $localeCode];
+            }
 
             if ($name !== '') {
                 $translations[$localeCode]['name'] = $name;
