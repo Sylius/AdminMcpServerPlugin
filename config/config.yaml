@@ -27,6 +27,7 @@ framework:
 mcp:
     app: 'Sylius Admin MCP Server'
     version: '0.1.0'
+    pagination_limit: 200
     client_transports:
         stdio: true
         http: true

@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_taxon',
-    description: 'update_taxon(code, name?, slug?, localeCode?, enabled?, parentCode?) → JSON object of the updated Sylius taxon. Only provided fields are changed.',
+    description: 'update_taxon(code, name?, slug?, localeCode?, enabled?, parentCode?) → JSON object of the updated Sylius taxon. Only the specified locale translation is changed; all other locales are preserved.',
 )]
 final readonly class Update
 {
@@ -34,6 +34,8 @@ final readonly class Update
         ?bool $enabled = null,
         string $parentCode = '',
     ): string {
+        $existing = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
+
         $body = [];
 
         if ($enabled !== null) {
@@ -46,18 +48,20 @@ final readonly class Update
 
         $hasTranslationFields = $name !== '' || $slug !== '';
         if ($hasTranslationFields) {
-            $translation = [
-                '@id' => sprintf('/api/v2/admin/taxon/%s/translations/%s', $code, $localeCode),
-                'locale' => $localeCode,
-            ];
-            if ($name !== '') {
-                $translation['name'] = $name;
-            }
-            if ($slug !== '') {
-                $translation['slug'] = $slug;
+            $translations = $existing['translations'] ?? [];
+
+            if (!isset($translations[$localeCode])) {
+                $translations[$localeCode] = ['locale' => $localeCode];
             }
 
-            $body['translations'] = [$localeCode => $translation];
+            if ($name !== '') {
+                $translations[$localeCode]['name'] = $name;
+            }
+            if ($slug !== '') {
+                $translations[$localeCode]['slug'] = $slug;
+            }
+
+            $body['translations'] = $translations;
         }
 
         return $this->client->put(sprintf('taxons/%s', $code), $body);

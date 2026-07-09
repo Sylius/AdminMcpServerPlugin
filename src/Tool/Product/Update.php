@@ -46,24 +46,27 @@ final readonly class Update
 
         $hasTranslationFields = $name !== '' || $slug !== '' || $description !== '' || $shortDescription !== '';
         if ($hasTranslationFields) {
-            $translation = [
-                '@id' => sprintf('/api/v2/admin/products/%s/translations/%s', $code, $localeCode),
-                'locale' => $localeCode,
-            ];
-            if ($name !== '') {
-                $translation['name'] = $name;
-            }
-            if ($slug !== '') {
-                $translation['slug'] = $slug;
-            }
-            if ($description !== '') {
-                $translation['description'] = $description;
-            }
-            if ($shortDescription !== '') {
-                $translation['shortDescription'] = $shortDescription;
+            $existing = json_decode($this->client->get(sprintf('products/%s', $code)), true);
+            $translations = $existing['translations'] ?? [];
+
+            if (!isset($translations[$localeCode])) {
+                $translations[$localeCode] = ['locale' => $localeCode];
             }
 
-            $body['translations'] = [$localeCode => $translation];
+            if ($name !== '') {
+                $translations[$localeCode]['name'] = $name;
+            }
+            if ($slug !== '') {
+                $translations[$localeCode]['slug'] = $slug;
+            }
+            if ($description !== '') {
+                $translations[$localeCode]['description'] = $description;
+            }
+            if ($shortDescription !== '') {
+                $translations[$localeCode]['shortDescription'] = $shortDescription;
+            }
+
+            $body['translations'] = $translations;
         }
 
         if ($channels !== []) {
