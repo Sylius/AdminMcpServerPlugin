@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\ExchangeRate;
+namespace Sylius\AdminMcpServerPlugin\Tool\ExchangeRate;
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

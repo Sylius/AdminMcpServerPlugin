@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Exception;
+namespace Sylius\AdminMcpServerPlugin\Exception;
 
 final class NotAuthenticatedException extends \RuntimeException
 {

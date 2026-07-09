@@ -1,5 +1,5 @@
 imports:
-    - { resource: "@AcmeSyliusExamplePlugin/config/config.yaml" }
+    - { resource: "@SyliusAdminMcpServerPlugin/config/config.yaml" }
     - { resource: "services.php" }
     - { resource: "services_test.php" }
 
@@ -17,4 +17,4 @@ doctrine:
                         is_bundle: false
                         type: attribute
                         dir: '%kernel.project_dir%/../../../tests/TestApplication/src/Entity'
-                        prefix: Tests\Acme\SyliusExamplePlugin
+                        prefix: Tests\Sylius\AdminMcpServerPlugin

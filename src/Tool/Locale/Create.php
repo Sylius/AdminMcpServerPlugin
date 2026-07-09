@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\Locale;
+namespace Sylius\AdminMcpServerPlugin\Tool\Locale;
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

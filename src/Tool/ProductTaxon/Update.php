@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\ProductTaxon;
+namespace Sylius\AdminMcpServerPlugin\Tool\ProductTaxon;
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

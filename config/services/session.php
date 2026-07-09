@@ -2,8 +2,8 @@
 
 declare(strict_types=1);
 
-use Acme\SyliusExamplePlugin\Session\SessionTokenStorage;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Session\SessionTokenStorage;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 

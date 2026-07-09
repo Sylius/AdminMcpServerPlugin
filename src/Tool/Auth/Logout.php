@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\Auth;
+namespace Sylius\AdminMcpServerPlugin\Tool\Auth;
 
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

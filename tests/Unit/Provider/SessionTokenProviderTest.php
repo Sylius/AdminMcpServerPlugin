@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Acme\SyliusExamplePlugin\Unit\Provider;
+namespace Tests\Sylius\AdminMcpServerPlugin\Unit\Provider;
 
-use Acme\SyliusExamplePlugin\Exception\NotAuthenticatedException;
-use Acme\SyliusExamplePlugin\Provider\SessionTokenProvider;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
+use Sylius\AdminMcpServerPlugin\Provider\SessionTokenProvider;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 use PHPUnit\Framework\TestCase;
 
 final class SessionTokenProviderTest extends TestCase

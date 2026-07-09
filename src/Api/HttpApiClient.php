@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Api;
+namespace Sylius\AdminMcpServerPlugin\Api;
 
-use Acme\SyliusExamplePlugin\Exception\AuthenticationFailedException;
-use Acme\SyliusExamplePlugin\Exception\NotAuthenticatedException;
-use Acme\SyliusExamplePlugin\Provider\TokenProviderInterface;
+use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
+use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
+use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
 use Mcp\Exception\ToolCallException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 

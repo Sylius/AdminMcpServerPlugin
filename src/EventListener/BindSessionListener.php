@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\EventListener;
+namespace Sylius\AdminMcpServerPlugin\EventListener;
 
-use Acme\SyliusExamplePlugin\Session\CurrentSession;
+use Sylius\AdminMcpServerPlugin\Session\CurrentSession;
 use Mcp\Event\RequestEvent;
 
 final readonly class BindSessionListener

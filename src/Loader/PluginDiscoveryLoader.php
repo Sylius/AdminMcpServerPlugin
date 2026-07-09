@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Loader;
+namespace Sylius\AdminMcpServerPlugin\Loader;
 
 use Mcp\Capability\Discovery\Discoverer;
 use Mcp\Capability\Registry\Loader\LoaderInterface;

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Acme\SyliusExamplePlugin\EventListener\BindSessionListener;
-use Acme\SyliusExamplePlugin\Loader\PluginDiscoveryLoader;
-use Acme\SyliusExamplePlugin\Session\CurrentSession;
+use Sylius\AdminMcpServerPlugin\EventListener\BindSessionListener;
+use Sylius\AdminMcpServerPlugin\Loader\PluginDiscoveryLoader;
+use Sylius\AdminMcpServerPlugin\Session\CurrentSession;
 use Mcp\Event\RequestEvent;
 
 return static function (ContainerConfigurator $container): void {

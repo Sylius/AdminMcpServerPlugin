@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Session;
+namespace Sylius\AdminMcpServerPlugin\Session;
 
 use Mcp\Server\Session\SessionInterface;
 

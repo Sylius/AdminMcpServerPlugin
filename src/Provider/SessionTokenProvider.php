@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Provider;
+namespace Sylius\AdminMcpServerPlugin\Provider;
 
-use Acme\SyliusExamplePlugin\Exception\NotAuthenticatedException;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 
 final readonly class SessionTokenProvider implements TokenProviderInterface
 {

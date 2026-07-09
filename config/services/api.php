@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
-use Acme\SyliusExamplePlugin\Api\AuthenticatorInterface;
-use Acme\SyliusExamplePlugin\Api\HttpApiClient;
-use Acme\SyliusExamplePlugin\Api\HttpAuthenticator;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\AuthenticatorInterface;
+use Sylius\AdminMcpServerPlugin\Api\HttpApiClient;
+use Sylius\AdminMcpServerPlugin\Api\HttpAuthenticator;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 

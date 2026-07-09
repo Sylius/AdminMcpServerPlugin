@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\Currency;
+namespace Sylius\AdminMcpServerPlugin\Tool\Currency;
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\Administrator;
+namespace Sylius\AdminMcpServerPlugin\Tool\Administrator;
 
-use Acme\SyliusExamplePlugin\Api\ApiClientInterface;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(

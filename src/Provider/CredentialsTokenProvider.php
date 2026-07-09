@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Provider;
+namespace Sylius\AdminMcpServerPlugin\Provider;
 
-use Acme\SyliusExamplePlugin\Api\AuthenticatorInterface;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Api\AuthenticatorInterface;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 
 final readonly class CredentialsTokenProvider implements TokenProviderInterface
 {

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Mcp\Resource;
+namespace Sylius\AdminMcpServerPlugin\Mcp\Resource;
 
 use Mcp\Capability\Attribute\McpResource;
 use Mcp\Schema\Content\TextResourceContents;
