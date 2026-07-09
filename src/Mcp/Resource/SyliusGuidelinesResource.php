@@ -9,7 +9,7 @@ use Mcp\Schema\Content\TextResourceContents;
 
 #[McpResource(
     uri: 'sylius://guidelines',
-    name: 'Sylius Admin API Guidelines',
+    name: 'sylius_admin_api_guidelines',
     description: 'Critical rules and patterns for correctly using Sylius Admin MCP tools. Read this before performing any operations.',
     mimeType: 'text/markdown',
 )]
