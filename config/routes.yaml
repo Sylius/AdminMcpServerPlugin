@@ -1,0 +1,3 @@
+sylius_admin_mcp_server_mcp:
+    resource: .
+    type: mcp

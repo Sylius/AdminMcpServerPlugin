@@ -1,3 +1,0 @@
-security:
-    role_hierarchy:
-        ROLE_ADMINISTRATION_ACCESS: [ROLE_API_ACCESS]
