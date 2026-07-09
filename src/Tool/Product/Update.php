@@ -46,24 +46,28 @@ final readonly class Update
 
         $hasTranslationFields = $name !== '' || $slug !== '' || $description !== '' || $shortDescription !== '';
         if ($hasTranslationFields) {
-            $translation = [
-                '@id' => sprintf('/api/v2/admin/products/%s/translations/%s', $code, $localeCode),
-                'locale' => $localeCode,
-            ];
+            $existing = json_decode($this->client->get(sprintf('products/%s', $code)), true);
+            $translations = $existing['translations'] ?? [];
+
+            $translations[$localeCode] = array_merge(
+                $translations[$localeCode] ?? [],
+                ['@id' => sprintf('/api/v2/admin/products/%s/translations/%s', $code, $localeCode), 'locale' => $localeCode],
+            );
+
             if ($name !== '') {
-                $translation['name'] = $name;
+                $translations[$localeCode]['name'] = $name;
             }
             if ($slug !== '') {
-                $translation['slug'] = $slug;
+                $translations[$localeCode]['slug'] = $slug;
             }
             if ($description !== '') {
-                $translation['description'] = $description;
+                $translations[$localeCode]['description'] = $description;
             }
             if ($shortDescription !== '') {
-                $translation['shortDescription'] = $shortDescription;
+                $translations[$localeCode]['shortDescription'] = $shortDescription;
             }
 
-            $body['translations'] = [$localeCode => $translation];
+            $body['translations'] = $translations;
         }
 
         if ($channels !== []) {
