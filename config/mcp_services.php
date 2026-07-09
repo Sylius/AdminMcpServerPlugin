@@ -53,10 +53,8 @@ use Acme\SyliusExamplePlugin\Tool\Product\Update as ProductUpdate;
 use Acme\SyliusExamplePlugin\Tool\ProductAssociation\Create as ProductAssociationCreate;
 use Acme\SyliusExamplePlugin\Tool\ProductAssociation\Delete as ProductAssociationDelete;
 use Acme\SyliusExamplePlugin\Tool\ProductAssociation\Index as ProductAssociationIndex;
-use Acme\SyliusExamplePlugin\Tool\ProductAssociation\Show as ProductAssociationShow;
 use Acme\SyliusExamplePlugin\Tool\ProductAssociationType\Create as ProductAssociationTypeCreate;
 use Acme\SyliusExamplePlugin\Tool\ProductAssociationType\Index as ProductAssociationTypeIndex;
-use Acme\SyliusExamplePlugin\Tool\ProductAssociationType\Show as ProductAssociationTypeShow;
 use Acme\SyliusExamplePlugin\Tool\ProductAttribute\Create as ProductAttributeCreate;
 use Acme\SyliusExamplePlugin\Tool\ProductAttribute\Index as ProductAttributeIndex;
 use Acme\SyliusExamplePlugin\Tool\ProductAttribute\Show as ProductAttributeShow;
@@ -231,9 +229,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([service('sylius_admin_mcp_server.client.api')])
         ->tag('mcp.tool');
 
-    $services->set(ProductAssociationShow::class)
-        ->args([service('sylius_admin_mcp_server.client.api')])
-        ->tag('mcp.tool');
 
     $services->set(ProductAssociationCreate::class)
         ->args([service('sylius_admin_mcp_server.client.api')])
@@ -247,9 +242,6 @@ return static function (ContainerConfigurator $container): void {
         ->args([service('sylius_admin_mcp_server.client.api')])
         ->tag('mcp.tool');
 
-    $services->set(ProductAssociationTypeShow::class)
-        ->args([service('sylius_admin_mcp_server.client.api')])
-        ->tag('mcp.tool');
 
     $services->set(ProductAssociationTypeCreate::class)
         ->args([service('sylius_admin_mcp_server.client.api')])
