@@ -6,6 +6,18 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\AdminMcpServerPlugin\Mcp\Resource\SyliusGuidelinesResource;
 use Sylius\AdminMcpServerPlugin\Tool\Address\Show as AddressShow;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Index as ShippingCategoryIndex;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Archive as ShippingMethodArchive;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Create as ShippingMethodCreate;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Delete as ShippingMethodDelete;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Index as ShippingMethodIndex;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Restore as ShippingMethodRestore;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Show as ShippingMethodShow;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Update as ShippingMethodUpdate;
+use Sylius\AdminMcpServerPlugin\Tool\Zone\Create as ZoneCreate;
+use Sylius\AdminMcpServerPlugin\Tool\Zone\Index as ZoneIndex;
+use Sylius\AdminMcpServerPlugin\Tool\Zone\Show as ZoneShow;
+use Sylius\AdminMcpServerPlugin\Tool\Zone\Update as ZoneUpdate;
 use Sylius\AdminMcpServerPlugin\Tool\Address\Update as AddressUpdate;
 use Sylius\AdminMcpServerPlugin\Tool\Administrator\Create as AdministratorCreate;
 use Sylius\AdminMcpServerPlugin\Tool\Administrator\Delete as AdministratorDelete;
@@ -444,6 +456,54 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool');
 
     $services->set(CountryUpdate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodShow::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodCreate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodUpdate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodDelete::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodArchive::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingMethodRestore::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ShippingCategoryIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ZoneIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ZoneShow::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ZoneCreate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(ZoneUpdate::class)
         ->args([service('sylius_admin_mcp_server.client.api')])
         ->tag('mcp.tool');
 };
