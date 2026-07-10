@@ -1,6 +1,6 @@
 <?php
 
 return [
-    Acme\SyliusExamplePlugin\AcmeSyliusExamplePlugin::class => ['all' => true],
+    Sylius\AdminMcpServerPlugin\SyliusAdminMcpServerPlugin::class => ['all' => true],
     Symfony\AI\McpBundle\McpBundle::class => ['all' => true],
 ];

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Api;
+namespace Sylius\AdminMcpServerPlugin\Api;
 
 interface ApiClientInterface
 {

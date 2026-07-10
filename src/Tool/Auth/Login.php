@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Tool\Auth;
+namespace Sylius\AdminMcpServerPlugin\Tool\Auth;
 
-use Acme\SyliusExamplePlugin\Api\AuthenticatorInterface;
-use Acme\SyliusExamplePlugin\Exception\AuthenticationFailedException;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Api\AuthenticatorInterface;
+use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 use Mcp\Capability\Attribute\McpTool;
 use Mcp\Exception\ToolCallException;
 

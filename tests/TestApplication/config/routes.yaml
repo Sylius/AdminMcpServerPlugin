@@ -1,2 +1,2 @@
 sylius_admin_mcp_server:
-    resource: "@AcmeSyliusExamplePlugin/config/routes.yaml"
+    resource: "@SyliusAdminMcpServerPlugin/config/routes.yaml"

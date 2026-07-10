@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Acme\SyliusExamplePlugin\Unit\Provider;
+namespace Tests\Sylius\AdminMcpServerPlugin\Unit\Provider;
 
-use Acme\SyliusExamplePlugin\Api\AuthenticatorInterface;
-use Acme\SyliusExamplePlugin\Provider\CredentialsTokenProvider;
-use Acme\SyliusExamplePlugin\Session\TokenStorageInterface;
+use Sylius\AdminMcpServerPlugin\Api\AuthenticatorInterface;
+use Sylius\AdminMcpServerPlugin\Provider\CredentialsTokenProvider;
+use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
 use PHPUnit\Framework\TestCase;
 
 final class CredentialsTokenProviderTest extends TestCase

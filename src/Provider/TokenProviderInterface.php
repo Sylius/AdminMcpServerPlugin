@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Provider;
+namespace Sylius\AdminMcpServerPlugin\Provider;
 
-use Acme\SyliusExamplePlugin\Exception\AuthenticationFailedException;
-use Acme\SyliusExamplePlugin\Exception\NotAuthenticatedException;
+use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
+use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
 
 interface TokenProviderInterface
 {

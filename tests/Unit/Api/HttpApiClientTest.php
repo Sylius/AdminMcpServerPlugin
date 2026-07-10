@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace Tests\Acme\SyliusExamplePlugin\Unit\Api;
+namespace Tests\Sylius\AdminMcpServerPlugin\Unit\Api;
 
-use Acme\SyliusExamplePlugin\Api\HttpApiClient;
-use Acme\SyliusExamplePlugin\Exception\NotAuthenticatedException;
-use Acme\SyliusExamplePlugin\Provider\TokenProviderInterface;
+use Sylius\AdminMcpServerPlugin\Api\HttpApiClient;
+use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
+use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
 use Mcp\Exception\ToolCallException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;

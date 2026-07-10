@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-use Acme\SyliusExamplePlugin\Provider\CredentialsTokenProvider;
-use Acme\SyliusExamplePlugin\Provider\SessionTokenProvider;
-use Acme\SyliusExamplePlugin\Provider\TokenProviderInterface;
+use Sylius\AdminMcpServerPlugin\Provider\CredentialsTokenProvider;
+use Sylius\AdminMcpServerPlugin\Provider\SessionTokenProvider;
+use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
 use function Symfony\Component\DependencyInjection\Loader\Configurator\service;

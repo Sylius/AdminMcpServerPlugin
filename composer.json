@@ -1,7 +1,7 @@
 {
     "name": "sylius/plugin-skeleton",
     "type": "sylius-plugin",
-    "description": "Acme example plugin for Sylius.",
+    "description": "Sylius Admin MCP Server Plugin.",
     "keywords": [
         "sylius",
         "sylius-plugin",
@@ -72,12 +72,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Acme\\SyliusExamplePlugin\\": "src/"
+            "Sylius\\AdminMcpServerPlugin\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\Acme\\SyliusExamplePlugin\\": ["tests/", "tests/TestApplication/src/"]
+            "Tests\\Sylius\\AdminMcpServerPlugin\\": ["tests/", "tests/TestApplication/src/"]
         }
     },
     "scripts": {

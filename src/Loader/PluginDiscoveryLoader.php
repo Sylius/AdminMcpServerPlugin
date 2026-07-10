@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Loader;
+namespace Sylius\AdminMcpServerPlugin\Loader;
 
 use Mcp\Capability\Discovery\Discoverer;
 use Mcp\Capability\Registry\Loader\LoaderInterface;
@@ -21,13 +21,21 @@ final readonly class PluginDiscoveryLoader implements LoaderInterface
         $discoverer = new Discoverer($this->logger);
         $state = $discoverer->discover(
             basePath: dirname(__DIR__, 2),
-            directories: ['src/Tool'],
+            directories: ['src/Tool', 'src/Mcp'],
         );
 
         foreach ($state->getTools() as $toolRef) {
             $registry->registerTool(
                 $toolRef->tool,
                 $toolRef->handler,
+                isManual: true,
+            );
+        }
+
+        foreach ($state->getResources() as $resourceRef) {
+            $registry->registerResource(
+                $resourceRef->resource,
+                $resourceRef->handler,
                 isManual: true,
             );
         }

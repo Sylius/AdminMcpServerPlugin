@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace Acme\SyliusExamplePlugin\Api;
+namespace Sylius\AdminMcpServerPlugin\Api;
 
-use Acme\SyliusExamplePlugin\Exception\AuthenticationFailedException;
+use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
 
 interface AuthenticatorInterface
 {

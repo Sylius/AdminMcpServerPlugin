@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-namespace Tests\Acme\SyliusExamplePlugin\Unit\Api;
+namespace Tests\Sylius\AdminMcpServerPlugin\Unit\Api;
 
-use Acme\SyliusExamplePlugin\Api\HttpAuthenticator;
-use Acme\SyliusExamplePlugin\Exception\AuthenticationFailedException;
+use Sylius\AdminMcpServerPlugin\Api\HttpAuthenticator;
+use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
