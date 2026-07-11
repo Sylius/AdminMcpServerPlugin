@@ -5,6 +5,22 @@ declare(strict_types=1);
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\AdminMcpServerPlugin\Mcp\Resource\SyliusGuidelinesResource;
+use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Create as CatalogPromotionCreate;
+use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Index as CatalogPromotionIndex;
+use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Show as CatalogPromotionShow;
+use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Update as CatalogPromotionUpdate;
+use Sylius\AdminMcpServerPlugin\Tool\Coupon\Create as CouponCreate;
+use Sylius\AdminMcpServerPlugin\Tool\Coupon\Delete as CouponDelete;
+use Sylius\AdminMcpServerPlugin\Tool\Coupon\Generate as CouponGenerate;
+use Sylius\AdminMcpServerPlugin\Tool\Coupon\Index as CouponIndex;
+use Sylius\AdminMcpServerPlugin\Tool\Coupon\Update as CouponUpdate;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Archive as PromotionArchive;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Create as PromotionCreate;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Delete as PromotionDelete;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Index as PromotionIndex;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Restore as PromotionRestore;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Show as PromotionShow;
+use Sylius\AdminMcpServerPlugin\Tool\Promotion\Update as PromotionUpdate;
 use Sylius\AdminMcpServerPlugin\Tool\Address\Show as AddressShow;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Index as ShippingCategoryIndex;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Archive as ShippingMethodArchive;
@@ -504,6 +520,70 @@ return static function (ContainerConfigurator $container): void {
         ->tag('mcp.tool');
 
     $services->set(ZoneUpdate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionShow::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionCreate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionUpdate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionDelete::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionArchive::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(PromotionRestore::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CouponIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CouponCreate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CouponUpdate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CouponDelete::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CouponGenerate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CatalogPromotionIndex::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CatalogPromotionShow::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CatalogPromotionCreate::class)
+        ->args([service('sylius_admin_mcp_server.client.api')])
+        ->tag('mcp.tool');
+
+    $services->set(CatalogPromotionUpdate::class)
         ->args([service('sylius_admin_mcp_server.client.api')])
         ->tag('mcp.tool');
 };
