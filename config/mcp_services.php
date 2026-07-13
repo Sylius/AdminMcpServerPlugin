@@ -5,6 +5,27 @@ declare(strict_types=1);
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\AdminMcpServerPlugin\Mcp\Resource\SyliusGuidelinesResource;
+use Sylius\AdminMcpServerPlugin\Tool\Order\Cancel as OrderCancel;
+use Sylius\AdminMcpServerPlugin\Tool\Order\CompletePayment as OrderCompletePayment;
+use Sylius\AdminMcpServerPlugin\Tool\Order\Index as OrderIndex;
+use Sylius\AdminMcpServerPlugin\Tool\Order\ListItems as OrderListItems;
+use Sylius\AdminMcpServerPlugin\Tool\Order\ListPayments as OrderListPayments;
+use Sylius\AdminMcpServerPlugin\Tool\Order\ListShipments as OrderListShipments;
+use Sylius\AdminMcpServerPlugin\Tool\Order\RefundPayment as OrderRefundPayment;
+use Sylius\AdminMcpServerPlugin\Tool\Order\ResendConfirmation as OrderResendConfirmation;
+use Sylius\AdminMcpServerPlugin\Tool\Order\ShipShipment as OrderShipShipment;
+use Sylius\AdminMcpServerPlugin\Tool\Order\Show as OrderShow;
+use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Delete as ProductImageDelete;
+use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Index as ProductImageIndex;
+use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Show as ProductImageShow;
+use Sylius\AdminMcpServerPlugin\Tool\Province\Create as ProvinceCreate;
+use Sylius\AdminMcpServerPlugin\Tool\Province\Delete as ProvinceDelete;
+use Sylius\AdminMcpServerPlugin\Tool\Province\Index as ProvinceIndex;
+use Sylius\AdminMcpServerPlugin\Tool\Province\Update as ProvinceUpdate;
+use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Delete as TaxonImageDelete;
+use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Index as TaxonImageIndex;
+use Sylius\AdminMcpServerPlugin\Tool\ZoneMember\Create as ZoneMemberCreate;
+use Sylius\AdminMcpServerPlugin\Tool\ZoneMember\Delete as ZoneMemberDelete;
 use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Create as CatalogPromotionCreate;
 use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Index as CatalogPromotionIndex;
 use Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion\Show as CatalogPromotionShow;
@@ -586,4 +607,32 @@ return static function (ContainerConfigurator $container): void {
     $services->set(CatalogPromotionUpdate::class)
         ->args([service('sylius_admin_mcp_server.client.api')])
         ->tag('mcp.tool');
+
+    $api = service('sylius_admin_mcp_server.client.api');
+
+    $services->set(OrderIndex::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderShow::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderCancel::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderShipShipment::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderCompletePayment::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderRefundPayment::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderResendConfirmation::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderListItems::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderListShipments::class)->args([$api])->tag('mcp.tool');
+    $services->set(OrderListPayments::class)->args([$api])->tag('mcp.tool');
+
+    $services->set(ProvinceIndex::class)->args([$api])->tag('mcp.tool');
+    $services->set(ProvinceCreate::class)->args([$api])->tag('mcp.tool');
+    $services->set(ProvinceUpdate::class)->args([$api])->tag('mcp.tool');
+    $services->set(ProvinceDelete::class)->args([$api])->tag('mcp.tool');
+
+    $services->set(ProductImageIndex::class)->args([$api])->tag('mcp.tool');
+    $services->set(ProductImageShow::class)->args([$api])->tag('mcp.tool');
+    $services->set(ProductImageDelete::class)->args([$api])->tag('mcp.tool');
+
+    $services->set(TaxonImageIndex::class)->args([$api])->tag('mcp.tool');
+    $services->set(TaxonImageDelete::class)->args([$api])->tag('mcp.tool');
+
+    $services->set(ZoneMemberCreate::class)->args([$api])->tag('mcp.tool');
+    $services->set(ZoneMemberDelete::class)->args([$api])->tag('mcp.tool');
 };
