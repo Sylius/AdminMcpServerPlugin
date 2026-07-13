@@ -30,11 +30,17 @@ final readonly class Create
         string $name,
         string $abbreviation = '',
     ): string {
-        $body = ['code' => $code, 'name' => $name];
-        if ($abbreviation !== '') {
-            $body['abbreviation'] = $abbreviation;
-        }
+        $country = json_decode($this->client->get(sprintf('countries/%s', $countryCode)), true);
+        $provinces = $country['provinces'] ?? [];
 
-        return $this->client->post(sprintf('countries/%s/provinces', $countryCode), $body);
+        $newProvince = ['code' => $code, 'name' => $name];
+        if ($abbreviation !== '') {
+            $newProvince['abbreviation'] = $abbreviation;
+        }
+        $provinces[] = $newProvince;
+
+        $this->client->put(sprintf('countries/%s', $countryCode), ['provinces' => $provinces]);
+
+        return $this->client->get(sprintf('countries/%s/provinces/%s', $countryCode, $code));
     }
 }

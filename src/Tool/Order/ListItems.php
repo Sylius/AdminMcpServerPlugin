@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_order_items',
-    description: 'list_order_items(tokenValue) → JSON collection of items for a Sylius order. Each item has: id, quantity, unitPrice, total, productName, variant (code, name), units (individual unit IRIs).',
+    description: 'list_order_items(tokenValue) → JSON array of items for a Sylius order. Each item has: id, quantity, unitPrice, total, productName, variantName, units.',
 )]
 final readonly class ListItems
 {
@@ -23,6 +23,8 @@ final readonly class ListItems
      */
     public function __invoke(string $tokenValue): string
     {
-        return $this->client->get(sprintf('orders/%s/items', $tokenValue));
+        $order = json_decode($this->client->get(sprintf('orders/%s', $tokenValue)), true);
+
+        return (string) json_encode($order['items'] ?? []);
     }
 }

@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'remove_zone_member',
-    description: 'remove_zone_member(memberId) → Removes a member from a Sylius zone by the zone member\'s numeric ID. The numeric ID is returned by add_zone_member or visible in get_zone members array (last segment of the IRI, e.g. "/api/v2/admin/zone-members/5" → id=5). Returns empty string on success (HTTP 204).',
+    description: 'remove_zone_member(zoneCode, memberCode) → Removes a member from a Sylius zone by its code. Returns empty string on success.',
 )]
 final readonly class Delete
 {
@@ -19,10 +19,25 @@ final readonly class Delete
     }
 
     /**
-     * @param int $memberId Numeric zone member ID (from add_zone_member response or get_zone members IRI).
+     * @param string $zoneCode   Zone code the member belongs to (e.g. "WORLD").
+     * @param string $memberCode Member code to remove: country ISO (e.g. "US"), province code (e.g. "US-CA"), or zone code.
      */
-    public function __invoke(int $memberId): string
+    public function __invoke(string $zoneCode, string $memberCode): string
     {
-        return $this->client->delete(sprintf('zone-members/%d', $memberId));
+        $zone = json_decode($this->client->get(sprintf('zones/%s', $zoneCode)), true);
+
+        $members = array_values(array_filter(
+            $zone['members'] ?? [],
+            static fn (array $m) => ($m['code'] ?? '') !== $memberCode,
+        ));
+
+        $this->client->put(sprintf('zones/%s', $zoneCode), [
+            'name'    => $zone['name'],
+            'type'    => $zone['type'],
+            'scope'   => $zone['scope'] ?? 'all',
+            'members' => $members,
+        ]);
+
+        return '';
     }
 }

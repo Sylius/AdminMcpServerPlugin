@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'delete_province',
-    description: 'delete_province(countryCode, provinceCode) → Permanently deletes a province from a country. Returns empty string on success (HTTP 204). provinceCode is the full code including country prefix (e.g. "US-CA").',
+    description: 'delete_province(countryCode, provinceCode) → Permanently deletes a province from a country. Returns empty string on success. provinceCode is the full code including country prefix (e.g. "US-CA").',
 )]
 final readonly class Delete
 {
@@ -24,8 +24,14 @@ final readonly class Delete
      */
     public function __invoke(string $countryCode, string $provinceCode): string
     {
-        return $this->client->delete(
-            sprintf('countries/%s/provinces/%s', $countryCode, $provinceCode),
-        );
+        $country = json_decode($this->client->get(sprintf('countries/%s', $countryCode)), true);
+        $provinces = $country['provinces'] ?? [];
+
+        $targetIri = sprintf('/api/v2/admin/countries/%s/provinces/%s', $countryCode, $provinceCode);
+        $provinces = array_values(array_filter($provinces, static fn (string $iri) => $iri !== $targetIri));
+
+        $this->client->put(sprintf('countries/%s', $countryCode), ['provinces' => $provinces]);
+
+        return '';
     }
 }
