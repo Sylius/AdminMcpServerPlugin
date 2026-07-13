@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_promotion',
-    description: 'update_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the updated Sylius cart promotion. Uses PUT — provide all fields you want to keep. Omitting rules/actions preserves existing ones.',
+    description: 'update_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the updated Sylius cart promotion. Uses PUT — provide all fields you want to keep. Omitting rules/actions preserves existing ones. CONFIGURATION FORMATS — percentage actions (order_percentage_discount, unit_percentage_discount, shipping_percentage_discount): {"percentage":0.1}. Fixed/amount (item_total rule, order_fixed_discount, unit_fixed_discount): {"CHANNEL_CODE":{"amount":N}} for ALL channel codes.',
 )]
 final readonly class Update
 {

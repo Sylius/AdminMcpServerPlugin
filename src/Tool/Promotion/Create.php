@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_promotion',
-    description: 'create_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the newly created Sylius cart promotion. rules example: [{"type":"item_total","configuration":{"FASHION_WEB":{"amount":5000}}}]. actions example: [{"type":"order_percentage_discount","configuration":{"FASHION_WEB":{"percentage":0.1}}}]. Rule types: item_total, cart_quantity, has_taxon, nth_order, total_of_items_from_taxon, customer_group. Action types: order_percentage_discount, order_fixed_discount, unit_percentage_discount, unit_fixed_discount, shipping_percentage_discount.',
+    description: 'create_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the newly created Sylius cart promotion. CONFIGURATION FORMATS — percentage actions (order_percentage_discount, unit_percentage_discount, shipping_percentage_discount): {"percentage":0.1}. Fixed/amount rules and actions (item_total rule, order_fixed_discount, unit_fixed_discount): {"CHANNEL_CODE":{"amount":5000}} — must list ALL channel codes in the system. EXAMPLES — 10% off entire order: actions=[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]. Minimum order 50 EUR rule: rules=[{"type":"item_total","configuration":{"FASHION_WEB":{"amount":5000},"WEB_EUR":{"amount":5000}}}]. Other rule types: cart_quantity (config:{"count":N}), has_taxon (config:{"taxons":["CODE"]}), nth_order (config:{"nth":N}), customer_group (config:{"group_code":"CODE"}).',
 )]
 final readonly class Create
 {

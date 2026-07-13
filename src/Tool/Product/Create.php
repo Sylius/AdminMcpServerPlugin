@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product',
-    description: 'create_product(code, name, slug, localeCode?, description?, shortDescription?, enabled?, channels?) → JSON object of the newly created Sylius product. Translations are created for the given locale. channels is a list of channel codes (e.g. ["FASHION_WEB"]).',
+    description: 'create_product(code, name, localeCode?, slug?, description?, shortDescription?, enabled?, channels?) → JSON object of the newly created Sylius product. slug is auto-generated from name if omitted. IMPORTANT: assign channels (use list_channels to find codes) — without channels the product will not appear in any shop.',
 )]
 final readonly class Create
 {
@@ -21,18 +21,18 @@ final readonly class Create
     /**
      * @param string   $code             Unique product code (e.g. "MUG_BLUE").
      * @param string   $name             Product name for the given locale.
-     * @param string   $slug             URL slug for the given locale (e.g. "blue-mug").
      * @param string   $localeCode       Locale code for the translation. Default = "en_US".
+     * @param string   $slug             URL slug for the given locale (e.g. "blue-mug"). Auto-generated from name if empty.
      * @param string   $description      Full description. Default = "".
      * @param string   $shortDescription Short description. Default = "".
      * @param bool     $enabled          Whether the product is enabled. Default = true.
-     * @param string[] $channels         List of channel codes to assign (e.g. ["FASHION_WEB"]).
+     * @param string[] $channels         List of channel codes to assign (e.g. ["FASHION_WEB"]). Use list_channels to get available codes.
      */
     public function __invoke(
         string $code,
         string $name,
-        string $slug,
         string $localeCode = 'en_US',
+        string $slug = '',
         string $description = '',
         string $shortDescription = '',
         bool $enabled = true,
@@ -40,9 +40,12 @@ final readonly class Create
     ): string {
         $translation = [
             'name' => $name,
-            'slug' => $slug,
             'locale' => $localeCode,
         ];
+
+        if ($slug !== '') {
+            $translation['slug'] = $slug;
+        }
 
         if ($description !== '') {
             $translation['description'] = $description;
