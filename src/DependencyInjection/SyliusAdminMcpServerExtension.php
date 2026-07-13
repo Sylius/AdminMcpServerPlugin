@@ -41,6 +41,17 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
         'payment_methods'         => 'payment_method',
         'tax_categories'          => 'tax_category',
         'tax_rates'               => 'tax_rate',
+        'shipping_methods'        => 'shipping_method',
+        'shipping_categories'     => 'shipping_category',
+        'zones'                   => 'zone',
+        'zone_members'            => 'zone_member',
+        'promotions'              => 'promotion',
+        'coupons'                 => 'coupon',
+        'catalog_promotions'      => 'catalog_promotion',
+        'orders'                  => 'order',
+        'provinces'               => 'province',
+        'product_images'          => 'product_image',
+        'taxon_images'            => 'taxon_image',
         'mcp_resources'           => 'mcp_resources',
     ];
 
