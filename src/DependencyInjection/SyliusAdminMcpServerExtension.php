@@ -48,6 +48,8 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
         'promotions'              => 'promotion',
         'coupons'                 => 'coupon',
         'catalog_promotions'      => 'catalog_promotion',
+        'shipments'               => 'shipment',
+        'payments'                => 'payment',
         'orders'                  => 'order',
         'provinces'               => 'province',
         'product_images'          => 'product_image',

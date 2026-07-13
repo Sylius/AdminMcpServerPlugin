@@ -8,8 +8,8 @@ use Mcp\Capability\Attribute\McpTool;
 use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
-    name: 'ship_order',
-    description: 'ship_order(tokenValue, shipmentId, trackingCode?) → Marks an order shipment as shipped. The shipment must be in "ready" state. shipmentId is the numeric ID from get_order shipments array. Returns JSON of the updated shipment.',
+    name: 'ship_shipment',
+    description: 'ship_shipment(shipmentId, trackingCode?) → Marks a shipment as shipped. The shipment must be in "ready" state. shipmentId is the numeric ID from list_order_shipments or list_shipments. Returns empty string on success (HTTP 202).',
 )]
 final readonly class ShipShipment
 {
@@ -19,11 +19,10 @@ final readonly class ShipShipment
     }
 
     /**
-     * @param string $tokenValue   Order token value.
-     * @param int    $shipmentId   Numeric shipment ID (from get_order response shipments[].id).
+     * @param int    $shipmentId   Numeric shipment ID (from list_order_shipments or list_shipments).
      * @param string $trackingCode Optional carrier tracking code. Default = "".
      */
-    public function __invoke(string $tokenValue, int $shipmentId, string $trackingCode = ''): string
+    public function __invoke(int $shipmentId, string $trackingCode = ''): string
     {
         $body = [];
         if ($trackingCode !== '') {
@@ -31,7 +30,7 @@ final readonly class ShipShipment
         }
 
         return $this->client->patch(
-            sprintf('orders/%s/shipments/%d/ship', $tokenValue, $shipmentId),
+            sprintf('shipments/%d/ship', $shipmentId),
             $body,
         );
     }

@@ -11,6 +11,7 @@ use Sylius\AdminMcpServerPlugin\Tool\Order\ShipShipment;
 use Sylius\AdminMcpServerPlugin\Tool\Order\CompletePayment;
 use Sylius\AdminMcpServerPlugin\Tool\Order\RefundPayment;
 use Sylius\AdminMcpServerPlugin\Tool\Order\ResendConfirmation;
+use Sylius\AdminMcpServerPlugin\Tool\Order\GetItem;
 use Sylius\AdminMcpServerPlugin\Tool\Order\ListItems;
 use Sylius\AdminMcpServerPlugin\Tool\Order\ListShipments;
 use Sylius\AdminMcpServerPlugin\Tool\Order\ListPayments;
@@ -26,6 +27,7 @@ return static function (ContainerConfigurator $container): void {
     $services->set(CompletePayment::class)->args([$api])->tag('mcp.tool');
     $services->set(RefundPayment::class)->args([$api])->tag('mcp.tool');
     $services->set(ResendConfirmation::class)->args([$api])->tag('mcp.tool');
+    $services->set(GetItem::class)->args([$api])->tag('mcp.tool');
     $services->set(ListItems::class)->args([$api])->tag('mcp.tool');
     $services->set(ListShipments::class)->args([$api])->tag('mcp.tool');
     $services->set(ListPayments::class)->args([$api])->tag('mcp.tool');

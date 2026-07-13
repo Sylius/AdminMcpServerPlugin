@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'refund_payment',
-    description: 'refund_payment(tokenValue, paymentId) → Refunds an order payment. paymentId is the numeric ID from get_order payments array. The payment must be in "completed" state. Returns JSON of the updated payment.',
+    description: 'refund_payment(paymentId) → Refunds a payment. paymentId is the numeric ID from list_order_payments or list_payments. The payment must be in "completed" state. Returns JSON of the updated payment.',
 )]
 final readonly class RefundPayment
 {
@@ -19,13 +19,12 @@ final readonly class RefundPayment
     }
 
     /**
-     * @param string $tokenValue Order token value.
-     * @param int    $paymentId  Numeric payment ID (from get_order response payments[].id).
+     * @param int $paymentId Numeric payment ID (from list_order_payments or list_payments).
      */
-    public function __invoke(string $tokenValue, int $paymentId): string
+    public function __invoke(int $paymentId): string
     {
         return $this->client->patch(
-            sprintf('orders/%s/payments/%d/refund', $tokenValue, $paymentId),
+            sprintf('payments/%d/refund', $paymentId),
             [],
         );
     }
