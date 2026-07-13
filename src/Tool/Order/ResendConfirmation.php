@@ -8,8 +8,8 @@ use Mcp\Capability\Attribute\McpTool;
 use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
-    name: 'resend_order_confirmation',
-    description: 'resend_order_confirmation(tokenValue) → Resends the order confirmation email to the customer. Returns empty string on success (HTTP 202).',
+    name: 'resend_order_email',
+    description: 'resend_order_email(tokenValue) → Resends the order confirmation email to the customer. Returns empty string on success (HTTP 202).',
 )]
 final readonly class ResendConfirmation
 {
@@ -23,9 +23,8 @@ final readonly class ResendConfirmation
      */
     public function __invoke(string $tokenValue): string
     {
-        return $this->client->patch(
+        return $this->client->post(
             sprintf('orders/%s/resend-confirmation-email', $tokenValue),
-            [],
         );
     }
 }
