@@ -15,7 +15,7 @@ create_product_option — Creates a product option (a dimension like "Size" or "
 REQUIRED: code (e.g. "hat_size"), name (e.g. "Size").
 OPTIONAL: valueCode + valueName to add the first option value immediately (e.g. valueCode="hat_size_sm", valueName="Small").
 
-CONTEXT: Product options are shared across products. After creating an option, use list_product_options to see existing ones. Option values (Small, Medium, Large) are added separately — create the option first, then add values using the options update tool. Variants are then created with specific option value combinations.
+CONTEXT: Product options are shared across products. After creating an option, add more values using add_product_option_value(optionCode, valueCode, valueName). You can add the first value directly in this call via valueCode + valueName. Variants are then created with specific option value combinations.
 DESC,
 )]
 final readonly class Create
