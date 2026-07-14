@@ -25,7 +25,7 @@ final class HttpApiClientTest extends TestCase
         $provider = $this->createMock(TokenProviderInterface::class);
         $provider->method('getToken')->willReturn('tok-123');
 
-        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider);
+        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider, 'https://localhost/api/v2/admin/');
 
         self::assertSame('RESPONSE_BODY', $apiClient->get('administrators'));
     }
@@ -42,7 +42,7 @@ final class HttpApiClientTest extends TestCase
             ->method('getToken')
             ->willReturnCallback(static fn (bool $forceRefresh): string => $forceRefresh ? 'fresh' : 'stale');
 
-        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider);
+        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider, 'https://localhost/api/v2/admin/');
 
         self::assertSame('OK_AFTER_REFRESH', $apiClient->get('administrators'));
     }
@@ -52,7 +52,7 @@ final class HttpApiClientTest extends TestCase
         $provider = $this->createMock(TokenProviderInterface::class);
         $provider->method('getToken')->willThrowException(new NotAuthenticatedException('login first'));
 
-        $apiClient = new HttpApiClient(new MockHttpClient(), new MockHttpClient(), $provider);
+        $apiClient = new HttpApiClient(new MockHttpClient(), new MockHttpClient(), $provider, 'https://localhost/api/v2/admin/');
 
         $this->expectException(ToolCallException::class);
         $this->expectExceptionMessage('login first');

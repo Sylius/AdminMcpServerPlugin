@@ -22,7 +22,8 @@ final readonly class HttpApiClient implements ApiClientInterface
 
     public function iri(string $path): string
     {
-        $basePath = rtrim(parse_url($this->baseUri, \PHP_URL_PATH) ?? '/api/v2/admin', '/');
+        $parsed = parse_url($this->baseUri, \PHP_URL_PATH);
+        $basePath = rtrim(\is_string($parsed) ? $parsed : '/api/v2/admin', '/');
 
         return $basePath . '/' . ltrim($path, '/');
     }
