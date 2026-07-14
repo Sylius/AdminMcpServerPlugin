@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product',
-    description: 'update_product(code, name?, slug?, localeCode?, description?, shortDescription?, enabled?, channels?) → JSON object of the updated Sylius product. Only provided fields are changed. channels: if provided (non-empty array), replaces all channel assignments — omit or leave empty to keep existing channels.',
+    description: 'update_product(code, name?, slug?, localeCode?, description?, shortDescription?, enabled?, channels?) → JSON object of the updated Sylius product. Only provided fields are changed. channels: if provided (non-empty array), replaces all channel assignments — omit or leave empty to keep existing channels. NOTE: to assign/remove product categories (taxons) use create_product_taxon / delete_product_taxon instead.',
 )]
 final readonly class Update
 {

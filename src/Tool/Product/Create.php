@@ -16,6 +16,10 @@ REQUIRED: code (unique product identifier, no spaces, e.g. "BLUE_MUG_001"), name
 RECOMMENDED: channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
 OPTIONAL: description, shortDescription, enabled (default true), localeCode (default "en_US"), slug (URL path, auto-generated from name if omitted).
 
+After creating a product:
+1. Call create_product_variant with a price (the product needs at least one variant to be purchasable).
+2. Call create_product_taxon to assign the product to a category (taxon).
+
 If user only provides a name, suggest a code (uppercase with underscores from name), ask about channels, and proceed with defaults for the rest. Slug is auto-generated so never ask for it unless user wants a specific URL.
 DESC,
 )]
