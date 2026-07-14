@@ -26,8 +26,8 @@ final readonly class Create
     public function __invoke(string $productCode, string $taxonCode, int $position = 0): string
     {
         return $this->client->post('product-taxons', [
-            'product' => $this->client->iri(sprintf('products/%s', $productCode)),
-            'taxon' => $this->client->iri(sprintf('taxons/%s', $taxonCode)),
+            'product' => $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($productCode))),
+            'taxon' => $this->client->iri(sprintf('taxons/%s', $this->client->normalizeCode($taxonCode))),
             'position' => $position,
         ]);
     }

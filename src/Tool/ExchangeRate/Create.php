@@ -29,8 +29,8 @@ final readonly class Create
         float $ratio,
     ): string {
         return $this->client->post('exchange-rates', [
-            'sourceCurrency' => $this->client->iri(sprintf('currencies/%s', $sourceCurrencyCode)),
-            'targetCurrency' => $this->client->iri(sprintf('currencies/%s', $targetCurrencyCode)),
+            'sourceCurrency' => $this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($sourceCurrencyCode))),
+            'targetCurrency' => $this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($targetCurrencyCode))),
             'ratio' => $ratio,
         ]);
     }

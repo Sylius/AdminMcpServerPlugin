@@ -32,7 +32,7 @@ final readonly class SetValue
         $existingAttrs = $product['attributes'] ?? [];
 
         // Build the updated list: keep all existing, replace or append the target attribute+locale
-        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $attributeCode));
+        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $this->client->normalizeCode($attributeCode)));
         $updated = [];
         $found = false;
 

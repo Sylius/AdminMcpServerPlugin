@@ -38,7 +38,7 @@ final readonly class Update
 
         if ($productVariantCodes !== []) {
             $body['productVariants'] = array_map(
-                fn (string $c) => $this->client->iri(sprintf('product-variants/%s', $c)),
+                fn (string $c) => $this->client->iri(sprintf('product-variants/%s', $this->client->normalizeCode($c))),
                 $productVariantCodes,
             );
         } else {

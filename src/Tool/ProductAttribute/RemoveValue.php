@@ -30,7 +30,7 @@ final readonly class RemoveValue
         $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
         $existingAttrs = $product['attributes'] ?? [];
 
-        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $attributeCode));
+        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $this->client->normalizeCode($attributeCode)));
         $removeAll = $localeCode === 'all';
 
         $updated = [];

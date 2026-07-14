@@ -44,10 +44,10 @@ final readonly class Update
             'includedInPrice' => $includedInPrice ?? ($existing['includedInPrice'] ?? false),
             'calculator'      => $calculator !== '' ? $calculator : ($existing['calculator'] ?? 'default'),
             'category'        => $categoryCode !== ''
-                ? $this->client->iri(sprintf('tax-categories/%s', $categoryCode))
+                ? $this->client->iri(sprintf('tax-categories/%s', $this->client->normalizeCode($categoryCode)))
                 : ($existing['category'] ?? ''),
             'zone'            => $zoneCode !== ''
-                ? $this->client->iri(sprintf('zones/%s', $zoneCode))
+                ? $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($zoneCode)))
                 : ($existing['zone'] ?? ''),
         ]);
     }

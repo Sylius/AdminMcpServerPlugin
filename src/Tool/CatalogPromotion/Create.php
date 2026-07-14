@@ -58,7 +58,7 @@ final readonly class Create
             'exclusive'   => $exclusive,
             'priority'    => $priority,
             'channels'    => array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
                 $channelCodes,
             ),
             'scopes'      => json_decode($scopes, true) ?? [],

@@ -49,7 +49,7 @@ final readonly class Update
         }
 
         if ($parentCode !== '') {
-            $body['parent'] = $this->client->iri(sprintf('taxons/%s', $parentCode));
+            $body['parent'] = $this->client->iri(sprintf('taxons/%s', $this->client->normalizeCode($parentCode)));
         }
 
         $hasTranslationFields = $name !== '' || $slug !== '';

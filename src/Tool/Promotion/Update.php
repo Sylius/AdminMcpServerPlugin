@@ -53,7 +53,7 @@ final readonly class Update
             'exclusive'   => $exclusive ?? ($existing['exclusive'] ?? false),
             'couponBased' => $couponBased ?? ($existing['couponBased'] ?? false),
             'channels'    => $channelCodes !== []
-                ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)), $channelCodes)
+                ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))), $channelCodes)
                 : ($existing['channels'] ?? []),
             'rules'   => ($decodedRules !== null && $decodedRules !== [])   ? $decodedRules   : $this->stripMeta($existing['rules']   ?? []),
             'actions' => ($decodedActions !== null && $decodedActions !== []) ? $decodedActions : $this->stripMeta($existing['actions'] ?? []),

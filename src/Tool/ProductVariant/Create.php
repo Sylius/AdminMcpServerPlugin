@@ -36,7 +36,7 @@ final readonly class Create
         bool $tracked = false,
     ): string {
         // Auto-fetch product channels so we can price all of them (Sylius requires it)
-        $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
+        $product = json_decode($this->client->get(sprintf('products/%s', $this->client->normalizeCode($productCode))), true);
         $productChannelCodes = array_map(
             static fn (string $iri) => basename($iri),
             $product['channels'] ?? [],
@@ -57,7 +57,7 @@ final readonly class Create
 
         $body = [
             'code'            => $code,
-            'product'         => $this->client->iri(sprintf('products/%s', $productCode)),
+            'product'         => $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($productCode))),
             'enabled'         => $enabled,
             'tracked'         => $tracked,
             'onHand'          => $onHand,

@@ -71,7 +71,7 @@ final readonly class Update
             $body['subscribedToNewsletter'] = $subscribedToNewsletter;
         }
         if ($groupCode !== '') {
-            $body['group'] = $this->client->iri(sprintf('customer-groups/%s', $groupCode));
+            $body['group'] = $this->client->iri(sprintf('customer-groups/%s', $this->client->normalizeCode($groupCode)));
         }
 
         return $this->client->put(sprintf('customers/%d', $id), $body);

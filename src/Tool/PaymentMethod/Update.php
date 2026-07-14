@@ -59,7 +59,7 @@ final readonly class Update
         }
         if ($channelCodes !== []) {
             $body['channels'] = array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
                 $channelCodes,
             );
         }

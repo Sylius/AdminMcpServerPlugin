@@ -27,7 +27,7 @@ final readonly class Index
     {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($productCode !== '') {
-            $params['product'] = $this->client->iri(sprintf('products/%s', $productCode));
+            $params['product'] = $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($productCode)));
         }
 
         return $this->client->get('product-variants', $params);

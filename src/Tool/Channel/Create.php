@@ -50,10 +50,10 @@ final readonly class Create
             'enabled' => $enabled,
             'taxCalculationStrategy' => $taxCalculationStrategy,
             'shippingAddressInCheckoutRequired' => $shippingAddressInCheckoutRequired,
-            'defaultLocale' => $this->client->iri(sprintf('locales/%s', $localeCode)),
-            'baseCurrency' => $this->client->iri(sprintf('currencies/%s', $currencyCode)),
-            'locales' => [$this->client->iri(sprintf('locales/%s', $localeCode))],
-            'currencies' => [$this->client->iri(sprintf('currencies/%s', $currencyCode))],
+            'defaultLocale' => $this->client->iri(sprintf('locales/%s', $this->client->normalizeCode($localeCode))),
+            'baseCurrency' => $this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($currencyCode))),
+            'locales' => [$this->client->iri(sprintf('locales/%s', $this->client->normalizeCode($localeCode)))],
+            'currencies' => [$this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($currencyCode)))],
         ];
 
         if ($hostname !== '') {
@@ -63,7 +63,7 @@ final readonly class Create
             $body['color'] = $color;
         }
         if ($taxZoneCode !== '') {
-            $body['taxZone'] = $this->client->iri(sprintf('zones/%s', $taxZoneCode));
+            $body['taxZone'] = $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($taxZoneCode)));
         }
         if ($contactEmail !== '') {
             $body['contactEmail'] = $contactEmail;
