@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_zones',
-    description: 'list_zones(page?, itemsPerPage?) → JSON Hydra collection of Sylius zones. Each zone has: id, code, name, type ("country"|"zone"|"province"), scope ("shipping"|"tax"|"all"), members (array of zone member IRIs). Use zone codes when creating shipping methods and tax rates.',
+    description: 'list_zones(page?, itemsPerPage?) → Lists delivery/tax zones. Each zone has: code (use this as zoneCode in shipping methods), name, type (country=members are countries / zone=nested zones / province=members are provinces), scope (shipping/tax/all), members (list of country/province/zone codes). Use get_zone(code) to see member codes.',
 )]
 final readonly class Index
 {

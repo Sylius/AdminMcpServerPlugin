@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'get_taxon',
-    description: 'get_taxon(code) → JSON object of a single Sylius taxon. Returns: id, code, enabled, parent (IRI), children, position, translations (name, slug per locale).',
+    description: 'get_taxon(code) → Returns full details of a category. Includes: code, enabled, parent (IRI — last segment is the parent code), children (IRIs of direct subcategories — last segments are codes), position (display order), translations (name and slug per locale), images. Use this to inspect a category before editing it.',
 )]
 final readonly class Show
 {

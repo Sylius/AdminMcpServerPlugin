@@ -9,65 +9,73 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_promotion',
-    description: 'update_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the updated Sylius cart promotion. Uses PUT — provide all fields you want to keep. Omitting rules/actions preserves existing ones. CONFIGURATION FORMATS — percentage actions (order_percentage_discount, unit_percentage_discount, shipping_percentage_discount): {"percentage":0.1}. Fixed/amount (item_total rule, order_fixed_discount, unit_fixed_discount): {"CHANNEL_CODE":{"amount":N}} for ALL channel codes.',
+    description: <<<'DESC'
+update_promotion — Updates a cart promotion. Only provided fields are changed; omitted fields keep their current values.
+
+REQUIRED: code (the promotion code to update).
+OPTIONAL: name, channelCodes, description, priority, exclusive, usageLimit, couponBased, startsAt, endsAt.
+OPTIONAL: rules/actions (JSON strings — omit or pass '[]' to keep existing):
+- rules examples: '[{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}]' — min order 50.00; '[{"type":"cart_quantity","configuration":{"count":3}}]' — min 3 items
+- actions examples: '[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]' — 10% off order; '[{"type":"shipping_percentage_discount","configuration":{"percentage":1.0}}]' — free shipping; '[{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]' — fixed 10.00 off (ALL channels required)
+
+To replace rules/actions with nothing pass '[{"type":"..."}]' with any value to trigger replacement.
+DESC,
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string   $code         Promotion code to update.
-     * @param string   $name         New display name.
-     * @param string[] $channelCodes Channel codes (replaces existing list).
-     * @param string   $description  Description. Default = "".
-     * @param int      $priority     Application priority. Default = 0.
-     * @param bool     $exclusive    Exclusive flag. Default = false.
-     * @param int|null $usageLimit   Usage limit. Null = unlimited.
-     * @param bool     $couponBased  Coupon-based flag. Default = false.
-     * @param string   $startsAt     Start datetime ISO 8601. Default = "".
-     * @param string   $endsAt       End datetime ISO 8601. Default = "".
-     * @param array    $rules        Rules array. Empty = preserve existing rules.
-     * @param array    $actions      Actions array. Empty = preserve existing actions.
+     * @param string[] $channelCodes
      */
     public function __invoke(
         string $code,
-        string $name,
-        array $channelCodes,
+        string $name = '',
+        array $channelCodes = [],
         string $description = '',
-        int $priority = 0,
-        bool $exclusive = false,
+        int $priority = -1,
+        ?bool $exclusive = null,
         ?int $usageLimit = null,
-        bool $couponBased = false,
+        ?bool $couponBased = null,
         string $startsAt = '',
         string $endsAt = '',
-        array $rules = [],
-        array $actions = [],
+        string $rules = '[]',
+        string $actions = '[]',
     ): string {
         $existing = json_decode($this->client->get(sprintf('promotions/%s', $code)), true);
 
+        $decodedRules   = json_decode($rules, true);
+        $decodedActions = json_decode($actions, true);
+
         $body = [
-            'name' => $name,
-            'priority' => $priority,
-            'exclusive' => $exclusive,
-            'couponBased' => $couponBased,
-            'channels' => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channelCodes,
-            ),
-            'rules' => $rules !== [] ? $rules : ($existing['rules'] ?? []),
-            'actions' => $actions !== [] ? $actions : ($existing['actions'] ?? []),
+            'name'        => $name !== '' ? $name : ($existing['name'] ?? $code),
+            'priority'    => $priority >= 0 ? $priority : ($existing['priority'] ?? 0),
+            'exclusive'   => $exclusive ?? ($existing['exclusive'] ?? false),
+            'couponBased' => $couponBased ?? ($existing['couponBased'] ?? false),
+            'channels'    => $channelCodes !== []
+                ? array_map(static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c), $channelCodes)
+                : ($existing['channels'] ?? []),
+            'rules'   => ($decodedRules !== null && $decodedRules !== [])   ? $decodedRules   : $this->stripMeta($existing['rules']   ?? []),
+            'actions' => ($decodedActions !== null && $decodedActions !== []) ? $decodedActions : $this->stripMeta($existing['actions'] ?? []),
         ];
 
         if ($description !== '') {
             $body['description'] = $description;
         }
-        $body['usageLimit'] = $usageLimit;
-        $body['startsAt'] = $startsAt !== '' ? $startsAt : null;
-        $body['endsAt'] = $endsAt !== '' ? $endsAt : null;
+
+        $body['usageLimit'] = $usageLimit ?? ($existing['usageLimit'] ?? null);
+        $body['startsAt']   = $startsAt !== '' ? $startsAt : ($existing['startsAt'] ?? null);
+        $body['endsAt']     = $endsAt !== '' ? $endsAt : ($existing['endsAt'] ?? null);
 
         return $this->client->put(sprintf('promotions/%s', $code), $body);
+    }
+
+    /** @param array<int, array<string, mixed>> $items */
+    private function stripMeta(array $items): array
+    {
+        return array_map(static function (array $item): array {
+            unset($item['@id'], $item['@type'], $item['id']);
+            return $item;
+        }, $items);
     }
 }

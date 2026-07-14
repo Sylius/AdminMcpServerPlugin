@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_order_shipments',
-    description: 'list_order_shipments(tokenValue) → JSON collection of shipments for a Sylius order. Each shipment has: id (use for ship_order), state (ready/shipped/cancelled), method, tracking, createdAt. Use ship_order(tokenValue, id) to mark as shipped.',
+    description: 'list_order_shipments(tokenValue) → JSON collection of shipments for a Sylius order. Each shipment has: id, state (ready=waiting to ship / shipped=already sent / cancelled), method (carrier), tracking (tracking number if any), createdAt. Use ship_shipment(shipmentId) to mark a ready shipment as shipped.',
 )]
 final readonly class ListShipments
 {

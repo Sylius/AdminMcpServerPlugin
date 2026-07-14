@@ -9,29 +9,33 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_promotion',
-    description: 'create_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the newly created Sylius cart promotion. CONFIGURATION FORMATS — percentage actions (order_percentage_discount, unit_percentage_discount, shipping_percentage_discount): {"percentage":0.1}. Fixed/amount rules and actions (item_total rule, order_fixed_discount, unit_fixed_discount): {"CHANNEL_CODE":{"amount":5000}} — must list ALL channel codes in the system. EXAMPLES — 10% off entire order: actions=[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]. Minimum order 50 EUR rule: rules=[{"type":"item_total","configuration":{"FASHION_WEB":{"amount":5000},"WEB_EUR":{"amount":5000}}}]. Other rule types: cart_quantity (config:{"count":N}), has_taxon (config:{"taxons":["CODE"]}), nth_order (config:{"nth":N}), customer_group (config:{"group_code":"CODE"}).',
+    description: <<<'DESC'
+create_promotion — Creates a cart promotion (discount applied at checkout when conditions are met). Prerequisites: run list_channels to get channelCodes.
+
+REQUIRED: code (unique ID, e.g. "SUMMER10"), name (e.g. "10% Summer Discount"), channelCodes.
+
+rules (JSON string) — WHEN to apply the discount (optional, leave '[]' for always):
+- Minimum order total: '[{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}]' (5000 = 50.00; must include ALL channel codes)
+- Minimum quantity: '[{"type":"cart_quantity","configuration":{"count":3}}]'
+- Customer in group: '[{"type":"customer_group","configuration":{"group_code":"GROUP_CODE"}}]'
+- Products from taxon: '[{"type":"has_taxon","configuration":{"taxons":["TAXON_CODE"]}}]'
+- Nth order for customer: '[{"type":"nth_order","configuration":{"nth":5}}]'
+
+actions (JSON string) — WHAT discount to give (required):
+- % off whole order: '[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]' (0.1 = 10%)
+- % off each item: '[{"type":"unit_percentage_discount","configuration":{"percentage":0.15}}]'
+- % off shipping: '[{"type":"shipping_percentage_discount","configuration":{"percentage":1.0}}]' (free shipping)
+- Fixed amount off order: '[{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]'
+- Fixed amount off each item: '[{"type":"unit_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":200}}}]'
+
+NOTE for amount-based rules/actions: configuration must include ALL channel codes in the system. Use list_channels to get them all.
+Ask user: what is the discount (% or amount)? Any minimum order condition? Which channels?
+DESC,
 )]
 final readonly class Create
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param string   $code         Unique promotion code.
-     * @param string   $name         Promotion display name.
-     * @param string[] $channelCodes Channel codes where this promotion is active.
-     * @param string   $description  Optional description. Default = "".
-     * @param int      $priority     Application priority (higher = applied first). Default = 0.
-     * @param bool     $exclusive    If true, no other promotions apply alongside this one. Default = false.
-     * @param int|null $usageLimit   Total usage limit across all customers. Null = unlimited.
-     * @param bool     $couponBased  If true, customers must enter a coupon code. Default = false.
-     * @param string   $startsAt     Start datetime in ISO 8601 (e.g. "2025-01-01T00:00:00+00:00"). Default = "".
-     * @param string   $endsAt       End datetime in ISO 8601. Default = "".
-     * @param array    $rules        Array of rule objects with "type" and "configuration" keys.
-     * @param array    $actions      Array of action objects with "type" and "configuration" keys.
-     */
     public function __invoke(
         string $code,
         string $name,
@@ -43,35 +47,27 @@ final readonly class Create
         bool $couponBased = false,
         string $startsAt = '',
         string $endsAt = '',
-        array $rules = [],
-        array $actions = [],
+        string $rules = '[]',
+        string $actions = '[]',
     ): string {
         $body = [
-            'code' => $code,
-            'name' => $name,
-            'priority' => $priority,
-            'exclusive' => $exclusive,
+            'code'        => $code,
+            'name'        => $name,
+            'priority'    => $priority,
+            'exclusive'   => $exclusive,
             'couponBased' => $couponBased,
-            'channels' => array_map(
+            'channels'    => array_map(
                 static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
                 $channelCodes,
             ),
-            'rules' => $rules,
-            'actions' => $actions,
+            'rules'   => json_decode($rules, true) ?? [],
+            'actions' => json_decode($actions, true) ?? [],
         ];
 
-        if ($description !== '') {
-            $body['description'] = $description;
-        }
-        if ($usageLimit !== null) {
-            $body['usageLimit'] = $usageLimit;
-        }
-        if ($startsAt !== '') {
-            $body['startsAt'] = $startsAt;
-        }
-        if ($endsAt !== '') {
-            $body['endsAt'] = $endsAt;
-        }
+        if ($description !== '') { $body['description'] = $description; }
+        if ($usageLimit !== null) { $body['usageLimit'] = $usageLimit; }
+        if ($startsAt !== '') { $body['startsAt'] = $startsAt; }
+        if ($endsAt !== '') { $body['endsAt'] = $endsAt; }
 
         return $this->client->post('promotions', $body);
     }

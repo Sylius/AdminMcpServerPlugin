@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_customer',
-    description: 'update_customer(id, email?, firstName?, lastName?, gender?, phoneNumber?, birthday?, subscribedToNewsletter?, groupCode?) → JSON object of the updated Sylius customer. Only provided fields are changed. gender: "m", "f", "u". groupCode: "retail" or "wholesale".',
+    description: <<<'DESC'
+update_customer — Updates customer information. Only the fields you provide are changed.
+
+REQUIRED: id (numeric customer id from list_customers).
+OPTIONAL: email, firstName, lastName, gender ("m"=male, "f"=female, "u"=unknown), phoneNumber, birthday (format "YYYY-MM-DD", e.g. "1990-05-15"), subscribedToNewsletter (true/false), groupCode (customer segment — use list_customer_groups to find codes).
+
+NOTE: This does not affect the customer's login account. To block login use delete_customer_user(id). To change a customer's group use groupCode with a code from list_customer_groups.
+DESC,
 )]
 final readonly class Update
 {

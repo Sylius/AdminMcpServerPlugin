@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_country',
-    description: 'update_country(code, enabled) → JSON object of the updated Sylius country. Uses PUT.',
+    description: 'update_country(code, enabled) → Enables or disables a country in the store. When disabled, customers cannot select it as a shipping/billing destination. Returns JSON of the updated country.',
 )]
 final readonly class Update
 {

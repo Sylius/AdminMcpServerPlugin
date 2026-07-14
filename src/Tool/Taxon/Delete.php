@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'delete_taxon',
-    description: 'delete_taxon(code) → empty string on success (HTTP 204). Permanently deletes the Sylius taxon with the given code. Also deletes all child taxons.',
+    description: 'delete_taxon(code) → Permanently deletes a category and ALL its subcategories (cascade). Products assigned to the deleted category are NOT deleted — they just lose the category assignment. Returns empty string on success. Use list_taxons(parentCode=code) to preview what subcategories will also be removed before deleting.',
 )]
 final readonly class Delete
 {

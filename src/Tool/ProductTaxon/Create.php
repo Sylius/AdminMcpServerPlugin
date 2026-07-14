@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product_taxon',
-    description: 'create_product_taxon(productCode, taxonCode, position?) → JSON object of the newly created Sylius product-taxon assignment. Each product+taxon pair must be unique.',
+    description: 'create_product_taxon(productCode, taxonCode, position?) → Assigns a product to a category (taxon) so it appears in that section of the shop. Each product+taxon pair must be unique — assigning it twice gives a 422 error. Use list_taxons to find taxon codes. position controls display order within the category (lower = earlier). Returns the assignment object with its id (needed for delete_product_taxon).',
 )]
 final readonly class Create
 {

@@ -22,6 +22,14 @@ interface ApiClientInterface
     public function put(string $path, array $body = []): string;
 
     /**
+     * PUT with Content-Type: application/ld+json — required when the body contains embedded
+     * sub-resources referenced by @id (e.g. channelPricings, translations in product variants).
+     *
+     * @param array<string, mixed> $body
+     */
+    public function putLd(string $path, array $body = []): string;
+
+    /**
      * @param array<string, mixed> $body
      */
     public function patch(string $path, array $body = []): string;

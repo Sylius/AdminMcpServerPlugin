@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_administrator',
-    description: 'update_administrator(id, email?, username?, firstName?, lastName?, localeCode?, enabled?, plainPassword?) → JSON object of the updated Sylius administrator. Only provided fields are updated.',
+    description: 'update_administrator(id, email?, username?, firstName?, lastName?, localeCode?, enabled?, plainPassword?) → JSON object of the updated Sylius administrator. Only provided fields are updated; omitted fields keep their current values.',
 )]
 final readonly class Update
 {
@@ -25,7 +25,7 @@ final readonly class Update
      * @param string $firstName     New first name.
      * @param string $lastName      New last name.
      * @param string $localeCode    New locale code, e.g. "en_US".
-     * @param bool   $enabled       Whether the administrator is active.
+     * @param bool|null $enabled    Whether the administrator is active. Null = keep current.
      * @param string $plainPassword New plain text password (leave empty to keep current).
      */
     public function __invoke(
@@ -35,10 +35,10 @@ final readonly class Update
         string $firstName = '',
         string $lastName = '',
         string $localeCode = '',
-        bool $enabled = true,
+        ?bool $enabled = null,
         string $plainPassword = '',
     ): string {
-        $body = ['enabled' => $enabled];
+        $body = [];
 
         if ($email !== '') {
             $body['email'] = $email;
@@ -54,6 +54,9 @@ final readonly class Update
         }
         if ($localeCode !== '') {
             $body['localeCode'] = $localeCode;
+        }
+        if ($enabled !== null) {
+            $body['enabled'] = $enabled;
         }
         if ($plainPassword !== '') {
             $body['plainPassword'] = $plainPassword;

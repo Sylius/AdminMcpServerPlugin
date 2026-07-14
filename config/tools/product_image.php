@@ -6,6 +6,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Index;
 use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Show;
+use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Update;
 use Sylius\AdminMcpServerPlugin\Tool\ProductImage\Delete;
 
 return static function (ContainerConfigurator $container): void {
@@ -14,5 +15,6 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set(Index::class)->args([$api])->tag('mcp.tool');
     $services->set(Show::class)->args([$api])->tag('mcp.tool');
+    $services->set(Update::class)->args([$api])->tag('mcp.tool');
     $services->set(Delete::class)->args([$api])->tag('mcp.tool');
 };

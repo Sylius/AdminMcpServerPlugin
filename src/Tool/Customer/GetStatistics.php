@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'get_customer_statistics',
-    description: 'get_customer_statistics(id) → JSON object with customer order statistics. Returns: allOrdersCount (total orders across all channels), perChannelsStatistics (collection with per-channel order count and totals).',
+    description: 'get_customer_statistics(id) → Purchase statistics for a customer. Returns: allOrdersCount (total number of orders placed), perChannelsStatistics (breakdown per sales channel showing order count and total spent amount per channel). Useful to identify VIP customers or to check purchase history at a glance.',
 )]
 final readonly class GetStatistics
 {

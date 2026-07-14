@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_variant',
-    description: 'update_product_variant(code, name?, localeCode?, onHand?, enabled?, tracked?, price?, channelCode?) → JSON object of the updated Sylius product variant. Uses PUT — only provided translation fields change; non-translation fields use their current API defaults if omitted.',
+    description: <<<'DESC'
+update_product_variant — Updates a product variant. Only provided fields are changed; omitted fields keep their current values.
+
+OPTIONAL: name (variant display name), onHand (stock quantity), enabled, tracked (stock tracking), localeCode (default "en_US").
+PRICE UPDATE: To change the price for a single channel pass price + channelCode (e.g. channelCode="FASHION_WEB", price=3000). To update prices for multiple channels at once pass channelPrices as JSON, e.g. '{"FASHION_WEB":3000,"WEB_EUR":2800}'. If channelPrices is given, channelCode/price are ignored.
+
+The variant code identifies which variant to update. Get variant codes from list_product_variants or get_product.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,16 +25,6 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $code        Variant code to update.
-     * @param string    $name        New variant name for the given locale.
-     * @param string    $localeCode  Locale for the name translation. Default = "en_US".
-     * @param int|null  $onHand      New stock quantity on hand. Null = do not change.
-     * @param bool|null $enabled     Set enabled status. Null = do not change.
-     * @param bool|null $tracked     Set stock tracking. Null = do not change.
-     * @param int|null  $price       New price in minor units. Null = do not change.
-     * @param string    $channelCode Channel code for price update. Default = "FASHION_WEB".
-     */
     public function __invoke(
         string $code,
         string $name = '',
@@ -36,37 +33,49 @@ final readonly class Update
         ?bool $enabled = null,
         ?bool $tracked = null,
         ?int $price = null,
-        string $channelCode = 'FASHION_WEB',
+        string $channelCode = '',
+        string $channelPrices = '',
     ): string {
-        $body = [];
+        // Fetch existing variant to merge changes into (required for ld+json PUT)
+        $existing = json_decode($this->client->get(sprintf('product-variants/%s', $code)), true);
 
         if ($enabled !== null) {
-            $body['enabled'] = $enabled;
+            $existing['enabled'] = $enabled;
         }
         if ($tracked !== null) {
-            $body['tracked'] = $tracked;
+            $existing['tracked'] = $tracked;
         }
         if ($onHand !== null) {
-            $body['onHand'] = $onHand;
-        }
-        if ($price !== null) {
-            $body['channelPricings'] = [
-                $channelCode => [
-                    '@id' => sprintf('/api/v2/admin/product-variants/%s/channel-pricings/%s', $code, $channelCode),
-                    'price' => $price,
-                ],
-            ];
-        }
-        if ($name !== '') {
-            $body['translations'] = [
-                $localeCode => [
-                    '@id' => sprintf('/api/v2/admin/product-variants/%s/translations/%s', $code, $localeCode),
-                    'locale' => $localeCode,
-                    'name' => $name,
-                ],
-            ];
+            $existing['onHand'] = $onHand;
         }
 
-        return $this->client->put(sprintf('product-variants/%s', $code), $body);
+        if ($channelPrices !== '') {
+            $overrides = json_decode($channelPrices, true) ?? [];
+            foreach ($overrides as $ch => $p) {
+                if (isset($existing['channelPricings'][$ch])) {
+                    $existing['channelPricings'][$ch]['price'] = (int) $p;
+                }
+            }
+        } elseif ($price !== null && $channelCode !== '') {
+            if (isset($existing['channelPricings'][$channelCode])) {
+                $existing['channelPricings'][$channelCode]['price'] = $price;
+            }
+        }
+
+        if ($name !== '') {
+            if (isset($existing['translations'][$localeCode])) {
+                $existing['translations'][$localeCode]['name'] = $name;
+            } else {
+                $existing['translations'][$localeCode] = [
+                    '@id' => sprintf('/api/v2/admin/product-variants/%s/translations/%s', $code, $localeCode),
+                    'locale' => $localeCode,
+                    'name'   => $name,
+                ];
+            }
+        }
+
+        // Must use application/ld+json so the server resolves @id references in
+        // channelPricings and translations as updates rather than new creates
+        return $this->client->putLd(sprintf('product-variants/%s', $code), $existing);
     }
 }

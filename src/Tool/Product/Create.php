@@ -9,25 +9,20 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product',
-    description: 'create_product(code, name, localeCode?, slug?, description?, shortDescription?, enabled?, channels?) → JSON object of the newly created Sylius product. slug is auto-generated from name if omitted. IMPORTANT: assign channels (use list_channels to find codes) — without channels the product will not appear in any shop.',
+    description: <<<'DESC'
+create_product — Creates a new product in the store catalog. IMPORTANT: run list_channels first to get channelCodes — a product without channels won't appear in any shop.
+
+REQUIRED: code (unique product identifier, no spaces, e.g. "BLUE_MUG_001"), name (product display name).
+RECOMMENDED: channels (array of channel codes from list_channels, e.g. ["FASHION_WEB"]).
+OPTIONAL: description, shortDescription, enabled (default true), localeCode (default "en_US"), slug (URL path, auto-generated from name if omitted).
+
+If user only provides a name, suggest a code (uppercase with underscores from name), ask about channels, and proceed with defaults for the rest. Slug is auto-generated so never ask for it unless user wants a specific URL.
+DESC,
 )]
 final readonly class Create
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param string   $code             Unique product code (e.g. "MUG_BLUE").
-     * @param string   $name             Product name for the given locale.
-     * @param string   $localeCode       Locale code for the translation. Default = "en_US".
-     * @param string   $slug             URL slug for the given locale (e.g. "blue-mug"). Auto-generated from name if empty.
-     * @param string   $description      Full description. Default = "".
-     * @param string   $shortDescription Short description. Default = "".
-     * @param bool     $enabled          Whether the product is enabled. Default = true.
-     * @param string[] $channels         List of channel codes to assign (e.g. ["FASHION_WEB"]). Use list_channels to get available codes.
-     */
     public function __invoke(
         string $code,
         string $name,
@@ -38,29 +33,15 @@ final readonly class Create
         bool $enabled = true,
         array $channels = [],
     ): string {
-        $translation = [
-            'name' => $name,
-            'locale' => $localeCode,
-        ];
-
-        if ($slug !== '') {
-            $translation['slug'] = $slug;
-        }
-
-        if ($description !== '') {
-            $translation['description'] = $description;
-        }
-
-        if ($shortDescription !== '') {
-            $translation['shortDescription'] = $shortDescription;
-        }
+        $translation = ['name' => $name, 'locale' => $localeCode];
+        if ($slug !== '') { $translation['slug'] = $slug; }
+        if ($description !== '') { $translation['description'] = $description; }
+        if ($shortDescription !== '') { $translation['shortDescription'] = $shortDescription; }
 
         $body = [
-            'code' => $code,
-            'enabled' => $enabled,
-            'translations' => [
-                $localeCode => $translation,
-            ],
+            'code'         => $code,
+            'enabled'      => $enabled,
+            'translations' => [$localeCode => $translation],
         ];
 
         if ($channels !== []) {

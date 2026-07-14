@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'get_zone',
-    description: 'get_zone(code) → JSON object of a single Sylius zone. Returns: id, code, name, type, scope, members.',
+    description: 'get_zone(code) → Full details of a zone. Returns: code, name, type (country/zone/province — what kind of things are members), scope (shipping/tax/all — what it\'s used for), members (array of member codes, e.g. country ISO codes like "US", "DE"). Use add_zone_member / remove_zone_member to change members.',
 )]
 final readonly class Show
 {

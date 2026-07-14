@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_review',
-    description: 'update_product_review(id, title, rating, comment, status?) → JSON object of the updated Sylius product review. title, rating and comment are required by the API. status must be: new, accepted, or rejected.',
+    description: 'update_product_review(id, title?, rating?, comment?) → Updates a product review content. Only provided fields are changed; omitted fields keep their current values. Rating must be 1–5 if provided. To approve or reject a review use accept_product_review or reject_product_review instead.',
 )]
 final readonly class Update
 {
@@ -18,20 +18,18 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param int    $id      Product review ID.
-     * @param string $title   Review title (required).
-     * @param int    $rating  Rating 1–5 (required).
-     * @param string $comment Review comment text (required).
-     * @param string $status  Review status: new, accepted, rejected. Default = "new".
-     */
-    public function __invoke(int $id, string $title, int $rating, string $comment, string $status = 'new'): string
-    {
+    public function __invoke(
+        int $id,
+        string $title = '',
+        ?int $rating = null,
+        string $comment = '',
+    ): string {
+        $existing = json_decode($this->client->get(sprintf('product-reviews/%d', $id)), true);
+
         return $this->client->put(sprintf('product-reviews/%d', $id), [
-            'title' => $title,
-            'rating' => $rating,
-            'comment' => $comment,
-            'status' => $status,
+            'title'   => $title !== '' ? $title : ($existing['title'] ?? ''),
+            'rating'  => $rating ?? ($existing['rating'] ?? 5),
+            'comment' => $comment !== '' ? $comment : ($existing['comment'] ?? ''),
         ]);
     }
 }

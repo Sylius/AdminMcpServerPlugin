@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_countries',
-    description: 'list_countries(page?, itemsPerPage?) → JSON Hydra collection of Sylius countries. Each country has: id, code (ISO 3166-1 alpha-2, e.g. "US", "PL", "DE"), enabled, provinces.',
+    description: 'list_countries(page?, itemsPerPage?) → Lists countries enabled in the store. Each has: code (2-letter ISO, e.g. "US", "DE", "PL"), name (full country name), enabled, provinces (list of province IRIs — use list_provinces(countryCode) to see them). Use create_country to add a new country.',
 )]
 final readonly class Index
 {

@@ -9,7 +9,11 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'get_customer',
-    description: 'get_customer(id) → JSON object of a single Sylius customer. Returns: id, email, firstName, lastName, gender, phoneNumber, birthday, group, subscribedToNewsletter, defaultAddress, user (enabled, verified), createdAt, fullName.',
+    description: <<<'DESC'
+get_customer(id) → Full details of a customer. Returns: id, email, firstName, lastName, gender, phoneNumber, birthday, group (IRI — last segment is the code, e.g. "retail"), subscribedToNewsletter, user (login account status: enabled/verified), createdAt.
+
+To see customer order history use list_orders. To see their saved addresses use list_customer_addresses(id). To see purchase statistics use get_customer_statistics(id).
+DESC,
 )]
 final readonly class Show
 {

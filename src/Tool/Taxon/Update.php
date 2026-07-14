@@ -9,7 +9,13 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_taxon',
-    description: 'update_taxon(code, name?, slug?, localeCode?, enabled?, parentCode?) → JSON object of the updated Sylius taxon. Only the specified locale translation is changed; all other locales are preserved.',
+    description: <<<'DESC'
+update_taxon — Updates a product category. All fields are optional — only provided values change. Existing translations in other locales are always preserved.
+
+FIELDS: name (display name), slug (URL path — NOTE: slug does NOT auto-update when you change the name; update it separately if needed), enabled (true=visible in shop, false=hidden), parentCode (move to a different parent category), localeCode (default "en_US" — use "fr_FR" etc. to add/update translations in another language).
+
+To rename a category and keep the URL in sync, pass both name and slug in the same call.
+DESC,
 )]
 final readonly class Update
 {

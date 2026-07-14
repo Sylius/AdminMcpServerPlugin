@@ -27,7 +27,7 @@ final readonly class Index
     {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($productCode !== '') {
-            $params['product.code'] = $productCode;
+            $params['product'] = sprintf('/api/v2/admin/products/%s', $productCode);
         }
 
         return $this->client->get('product-variants', $params);

@@ -9,7 +9,13 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_taxons',
-    description: 'list_taxons(page?, itemsPerPage?) → JSON Hydra collection of Sylius taxons (categories). Each taxon has: id, code, enabled, parent (IRI), children, position, translations (name, slug per locale).',
+    description: <<<'DESC'
+list_taxons(page?, itemsPerPage?, parentCode?) → Lists product categories (taxons). The taxonomy is a tree: root categories have no parent, subcategories have a parentCode.
+
+Each taxon has: code, enabled, parent (IRI — the last segment is the parent code), children (IRIs of direct subcategories), position, translations (name, slug per locale).
+
+Filter by parentCode to see only direct children of a category (e.g. parentCode="caps" shows "simple_caps" and "caps_with_pompons"). To see all categories at once use a large itemsPerPage. Use get_taxon(code) for full details of a specific category.
+DESC,
 )]
 final readonly class Index
 {
@@ -18,12 +24,28 @@ final readonly class Index
     ) {
     }
 
-    /**
-     * @param int $page         Page number (1-based). Default = 1.
-     * @param int $itemsPerPage Items per page. Default = 30.
-     */
-    public function __invoke(int $page = 1, int $itemsPerPage = 30): string
+    public function __invoke(int $page = 1, int $itemsPerPage = 30, string $parentCode = ''): string
     {
+        // The Sylius API does not support collection filtering for taxons.
+        // When parentCode is provided, fetch the parent and return its direct children.
+        if ($parentCode !== '') {
+            $parent = json_decode($this->client->get(sprintf('taxons/%s', $parentCode)), true);
+            $childIris = $parent['children'] ?? [];
+
+            $children = [];
+            foreach ($childIris as $iri) {
+                $code = basename($iri);
+                $children[] = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
+            }
+
+            return (string) json_encode([
+                '@context' => '/api/v2/contexts/Taxon',
+                '@type' => 'hydra:Collection',
+                'hydra:totalItems' => count($children),
+                'hydra:member' => $children,
+            ]);
+        }
+
         return $this->client->get('taxons', [
             'page' => $page,
             'itemsPerPage' => $itemsPerPage,

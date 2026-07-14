@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_payment_method',
-    description: 'update_payment_method(code, name, localeCode?, description?, instructions?, enabled?, channelCodes?) → JSON object of the updated Sylius payment method. Uses PUT with translation @id.',
+    description: 'update_payment_method(code, name?, localeCode?, description?, instructions?, enabled?, channelCodes?) → JSON object of the updated Sylius payment method. Only provided fields are changed; omitted fields keep their current values.',
 )]
 final readonly class Update
 {
@@ -20,26 +20,30 @@ final readonly class Update
 
     /**
      * @param string    $code         Payment method code to update.
-     * @param string    $name         Display name for the given locale.
+     * @param string    $name         Display name for the given locale (omit to keep current).
      * @param string    $localeCode   Locale for the translation. Default = "en_US".
-     * @param string    $description  Description text. Default = "".
-     * @param string    $instructions Payment instructions. Default = "".
+     * @param string    $description  Description text.
+     * @param string    $instructions Payment instructions.
      * @param bool|null $enabled      Set enabled status. Null = do not change.
      * @param string[]  $channelCodes New list of channel codes (replaces existing). Empty = do not change.
      */
     public function __invoke(
         string $code,
-        string $name,
+        string $name = '',
         string $localeCode = 'en_US',
         string $description = '',
         string $instructions = '',
         ?bool $enabled = null,
         array $channelCodes = [],
     ): string {
+        $existing = json_decode($this->client->get(sprintf('payment-methods/%s', $code)), true);
+
+        $resolvedName = $name !== '' ? $name : ($existing['translations'][$localeCode]['name'] ?? $code);
+
         $translation = [
-            '@id' => sprintf('/api/v2/admin/payment-methods/%s/translations/%s', $code, $localeCode),
+            '@id'    => sprintf('/api/v2/admin/payment-methods/%s/translations/%s', $code, $localeCode),
             'locale' => $localeCode,
-            'name' => $name,
+            'name'   => $resolvedName,
         ];
         if ($description !== '') {
             $translation['description'] = $description;

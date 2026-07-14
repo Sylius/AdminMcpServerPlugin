@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_channel',
-    description: 'update_channel(code, name, localeCode, currencyCode, taxCalculationStrategy?, hostname?, color?, enabled?, taxZoneCode?, contactEmail?, shippingAddressInCheckoutRequired?) → JSON object of the updated Sylius channel. Uses PUT. taxCalculationStrategy: "order_items_based" or "order_item_units_based".',
+    description: 'update_channel(code, name?, localeCode?, currencyCode?, taxCalculationStrategy?, hostname?, color?, enabled?, taxZoneCode?, contactEmail?, shippingAddressInCheckoutRequired?) → JSON object of the updated Sylius channel. Only provided fields are changed; omitted fields keep their current values. taxCalculationStrategy: "order_items_based" or "order_item_units_based".',
 )]
 final readonly class Update
 {
@@ -23,49 +23,75 @@ final readonly class Update
      * @param string      $name                             Channel display name.
      * @param string      $localeCode                       Default locale code (e.g. "en_US").
      * @param string      $currencyCode                     Base currency code (e.g. "USD").
-     * @param string      $taxCalculationStrategy           Tax calculation strategy. Default = "order_item_units_based".
-     * @param string      $hostname                         Channel hostname. Default = "".
-     * @param string      $color                            UI color hex. Default = "".
-     * @param bool        $enabled                          Whether the channel is enabled. Default = true.
-     * @param string      $taxZoneCode                      Tax zone code. Default = "".
-     * @param string      $contactEmail                     Contact email. Default = "".
-     * @param bool        $shippingAddressInCheckoutRequired Whether shipping address is required. Default = false.
+     * @param string      $taxCalculationStrategy           Tax calculation strategy.
+     * @param string      $hostname                         Channel hostname.
+     * @param string      $color                            UI color hex (e.g. "#542d9c").
+     * @param bool|null   $enabled                          Whether the channel is enabled.
+     * @param string      $taxZoneCode                      Tax zone code.
+     * @param string      $contactEmail                     Contact email.
+     * @param bool|null   $shippingAddressInCheckoutRequired Whether shipping address is required.
      */
     public function __invoke(
         string $code,
-        string $name,
-        string $localeCode,
-        string $currencyCode,
-        string $taxCalculationStrategy = 'order_item_units_based',
+        string $name = '',
+        string $localeCode = '',
+        string $currencyCode = '',
+        string $taxCalculationStrategy = '',
         string $hostname = '',
         string $color = '',
-        bool $enabled = true,
+        ?bool $enabled = null,
         string $taxZoneCode = '',
         string $contactEmail = '',
-        bool $shippingAddressInCheckoutRequired = false,
+        ?bool $shippingAddressInCheckoutRequired = null,
     ): string {
+        $existing = json_decode($this->client->get(sprintf('channels/%s', $code)), true);
+
+        $resolvedLocale   = $localeCode !== '' ? $localeCode : basename($existing['defaultLocale'] ?? 'en_US');
+        $resolvedCurrency = $currencyCode !== '' ? $currencyCode : basename($existing['baseCurrency'] ?? 'USD');
+        $resolvedStrategy = $taxCalculationStrategy !== '' ? $taxCalculationStrategy : ($existing['taxCalculationStrategy'] ?? 'order_item_units_based');
+
         $body = [
-            'name' => $name,
-            'enabled' => $enabled,
-            'taxCalculationStrategy' => $taxCalculationStrategy,
-            'shippingAddressInCheckoutRequired' => $shippingAddressInCheckoutRequired,
-            'defaultLocale' => sprintf('/api/v2/admin/locales/%s', $localeCode),
-            'baseCurrency' => sprintf('/api/v2/admin/currencies/%s', $currencyCode),
-            'locales' => [sprintf('/api/v2/admin/locales/%s', $localeCode)],
-            'currencies' => [sprintf('/api/v2/admin/currencies/%s', $currencyCode)],
+            'name'     => $name !== '' ? $name : ($existing['name'] ?? $code),
+            'enabled'  => $enabled ?? ($existing['enabled'] ?? true),
+            'taxCalculationStrategy' => $resolvedStrategy,
+            'shippingAddressInCheckoutRequired' => $shippingAddressInCheckoutRequired ?? ($existing['shippingAddressInCheckoutRequired'] ?? false),
+            'defaultLocale' => sprintf('/api/v2/admin/locales/%s', $resolvedLocale),
+            'baseCurrency'  => sprintf('/api/v2/admin/currencies/%s', $resolvedCurrency),
+            'locales'    => $localeCode !== ''
+                ? [sprintf('/api/v2/admin/locales/%s', $localeCode)]
+                : ($existing['locales'] ?? [sprintf('/api/v2/admin/locales/%s', $resolvedLocale)]),
+            'currencies' => $currencyCode !== ''
+                ? [sprintf('/api/v2/admin/currencies/%s', $currencyCode)]
+                : ($existing['currencies'] ?? [sprintf('/api/v2/admin/currencies/%s', $resolvedCurrency)]),
         ];
 
+        // Preserve optional fields from existing when not overridden
+        $existingHostname = $existing['hostname'] ?? null;
         if ($hostname !== '') {
             $body['hostname'] = $hostname;
+        } elseif ($existingHostname !== null) {
+            $body['hostname'] = $existingHostname;
         }
+
+        $existingColor = $existing['color'] ?? null;
         if ($color !== '') {
             $body['color'] = $color;
+        } elseif ($existingColor !== null) {
+            $body['color'] = $existingColor;
         }
-        if ($taxZoneCode !== '') {
-            $body['taxZone'] = sprintf('/api/v2/admin/zones/%s', $taxZoneCode);
-        }
+
+        $existingEmail = $existing['contactEmail'] ?? null;
         if ($contactEmail !== '') {
             $body['contactEmail'] = $contactEmail;
+        } elseif ($existingEmail !== null) {
+            $body['contactEmail'] = $existingEmail;
+        }
+
+        $existingZone = $existing['defaultTaxZone'] ?? null;
+        if ($taxZoneCode !== '') {
+            $body['taxZone'] = sprintf('/api/v2/admin/zones/%s', $taxZoneCode);
+        } elseif ($existingZone !== null) {
+            $body['taxZone'] = $existingZone;
         }
 
         return $this->client->put(sprintf('channels/%s', $code), $body);

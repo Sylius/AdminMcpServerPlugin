@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_product_reviews',
-    description: 'list_product_reviews(page?, itemsPerPage?, status?, productCode?) → JSON Hydra collection of Sylius product reviews. Each review has: id, title, rating, comment, author (customer IRI), status (new/accepted/rejected), reviewSubject (product IRI).',
+    description: 'list_product_reviews(page?, itemsPerPage?, status?, productCode?) → JSON collection of product reviews. Filter by status ("new"=pending moderation, "accepted"=published, "rejected"=hidden) or by productCode (returns all reviews for that product). Each review has: id, title, rating (1-5), comment, status. Use accept_product_review(id) or reject_product_review(id) to moderate pending reviews.',
 )]
 final readonly class Index
 {
@@ -18,20 +18,34 @@ final readonly class Index
     ) {
     }
 
-    /**
-     * @param int    $page         Page number (1-based). Default = 1.
-     * @param int    $itemsPerPage Items per page. Default = 30.
-     * @param string $status       Filter by status: new, accepted, rejected. Default = "" (all).
-     * @param string $productCode  Filter by product code. Default = "" (all).
-     */
     public function __invoke(int $page = 1, int $itemsPerPage = 30, string $status = '', string $productCode = ''): string
     {
+        // When filtering by product, fetch review IRIs from the product response
+        // (the /product-reviews collection endpoint does not support filtering by product)
+        if ($productCode !== '') {
+            $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
+            $reviewIris = $product['reviews'] ?? [];
+
+            $reviews = [];
+            foreach ($reviewIris as $iri) {
+                $id = basename($iri);
+                $review = json_decode($this->client->get(sprintf('product-reviews/%s', $id)), true);
+                if ($status === '' || ($review['status'] ?? '') === $status) {
+                    $reviews[] = $review;
+                }
+            }
+
+            return (string) json_encode([
+                '@context' => '/api/v2/contexts/ProductReview',
+                '@type' => 'hydra:Collection',
+                'hydra:totalItems' => count($reviews),
+                'hydra:member' => $reviews,
+            ]);
+        }
+
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($status !== '') {
             $params['status'] = $status;
-        }
-        if ($productCode !== '') {
-            $params['reviewSubject'] = sprintf('/api/v2/admin/products/%s', $productCode);
         }
 
         return $this->client->get('product-reviews', $params);

@@ -34,6 +34,14 @@ final readonly class HttpApiClient implements ApiClientInterface
         return $this->request($this->apiClient, 'PUT', $path, ['json' => $body]);
     }
 
+    public function putLd(string $path, array $body = []): string
+    {
+        return $this->request($this->apiClient, 'PUT', $path, [
+            'body'    => json_encode($body, \JSON_THROW_ON_ERROR),
+            'headers' => ['Content-Type' => 'application/ld+json'],
+        ]);
+    }
+
     public function patch(string $path, array $body = []): string
     {
         return $this->request($this->mergePatchClient, 'PATCH', $path, [

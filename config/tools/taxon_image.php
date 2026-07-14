@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Index;
+use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Show;
+use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Update;
 use Sylius\AdminMcpServerPlugin\Tool\TaxonImage\Delete;
 
 return static function (ContainerConfigurator $container): void {
@@ -12,5 +14,7 @@ return static function (ContainerConfigurator $container): void {
     $api = service('sylius_admin_mcp_server.client.api');
 
     $services->set(Index::class)->args([$api])->tag('mcp.tool');
+    $services->set(Show::class)->args([$api])->tag('mcp.tool');
+    $services->set(Update::class)->args([$api])->tag('mcp.tool');
     $services->set(Delete::class)->args([$api])->tag('mcp.tool');
 };
