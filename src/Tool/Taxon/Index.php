@@ -10,9 +10,9 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'list_taxons',
     description: <<<'DESC'
-list_taxons(page?, itemsPerPage?, parentCode?) → Lists product categories (taxons). The taxonomy is a tree: root categories have no parent, subcategories have a parentCode.
+list_taxons(page?, itemsPerPage?, parentCode?) → JSON-LD/Hydra list of product categories (taxons). The taxonomy is a tree: root categories have no parent, subcategories have a parentCode.
 
-Each taxon has: code, enabled, parent (IRI — the last segment is the parent code), children (IRIs of direct subcategories), position, translations (name, slug per locale).
+Each taxon has: code (string — the identifier for get_taxon, update_taxon, delete_taxon), enabled, parent (JSON-LD IRI — last segment is the parent code), children (JSON-LD IRIs — last segment of each is the child code), position, translations (name, slug per locale).
 
 Filter by parentCode to see only direct children of a category (e.g. parentCode="caps" shows "simple_caps" and "caps_with_pompons"). To see all categories at once use a large itemsPerPage. Use get_taxon(code) for full details of a specific category.
 DESC,

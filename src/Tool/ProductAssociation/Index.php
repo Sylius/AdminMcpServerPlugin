@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_product_associations',
-    description: 'list_product_associations(page?, itemsPerPage?, ownerCode?, typeCode?) → JSON Hydra collection of Sylius product associations. Each association has: id, type (IRI), owner (product IRI), associatedProducts (list of product IRIs).',
+    description: 'list_product_associations(page?, itemsPerPage?, ownerCode?, typeCode?) → JSON-LD/Hydra collection of Sylius product associations. Each association has: id (numeric, extracted from @id — use in update_product_association, delete_product_association), type (JSON-LD IRI — last segment is the type code), owner (JSON-LD IRI — last segment is the owner product code), associatedProducts (list of JSON-LD IRIs — last segment of each is the product code).',
 )]
 final readonly class Index
 {

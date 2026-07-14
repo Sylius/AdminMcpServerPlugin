@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_products',
-    description: 'list_products(page?, itemsPerPage?, code?, name?, enabled?) → JSON Hydra collection of Sylius products. Each product has: id, code, enabled, channels, mainTaxon, translations (name, slug, description per locale), variants, createdAt, updatedAt.',
+    description: 'list_products(page?, itemsPerPage?, code?, name?, enabled?) → JSON-LD/Hydra collection of Sylius products. Each product has: code (string — the identifier for get_product, update_product, delete_product), enabled, channels, mainTaxon, translations (name, slug, description per locale), variants, createdAt, updatedAt. The @id field is the JSON-LD IRI of the product.',
 )]
 final readonly class Index
 {
