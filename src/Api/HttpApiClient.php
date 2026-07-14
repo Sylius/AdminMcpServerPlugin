@@ -25,12 +25,7 @@ final readonly class HttpApiClient implements ApiClientInterface
         return $this->iriConverter->iri($path);
     }
 
-    public function normalizeCode(string $iriOrCode): string
-    {
-        return $this->iriConverter->normalizeCode($iriOrCode);
-    }
-
-    public function get(string $path, array $query = []): string
+public function get(string $path, array $query = []): string
     {
         return $this->request($this->apiClient, 'GET', $path, $query !== [] ? ['query' => $query] : []);
     }

@@ -13,7 +13,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 update_promotion — Updates a cart promotion. Only provided fields are changed; omitted fields keep their current values.
 
 REQUIRED: code (the promotion code to update).
-OPTIONAL: name, channelCodes, description, priority, exclusive, usageLimit, couponBased, startsAt, endsAt.
+OPTIONAL: name, channels (array of channel IRIs from list_channels @id), description, priority, exclusive, usageLimit, couponBased, startsAt, endsAt.
 OPTIONAL: rules/actions (JSON strings — omit or pass '[]' to keep existing):
 - rules examples: '[{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}]' — min order 50.00; '[{"type":"cart_quantity","configuration":{"count":3}}]' — min 3 items
 - actions examples: '[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]' — 10% off order; '[{"type":"shipping_percentage_discount","configuration":{"percentage":1.0}}]' — free shipping; '[{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]' — fixed 10.00 off (ALL channels required)
@@ -26,12 +26,12 @@ final readonly class Update
     public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string[] $channelCodes
+     * @param string[] $channels Array of channel IRIs (from list_channels @id).
      */
     public function __invoke(
         string $code,
         string $name = '',
-        array $channelCodes = [],
+        array $channels = [],
         string $description = '',
         int $priority = -1,
         ?bool $exclusive = null,
@@ -52,9 +52,7 @@ final readonly class Update
             'priority'    => $priority >= 0 ? $priority : ($existing['priority'] ?? 0),
             'exclusive'   => $exclusive ?? ($existing['exclusive'] ?? false),
             'couponBased' => $couponBased ?? ($existing['couponBased'] ?? false),
-            'channels'    => $channelCodes !== []
-                ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))), $channelCodes)
-                : ($existing['channels'] ?? []),
+            'channels'    => $channels !== [] ? $channels : ($existing['channels'] ?? []),
             'rules'   => ($decodedRules !== null && $decodedRules !== [])   ? $decodedRules   : $this->stripMeta($existing['rules']   ?? []),
             'actions' => ($decodedActions !== null && $decodedActions !== []) ? $decodedActions : $this->stripMeta($existing['actions'] ?? []),
         ];

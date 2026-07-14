@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_association',
-    description: 'update_product_association(id, associatedProductCodes) → JSON object of the updated Sylius product association. Replaces the full list of associated products.',
+    description: 'update_product_association(id, associatedProducts) → JSON object of the updated Sylius product association. Replaces the full list of associated products.',
 )]
 final readonly class Update
 {
@@ -19,16 +19,13 @@ final readonly class Update
     }
 
     /**
-     * @param int      $id                     Product association ID.
-     * @param string[] $associatedProductCodes New list of product codes to associate (replaces existing).
+     * @param int      $id                  Product association ID.
+     * @param string[] $associatedProducts  New list of product IRIs to associate (replaces existing).
      */
-    public function __invoke(int $id, array $associatedProductCodes): string
+    public function __invoke(int $id, array $associatedProducts): string
     {
         return $this->client->put(sprintf('product-associations/%d', $id), [
-            'associatedProducts' => array_map(
-                fn (string $code) => $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($code))),
-                $associatedProductCodes,
-            ),
+            'associatedProducts' => $associatedProducts,
         ]);
     }
 }

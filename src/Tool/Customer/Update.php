@@ -13,9 +13,9 @@ use Mcp\Capability\Attribute\McpTool;
 update_customer — Updates customer information. Only the fields you provide are changed.
 
 REQUIRED: id (numeric customer id from list_customers).
-OPTIONAL: email, firstName, lastName, gender ("m"=male, "f"=female, "u"=unknown), phoneNumber, birthday (format "YYYY-MM-DD", e.g. "1990-05-15"), subscribedToNewsletter (true/false), groupCode (customer segment — use list_customer_groups to find codes).
+OPTIONAL: email, firstName, lastName, gender ("m"=male, "f"=female, "u"=unknown), phoneNumber, birthday (format "YYYY-MM-DD", e.g. "1990-05-15"), subscribedToNewsletter (true/false), group (customer segment IRI from list_customer_groups @id).
 
-NOTE: This does not affect the customer's login account. To block login use delete_customer_user(id). To change a customer's group use groupCode with a code from list_customer_groups.
+NOTE: This does not affect the customer's login account. To block login use delete_customer_user(id). To change a customer's group use group with an IRI from list_customer_groups.
 DESC,
 )]
 final readonly class Update
@@ -34,7 +34,7 @@ final readonly class Update
      * @param string      $phoneNumber             New phone number.
      * @param string      $birthday                New birthday in "YYYY-MM-DD" format.
      * @param bool|null   $subscribedToNewsletter  New newsletter subscription status.
-     * @param string      $groupCode               New customer group code (e.g. "retail", "wholesale").
+     * @param string      $group                   New customer group IRI from list_customer_groups @id.
      */
     public function __invoke(
         int $id,
@@ -45,7 +45,7 @@ final readonly class Update
         string $phoneNumber = '',
         string $birthday = '',
         ?bool $subscribedToNewsletter = null,
-        string $groupCode = '',
+        string $group = '',
     ): string {
         $body = [];
 
@@ -70,8 +70,8 @@ final readonly class Update
         if ($subscribedToNewsletter !== null) {
             $body['subscribedToNewsletter'] = $subscribedToNewsletter;
         }
-        if ($groupCode !== '') {
-            $body['group'] = $this->client->iri(sprintf('customer-groups/%s', $this->client->normalizeCode($groupCode)));
+        if ($group !== '') {
+            $body['group'] = $group;
         }
 
         return $this->client->put(sprintf('customers/%d', $id), $body);

@@ -12,7 +12,7 @@ use Mcp\Capability\Attribute\McpTool;
     description: <<<'DESC'
 update_taxon — Updates a product category. All fields are optional — only provided values change. Existing translations in other locales are always preserved.
 
-FIELDS: name (display name), slug (URL path — NOTE: slug does NOT auto-update when you change the name; update it separately if needed), enabled (true=visible in shop, false=hidden), parentCode (move to a different parent category), localeCode (default "en_US" — use "fr_FR" etc. to add/update translations in another language).
+FIELDS: name (display name), slug (URL path — NOTE: slug does NOT auto-update when you change the name; update it separately if needed), enabled (true=visible in shop, false=hidden), parent (move to a different parent category — IRI from list_taxons @id, e.g. "/api/v2/admin/taxons/CLOTHING"), localeCode (default "en_US" — use "fr_FR" etc. to add/update translations in another language).
 
 To rename a category and keep the URL in sync, pass both name and slug in the same call.
 DESC,
@@ -30,7 +30,7 @@ final readonly class Update
      * @param string    $slug        New URL slug for the given locale.
      * @param string    $localeCode  Locale code for the translation. Default = "en_US".
      * @param bool|null $enabled     Set enabled status (null = do not change).
-     * @param string    $parentCode  New parent taxon code. Leave empty to keep current parent.
+     * @param string    $parent      New parent taxon IRI from list_taxons @id. Leave empty to keep current parent.
      */
     public function __invoke(
         string $code,
@@ -38,7 +38,7 @@ final readonly class Update
         string $slug = '',
         string $localeCode = 'en_US',
         ?bool $enabled = null,
-        string $parentCode = '',
+        string $parent = '',
     ): string {
         $existing = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
 
@@ -48,8 +48,8 @@ final readonly class Update
             $body['enabled'] = $enabled;
         }
 
-        if ($parentCode !== '') {
-            $body['parent'] = $this->client->iri(sprintf('taxons/%s', $this->client->normalizeCode($parentCode)));
+        if ($parent !== '') {
+            $body['parent'] = $parent;
         }
 
         $hasTranslationFields = $name !== '' || $slug !== '';

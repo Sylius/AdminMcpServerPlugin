@@ -10,9 +10,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'create_shipping_method',
     description: <<<'DESC'
-create_shipping_method — Creates a shipping method (delivery option shown to customers at checkout). Prerequisites: run list_zones to get zoneCode; run list_channels to get channelCodes.
+create_shipping_method — Creates a shipping method (delivery option shown to customers at checkout). Prerequisites: run list_zones to get zone IRI; run list_channels to get channel IRIs.
 
-REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zoneCode (delivery zone, e.g. "WORLD" or "EU"), calculator (pricing type), channelCodes (which shops offer this shipping).
+REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zone (zone IRI, e.g. "/api/v2/admin/zones/WORLD"), calculator (pricing type), channels (array of channel IRIs).
 
 calculator types — also specify the matching parameter:
 - "flat_rate" — same price regardless of order size; also pass amount=1000 (1000 = 10.00 EUR/USD, smallest currency unit)
@@ -29,18 +29,21 @@ final readonly class Create
 {
     public function __construct(private ApiClientInterface $client) {}
 
+    /**
+     * @param string[]  $channels    Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
+     */
     public function __invoke(
         string $code,
         string $name,
-        string $zoneCode,
+        string $zone,
         string $calculator,
-        array $channelCodes,
+        array $channels,
         int $amount = 0,
         float $percentage = 0.0,
         string $localeCode = 'en_US',
         string $description = '',
-        string $categoryCode = '',
-        string $taxCategoryCode = '',
+        string $category = '',
+        string $taxCategory = '',
         bool $enabled = true,
     ): string {
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
@@ -62,16 +65,13 @@ final readonly class Create
             'enabled'       => $enabled,
             'calculator'    => $calculator,
             'configuration' => $configuration,
-            'zone'          => $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($zoneCode))),
-            'channels'      => array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channelCodes,
-            ),
+            'zone'          => $zone,
+            'channels'      => $channels,
             'translations'  => [$localeCode => $translation],
         ];
 
-        if ($categoryCode !== '') { $body['category'] = $this->client->iri(sprintf('shipping-categories/%s', $this->client->normalizeCode($categoryCode))); }
-        if ($taxCategoryCode !== '') { $body['taxCategory'] = $this->client->iri(sprintf('tax-categories/%s', $this->client->normalizeCode($taxCategoryCode))); }
+        if ($category !== '') { $body['category'] = $category; }
+        if ($taxCategory !== '') { $body['taxCategory'] = $taxCategory; }
 
         return $this->client->post('shipping-methods', $body);
     }

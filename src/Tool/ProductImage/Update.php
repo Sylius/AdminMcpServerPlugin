@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_product_image',
-    description: 'update_product_image(productCode, imageId, type?, productVariantCodes?) → Updates a product image metadata. Only provided fields are changed. type is an arbitrary label (e.g. "main", "thumbnail", "banner"). productVariantCodes links the image to specific variants (empty array = image belongs to all variants). Use list_product_images to find the imageId.',
+    description: 'update_product_image(productCode, imageId, type?, productVariants?) → Updates a product image metadata. Only provided fields are changed. type is an arbitrary label (e.g. "main", "thumbnail", "banner"). productVariants links the image to specific variants by IRI (empty array = image belongs to all variants). Use list_product_images to find the imageId.',
 )]
 final readonly class Update
 {
@@ -19,13 +19,13 @@ final readonly class Update
     }
 
     /**
-     * @param string[] $productVariantCodes
+     * @param string[] $productVariants List of product variant IRIs.
      */
     public function __invoke(
         string $productCode,
         int $imageId,
         string $type = '',
-        array $productVariantCodes = [],
+        array $productVariants = [],
     ): string {
         $existing = json_decode(
             $this->client->get(sprintf('products/%s/images/%d', $productCode, $imageId)),
@@ -36,11 +36,8 @@ final readonly class Update
 
         $body['type'] = $type !== '' ? $type : ($existing['type'] ?? null);
 
-        if ($productVariantCodes !== []) {
-            $body['productVariants'] = array_map(
-                fn (string $c) => $this->client->iri(sprintf('product-variants/%s', $this->client->normalizeCode($c))),
-                $productVariantCodes,
-            );
+        if ($productVariants !== []) {
+            $body['productVariants'] = $productVariants;
         } else {
             $body['productVariants'] = $existing['productVariants'] ?? [];
         }

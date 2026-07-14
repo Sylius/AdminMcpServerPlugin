@@ -10,9 +10,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'create_promotion',
     description: <<<'DESC'
-create_promotion — Creates a cart promotion (discount applied at checkout when conditions are met). Prerequisites: run list_channels to get channelCodes.
+create_promotion — Creates a cart promotion (discount applied at checkout when conditions are met). Prerequisites: run list_channels to get channel IRIs.
 
-REQUIRED: code (unique ID, e.g. "SUMMER10"), name (e.g. "10% Summer Discount"), channelCodes.
+REQUIRED: code (unique ID, e.g. "SUMMER10"), name (e.g. "10% Summer Discount"), channels (array of channel IRIs from list_channels @id).
 
 rules (JSON string) — WHEN to apply the discount (optional, leave '[]' for always):
 - Minimum order total: '[{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}]' (5000 = 50.00; must include ALL channel codes)
@@ -39,7 +39,7 @@ final readonly class Create
     public function __invoke(
         string $code,
         string $name,
-        array $channelCodes,
+        array $channels,
         string $description = '',
         int $priority = 0,
         bool $exclusive = false,
@@ -56,10 +56,7 @@ final readonly class Create
             'priority'    => $priority,
             'exclusive'   => $exclusive,
             'couponBased' => $couponBased,
-            'channels'    => array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channelCodes,
-            ),
+            'channels'    => $channels,
             'rules'   => json_decode($rules, true) ?? [],
             'actions' => json_decode($actions, true) ?? [],
         ];

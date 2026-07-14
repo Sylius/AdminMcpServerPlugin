@@ -13,7 +13,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 update_shipping_method — Updates a shipping method. Only provided fields are changed; omitted fields keep their current values.
 
 REQUIRED: code (the shipping method code to update).
-OPTIONAL: name, zoneCode, calculator (flat_rate/per_unit_rate/percentage_discount), channelCodes, amount (smallest unit, e.g. 500=5.00), percentage (decimal, e.g. 0.1=10%), localeCode, description, categoryCode, taxCategoryCode, enabled.
+OPTIONAL: name, zone (IRI e.g. "/api/v2/admin/zones/WORLD"), calculator (flat_rate/per_unit_rate/percentage_discount), channels (array of channel IRIs), amount (smallest unit, e.g. 500=5.00), percentage (decimal, e.g. 0.1=10%), localeCode, description, category (IRI), taxCategory (IRI), enabled.
 
 Configuration is automatically built for all channels in the system.
 DESC,
@@ -26,32 +26,27 @@ final readonly class Update
     }
 
     /**
-     * @param string[]  $channelCodes    Channel codes this method is available in.
+     * @param string[]  $channels    Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
      */
     public function __invoke(
         string $code,
         string $name = '',
-        string $zoneCode = '',
+        string $zone = '',
         string $calculator = '',
-        array $channelCodes = [],
+        array $channels = [],
         int $amount = -1,
         float $percentage = -1.0,
         string $localeCode = 'en_US',
         string $description = '',
-        string $categoryCode = '',
-        string $taxCategoryCode = '',
+        string $category = '',
+        string $taxCategory = '',
         ?bool $enabled = null,
     ): string {
         $existing = json_decode($this->client->get(sprintf('shipping-methods/%s', $code)), true);
 
         $resolvedCalculator = $calculator !== '' ? $calculator : ($existing['shippingChargesCalculator'] ?? 'flat_rate');
-        $resolvedZone = $zoneCode !== ''
-            ? $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($zoneCode)))
-            : ($existing['zone'] ?? '');
-
-        $resolvedChannels = $channelCodes !== []
-            ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))), $channelCodes)
-            : ($existing['channels'] ?? []);
+        $resolvedZone = $zone !== '' ? $zone : ($existing['zone'] ?? '');
+        $resolvedChannels = $channels !== [] ? $channels : ($existing['channels'] ?? []);
 
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
         $configuration = [];
@@ -94,15 +89,15 @@ final readonly class Update
         }
 
         $existingCategory = $existing['category'] ?? null;
-        if ($categoryCode !== '') {
-            $body['category'] = $this->client->iri(sprintf('shipping-categories/%s', $this->client->normalizeCode($categoryCode)));
+        if ($category !== '') {
+            $body['category'] = $category;
         } elseif ($existingCategory !== null) {
             $body['category'] = $existingCategory;
         }
 
         $existingTaxCategory = $existing['taxCategory'] ?? null;
-        if ($taxCategoryCode !== '') {
-            $body['taxCategory'] = $this->client->iri(sprintf('tax-categories/%s', $this->client->normalizeCode($taxCategoryCode)));
+        if ($taxCategory !== '') {
+            $body['taxCategory'] = $taxCategory;
         } elseif ($existingTaxCategory !== null) {
             $body['taxCategory'] = $existingTaxCategory;
         }

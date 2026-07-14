@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_tax_rate',
-    description: 'update_tax_rate(code, name?, amount?, categoryCode?, zoneCode?, includedInPrice?, calculator?) → JSON object of the updated Sylius tax rate. Only provided fields are changed; omitted fields keep their current values. amount is a float (e.g. 0.23 = 23%).',
+    description: 'update_tax_rate(code, name?, amount?, category?, zone?, includedInPrice?, calculator?) → JSON object of the updated Sylius tax rate. Only provided fields are changed; omitted fields keep their current values. amount is a float (e.g. 0.23 = 23%). category is the IRI from list_tax_categories @id. zone is the IRI from list_zones @id.',
 )]
 final readonly class Update
 {
@@ -22,8 +22,8 @@ final readonly class Update
      * @param string     $code            Tax rate code to update.
      * @param string     $name            New display name (omit to keep current).
      * @param float|null $amount          New tax rate as decimal (e.g. 0.23 for 23%). Null = keep current.
-     * @param string     $categoryCode    Tax category code (omit to keep current).
-     * @param string     $zoneCode        Zone code (omit to keep current).
+     * @param string     $category        Tax category IRI from list_tax_categories @id (omit to keep current).
+     * @param string     $zone            Zone IRI from list_zones @id (omit to keep current).
      * @param bool|null  $includedInPrice Whether the tax is included in the displayed price. Null = keep current.
      * @param string     $calculator      Calculator type (omit to keep current).
      */
@@ -31,8 +31,8 @@ final readonly class Update
         string $code,
         string $name = '',
         ?float $amount = null,
-        string $categoryCode = '',
-        string $zoneCode = '',
+        string $category = '',
+        string $zone = '',
         ?bool $includedInPrice = null,
         string $calculator = '',
     ): string {
@@ -43,12 +43,8 @@ final readonly class Update
             'amount'          => $amount ?? ($existing['amount'] ?? 0.0),
             'includedInPrice' => $includedInPrice ?? ($existing['includedInPrice'] ?? false),
             'calculator'      => $calculator !== '' ? $calculator : ($existing['calculator'] ?? 'default'),
-            'category'        => $categoryCode !== ''
-                ? $this->client->iri(sprintf('tax-categories/%s', $this->client->normalizeCode($categoryCode)))
-                : ($existing['category'] ?? ''),
-            'zone'            => $zoneCode !== ''
-                ? $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($zoneCode)))
-                : ($existing['zone'] ?? ''),
+            'category'        => $category !== '' ? $category : ($existing['category'] ?? ''),
+            'zone'            => $zone !== '' ? $zone : ($existing['zone'] ?? ''),
         ]);
     }
 }

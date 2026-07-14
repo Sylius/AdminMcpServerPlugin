@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_payment_method',
-    description: 'update_payment_method(code, name?, localeCode?, description?, instructions?, enabled?, channelCodes?) → JSON object of the updated Sylius payment method. Only provided fields are changed; omitted fields keep their current values.',
+    description: 'update_payment_method(code, name?, localeCode?, description?, instructions?, enabled?, channels?) → JSON object of the updated Sylius payment method. channels: array of channel IRIs from list_channels @id (replaces existing). Only provided fields are changed; omitted fields keep their current values.',
 )]
 final readonly class Update
 {
@@ -25,7 +25,7 @@ final readonly class Update
      * @param string    $description  Description text.
      * @param string    $instructions Payment instructions.
      * @param bool|null $enabled      Set enabled status. Null = do not change.
-     * @param string[]  $channelCodes New list of channel codes (replaces existing). Empty = do not change.
+     * @param string[]  $channels Array of channel IRIs (from list_channels @id) — replaces existing. Empty = do not change.
      */
     public function __invoke(
         string $code,
@@ -34,7 +34,7 @@ final readonly class Update
         string $description = '',
         string $instructions = '',
         ?bool $enabled = null,
-        array $channelCodes = [],
+        array $channels = [],
     ): string {
         $existing = json_decode($this->client->get(sprintf('payment-methods/%s', $code)), true);
 
@@ -57,11 +57,8 @@ final readonly class Update
         if ($enabled !== null) {
             $body['enabled'] = $enabled;
         }
-        if ($channelCodes !== []) {
-            $body['channels'] = array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channelCodes,
-            );
+        if ($channels !== []) {
+            $body['channels'] = $channels;
         }
 
         return $this->client->put(sprintf('payment-methods/%s', $code), $body);

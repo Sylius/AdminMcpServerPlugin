@@ -12,7 +12,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 remove_product_attribute_value — Removes an attribute value from a product for a specific locale. If the attribute has values in other locales they are preserved.
 
-REQUIRED: productCode, attributeCode (e.g. "cap_brand").
+REQUIRED: productCode, attribute (attribute definition IRI, e.g. "/api/v2/admin/product-attributes/cap_brand").
 OPTIONAL: localeCode (default "en_US"). Pass localeCode="all" to remove the attribute for ALL locales at once.
 
 Use get_product(productCode) to see current attribute values before removing them.
@@ -22,20 +22,22 @@ final readonly class RemoveValue
 {
     public function __construct(private ApiClientInterface $client) {}
 
+    /**
+     * @param string $attribute  Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
+     */
     public function __invoke(
         string $productCode,
-        string $attributeCode,
+        string $attribute,
         string $localeCode = 'en_US',
     ): string {
         $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
         $existingAttrs = $product['attributes'] ?? [];
 
-        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $this->client->normalizeCode($attributeCode)));
         $removeAll = $localeCode === 'all';
 
         $updated = [];
         foreach ($existingAttrs as $attr) {
-            $isTarget = ($attr['attribute'] ?? '') === $attributeIri
+            $isTarget = ($attr['attribute'] ?? '') === $attribute
                 && ($removeAll || ($attr['localeCode'] ?? '') === $localeCode);
 
             if (!$isTarget) {
@@ -51,7 +53,7 @@ final readonly class RemoveValue
 
         return (string) json_encode([
             'productCode' => $productCode,
-            'attributeCode' => $attributeCode,
+            'attribute' => $attribute,
             'localeCode' => $localeCode,
             'removed' => true,
         ]);

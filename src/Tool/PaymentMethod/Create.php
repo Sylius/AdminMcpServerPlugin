@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_payment_method',
-    description: 'create_payment_method(code, name, gatewayFactoryName, gatewayName, channelCodes, localeCode?, description?, instructions?, enabled?) → JSON object of the newly created Sylius payment method. gatewayFactoryName e.g. "offline", "stripe", "paypal_express_checkout".',
+    description: 'create_payment_method(code, name, gatewayFactoryName, gatewayName, channels, localeCode?, description?, instructions?, enabled?) → JSON object of the newly created Sylius payment method. channels: array of channel IRIs from list_channels @id. gatewayFactoryName e.g. "offline", "stripe", "paypal_express_checkout".',
 )]
 final readonly class Create
 {
@@ -23,7 +23,7 @@ final readonly class Create
      * @param string   $name               Display name for the given locale.
      * @param string   $gatewayFactoryName Gateway factory name (e.g. "offline", "stripe").
      * @param string   $gatewayName        Human-readable gateway label (e.g. "Offline").
-     * @param string[] $channelCodes       List of channel codes this method is available in.
+     * @param string[] $channels           Array of channel IRIs (from list_channels @id).
      * @param string   $localeCode         Locale for the name/description translation. Default = "en_US".
      * @param string   $description        Optional description text. Default = "".
      * @param string   $instructions       Optional payment instructions. Default = "".
@@ -34,7 +34,7 @@ final readonly class Create
         string $name,
         string $gatewayFactoryName,
         string $gatewayName,
-        array $channelCodes,
+        array $channels,
         string $localeCode = 'en_US',
         string $description = '',
         string $instructions = '',
@@ -55,10 +55,7 @@ final readonly class Create
                 'factoryName' => $gatewayFactoryName,
                 'gatewayName' => $gatewayName,
             ],
-            'channels' => array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channelCodes,
-            ),
+            'channels' => $channels,
             'translations' => [$localeCode => $translation],
         ]);
     }

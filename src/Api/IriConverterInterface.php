@@ -11,11 +11,4 @@ interface IriConverterInterface
      * E.g. iri('channels/WEB') → '/api/v2/admin/channels/WEB'
      */
     public function iri(string $path): string;
-
-    /**
-     * Extracts the bare code from an IRI or returns the value as-is if it is already a code.
-     * E.g. normalizeCode('/api/v2/admin/channels/WEB') → 'WEB'
-     *      normalizeCode('WEB') → 'WEB'
-     */
-    public function normalizeCode(string $iriOrCode): string;
 }

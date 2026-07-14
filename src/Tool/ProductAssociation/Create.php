@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product_association',
-    description: 'create_product_association(typeCode, ownerCode, associatedProductCodes) → JSON object of the newly created Sylius product association. Each owner+type pair must be unique.',
+    description: 'create_product_association(type, owner, associatedProducts) → JSON object of the newly created Sylius product association. Each owner+type pair must be unique.',
 )]
 final readonly class Create
 {
@@ -19,19 +19,16 @@ final readonly class Create
     }
 
     /**
-     * @param string   $typeCode               Association type code (e.g. "similar_products").
-     * @param string   $ownerCode              Owner product code.
-     * @param string[] $associatedProductCodes List of product codes to associate.
+     * @param string   $type               Association type IRI (e.g. "/api/v2/admin/product-association-types/similar_products").
+     * @param string   $owner              Owner product IRI (e.g. "/api/v2/admin/products/MUG").
+     * @param string[] $associatedProducts List of product IRIs to associate.
      */
-    public function __invoke(string $typeCode, string $ownerCode, array $associatedProductCodes): string
+    public function __invoke(string $type, string $owner, array $associatedProducts): string
     {
         $data = json_decode($this->client->post('product-associations', [
-            'type' => $this->client->iri(sprintf('product-association-types/%s', $this->client->normalizeCode($typeCode))),
-            'owner' => $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($ownerCode))),
-            'associatedProducts' => array_map(
-                fn (string $code) => $this->client->iri(sprintf('products/%s', $this->client->normalizeCode($code))),
-                $associatedProductCodes,
-            ),
+            'type' => $type,
+            'owner' => $owner,
+            'associatedProducts' => $associatedProducts,
         ]), true);
 
         if (isset($data['@id']) && preg_match('/\/(\d+)$/', $data['@id'], $m)) {

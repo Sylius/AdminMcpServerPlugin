@@ -13,9 +13,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 create_taxon — Creates a product category (called "taxon" in Sylius). Categories are used to organize products in the store. They can be nested (subcategories).
 
 REQUIRED: code (unique ID, no spaces, e.g. "T_SHIRTS"), name (display name, e.g. "T-Shirts").
-OPTIONAL: parentCode (parent category code to create a subcategory, e.g. "CLOTHING"), slug (URL path, auto-generated from name if omitted), description, localeCode (default "en_US").
+OPTIONAL: parent (parent category IRI to create a subcategory, e.g. "/api/v2/admin/taxons/CLOTHING" — use list_taxons @id), slug (URL path, auto-generated from name if omitted), description, localeCode (default "en_US").
 
-Example: to create "Men's T-Shirts" under "Men's Clothing": code="MENS_TSHIRTS", name="Men's T-Shirts", parentCode="MENS_CLOTHING". Use list_taxons to find existing category codes.
+Example: to create "Men's T-Shirts" under "Men's Clothing": code="MENS_TSHIRTS", name="Men's T-Shirts", parent="/api/v2/admin/taxons/MENS_CLOTHING". Use list_taxons to find existing category IRIs.
 DESC,
 )]
 final readonly class Create
@@ -28,7 +28,7 @@ final readonly class Create
         string $localeCode = 'en_US',
         string $slug = '',
         string $description = '',
-        string $parentCode = '',
+        string $parent = '',
     ): string {
         $translation = ['name' => $name, 'locale' => $localeCode];
         if ($slug !== '') { $translation['slug'] = $slug; }
@@ -39,8 +39,8 @@ final readonly class Create
             'translations' => [$localeCode => $translation],
         ];
 
-        if ($parentCode !== '') {
-            $body['parent'] = $this->client->iri(sprintf('taxons/%s', $this->client->normalizeCode($parentCode)));
+        if ($parent !== '') {
+            $body['parent'] = $parent;
         }
 
         return $this->client->post('taxons', $body);

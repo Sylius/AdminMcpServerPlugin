@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_channel',
-    description: 'update_channel(code, name?, localeCode?, currencyCode?, taxCalculationStrategy?, hostname?, color?, enabled?, taxZoneCode?, contactEmail?, shippingAddressInCheckoutRequired?) → JSON object of the updated Sylius channel. Only provided fields are changed; omitted fields keep their current values. taxCalculationStrategy: "order_items_based" or "order_item_units_based".',
+    description: 'update_channel(code, name?, locale?, currency?, taxCalculationStrategy?, hostname?, color?, enabled?, taxZone?, contactEmail?, shippingAddressInCheckoutRequired?) → JSON object of the updated Sylius channel. Only provided fields are changed; omitted fields keep their current values. taxCalculationStrategy: "order_items_based" or "order_item_units_based". locale e.g. "/api/v2/admin/locales/en_US", currency e.g. "/api/v2/admin/currencies/USD", taxZone e.g. "/api/v2/admin/zones/EU".',
 )]
 final readonly class Update
 {
@@ -21,33 +21,31 @@ final readonly class Update
     /**
      * @param string      $code                             Channel code to update.
      * @param string      $name                             Channel display name.
-     * @param string      $localeCode                       Default locale code (e.g. "en_US").
-     * @param string      $currencyCode                     Base currency code (e.g. "USD").
+     * @param string      $locale                           Default locale IRI (e.g. "/api/v2/admin/locales/en_US").
+     * @param string      $currency                         Base currency IRI (e.g. "/api/v2/admin/currencies/USD").
      * @param string      $taxCalculationStrategy           Tax calculation strategy.
      * @param string      $hostname                         Channel hostname.
      * @param string      $color                            UI color hex (e.g. "#542d9c").
      * @param bool|null   $enabled                          Whether the channel is enabled.
-     * @param string      $taxZoneCode                      Tax zone code.
+     * @param string      $taxZone                          Tax zone IRI (e.g. "/api/v2/admin/zones/EU").
      * @param string      $contactEmail                     Contact email.
      * @param bool|null   $shippingAddressInCheckoutRequired Whether shipping address is required.
      */
     public function __invoke(
         string $code,
         string $name = '',
-        string $localeCode = '',
-        string $currencyCode = '',
+        string $locale = '',
+        string $currency = '',
         string $taxCalculationStrategy = '',
         string $hostname = '',
         string $color = '',
         ?bool $enabled = null,
-        string $taxZoneCode = '',
+        string $taxZone = '',
         string $contactEmail = '',
         ?bool $shippingAddressInCheckoutRequired = null,
     ): string {
         $existing = json_decode($this->client->get(sprintf('channels/%s', $code)), true);
 
-        $resolvedLocale   = $localeCode !== '' ? $localeCode : basename($existing['defaultLocale'] ?? 'en_US');
-        $resolvedCurrency = $currencyCode !== '' ? $currencyCode : basename($existing['baseCurrency'] ?? 'USD');
         $resolvedStrategy = $taxCalculationStrategy !== '' ? $taxCalculationStrategy : ($existing['taxCalculationStrategy'] ?? 'order_item_units_based');
 
         $body = [
@@ -55,14 +53,10 @@ final readonly class Update
             'enabled'  => $enabled ?? ($existing['enabled'] ?? true),
             'taxCalculationStrategy' => $resolvedStrategy,
             'shippingAddressInCheckoutRequired' => $shippingAddressInCheckoutRequired ?? ($existing['shippingAddressInCheckoutRequired'] ?? false),
-            'defaultLocale' => $this->client->iri(sprintf('locales/%s', $this->client->normalizeCode($resolvedLocale))),
-            'baseCurrency'  => $this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($resolvedCurrency))),
-            'locales'    => $localeCode !== ''
-                ? [$this->client->iri(sprintf('locales/%s', $this->client->normalizeCode($localeCode)))]
-                : ($existing['locales'] ?? [$this->client->iri(sprintf('locales/%s', $this->client->normalizeCode($resolvedLocale)))]),
-            'currencies' => $currencyCode !== ''
-                ? [$this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($currencyCode)))]
-                : ($existing['currencies'] ?? [$this->client->iri(sprintf('currencies/%s', $this->client->normalizeCode($resolvedCurrency)))]),
+            'defaultLocale' => $locale !== '' ? $locale : ($existing['defaultLocale'] ?? ''),
+            'baseCurrency'  => $currency !== '' ? $currency : ($existing['baseCurrency'] ?? ''),
+            'locales'       => $locale !== '' ? [$locale] : ($existing['locales'] ?? []),
+            'currencies'    => $currency !== '' ? [$currency] : ($existing['currencies'] ?? []),
         ];
 
         // Preserve optional fields from existing when not overridden
@@ -88,8 +82,8 @@ final readonly class Update
         }
 
         $existingZone = $existing['defaultTaxZone'] ?? null;
-        if ($taxZoneCode !== '') {
-            $body['taxZone'] = $this->client->iri(sprintf('zones/%s', $this->client->normalizeCode($taxZoneCode)));
+        if ($taxZone !== '') {
+            $body['taxZone'] = $taxZone;
         } elseif ($existingZone !== null) {
             $body['taxZone'] = $existingZone;
         }

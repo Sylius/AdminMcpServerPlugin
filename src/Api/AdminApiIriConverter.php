@@ -18,8 +18,4 @@ final readonly class AdminApiIriConverter implements IriConverterInterface
         return $this->baseApiPath . '/' . ltrim($path, '/');
     }
 
-    public function normalizeCode(string $iriOrCode): string
-    {
-        return str_contains($iriOrCode, '/') ? basename($iriOrCode) : $iriOrCode;
-    }
 }

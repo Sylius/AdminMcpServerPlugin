@@ -10,9 +10,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'create_catalog_promotion',
     description: <<<'DESC'
-create_catalog_promotion — Creates a catalog promotion (automatic discount applied directly to product prices in the catalog, not at checkout). Prerequisites: run list_channels to get channelCodes; run list_taxons to get taxon codes for scope.
+create_catalog_promotion — Creates a catalog promotion (automatic discount applied directly to product prices in the catalog, not at checkout). Prerequisites: run list_channels to get channel IRIs; run list_taxons to get taxon codes for scope.
 
-REQUIRED: code (unique ID, e.g. "SUMMER_SALE"), name (e.g. "Summer Sale"), channelCodes (array of channel codes, e.g. ["FASHION_WEB"]).
+REQUIRED: code (unique ID, e.g. "SUMMER_SALE"), name (e.g. "Summer Sale"), channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
 
 scopes (JSON string) — which products to discount:
 - All products: '[]'
@@ -34,7 +34,7 @@ final readonly class Create
     public function __invoke(
         string $code,
         string $name,
-        array $channelCodes,
+        array $channels,
         string $scopes = '[]',
         string $actions = '[]',
         string $label = '',
@@ -57,10 +57,7 @@ final readonly class Create
             'enabled'     => $enabled,
             'exclusive'   => $exclusive,
             'priority'    => $priority,
-            'channels'    => array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channelCodes,
-            ),
+            'channels'    => $channels,
             'scopes'      => json_decode($scopes, true) ?? [],
             'actions'     => json_decode($actions, true) ?? [],
             'translations' => [$localeCode => $translation],

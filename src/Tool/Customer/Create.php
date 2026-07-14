@@ -13,7 +13,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 create_customer — Creates a new customer account. Does NOT create a login (user account) — only stores customer data.
 
 REQUIRED: email (must be unique), firstName, lastName.
-OPTIONAL: phoneNumber (e.g. "+1 555 123 4567"), birthday (format "YYYY-MM-DD", e.g. "1990-05-15"), gender ("m" for male, "f" for female, "u" for unknown/unspecified), subscribedToNewsletter (true/false, default false), customerGroupCode (use list_customer_groups to find codes).
+OPTIONAL: phoneNumber (e.g. "+1 555 123 4567"), birthday (format "YYYY-MM-DD", e.g. "1990-05-15"), gender ("m" for male, "f" for female, "u" for unknown/unspecified), subscribedToNewsletter (true/false, default false), group (customer group IRI from list_customer_groups @id).
 
 Returns the created customer with their numeric ID (use this ID for update_customer, get_address, etc.).
 DESC,
@@ -30,7 +30,7 @@ final readonly class Create
      * @param string $birthday               Date of birth in YYYY-MM-DD format (e.g. "1990-05-15"). Default = "" (none).
      * @param string $gender                 Gender: "m" (male), "f" (female), "u" (unspecified). Default = "u".
      * @param bool   $subscribedToNewsletter Whether the customer opts in to newsletter. Default = false.
-     * @param string $customerGroupCode      Customer group code (use list_customer_groups). Default = "" (none).
+     * @param string $group                  Customer group IRI from list_customer_groups @id. Default = "" (none).
      */
     public function __invoke(
         string $email,
@@ -40,7 +40,7 @@ final readonly class Create
         string $birthday = '',
         string $gender = 'u',
         bool $subscribedToNewsletter = false,
-        string $customerGroupCode = '',
+        string $group = '',
     ): string {
         $body = [
             'email'                   => $email,
@@ -52,8 +52,8 @@ final readonly class Create
 
         if ($phoneNumber !== '') { $body['phoneNumber'] = $phoneNumber; }
         if ($birthday !== '') { $body['birthday'] = $birthday; }
-        if ($customerGroupCode !== '') {
-            $body['group'] = $this->client->iri(sprintf('customer-groups/%s', $this->client->normalizeCode($customerGroupCode)));
+        if ($group !== '') {
+            $body['group'] = $group;
         }
 
         return $this->client->post('customers', $body);

@@ -12,7 +12,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 set_product_attribute_value — Assigns (or updates) an attribute value on a product. If the attribute is already set for that locale it will be overwritten.
 
-REQUIRED: productCode (product to update), attributeCode (attribute definition code, e.g. "cap_brand" — get codes from list_product_attributes), value (the value to store, as a string — e.g. "100% cotton" for text type, "10.5" for float, "true"/"false" for checkbox).
+REQUIRED: productCode (product to update), attribute (attribute definition IRI, e.g. "/api/v2/admin/product-attributes/cap_brand" — get IRIs from list_product_attributes), value (the value to store, as a string — e.g. "100% cotton" for text type, "10.5" for float, "true"/"false" for checkbox).
 OPTIONAL: localeCode (default "en_US").
 
 NOTE: Product attributes are metadata about the product (material, brand, etc.) — not related to pricing or stock. Use list_product_attributes to see what attribute types exist before assigning values.
@@ -22,9 +22,12 @@ final readonly class SetValue
 {
     public function __construct(private ApiClientInterface $client) {}
 
+    /**
+     * @param string $attribute  Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
+     */
     public function __invoke(
         string $productCode,
-        string $attributeCode,
+        string $attribute,
         string $value,
         string $localeCode = 'en_US',
     ): string {
@@ -32,14 +35,13 @@ final readonly class SetValue
         $existingAttrs = $product['attributes'] ?? [];
 
         // Build the updated list: keep all existing, replace or append the target attribute+locale
-        $attributeIri = $this->client->iri(sprintf('product-attributes/%s', $this->client->normalizeCode($attributeCode)));
         $updated = [];
         $found = false;
 
         foreach ($existingAttrs as $attr) {
-            if (($attr['attribute'] ?? '') === $attributeIri && ($attr['localeCode'] ?? '') === $localeCode) {
+            if (($attr['attribute'] ?? '') === $attribute && ($attr['localeCode'] ?? '') === $localeCode) {
                 // Replace existing value
-                $entry = ['attribute' => $attributeIri, 'localeCode' => $localeCode, 'value' => $value];
+                $entry = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $value];
                 if (isset($attr['@id'])) {
                     $entry['@id'] = $attr['@id'];
                 }
@@ -56,14 +58,14 @@ final readonly class SetValue
         }
 
         if (!$found) {
-            $updated[] = ['attribute' => $attributeIri, 'localeCode' => $localeCode, 'value' => $value];
+            $updated[] = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $value];
         }
 
         $this->client->put(sprintf('products/%s', $productCode), ['attributes' => $updated]);
 
         return (string) json_encode([
             'productCode' => $productCode,
-            'attributeCode' => $attributeCode,
+            'attribute' => $attribute,
             'localeCode' => $localeCode,
             'value' => $value,
             'updated' => true,

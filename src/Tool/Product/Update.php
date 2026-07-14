@@ -26,7 +26,7 @@ final readonly class Update
      * @param string    $description      New full description.
      * @param string    $shortDescription New short description.
      * @param bool|null $enabled          Set enabled status (null = do not change).
-     * @param string[]  $channels         New list of channel codes (replaces existing).
+     * @param string[]  $channels         Array of channel IRIs (from list_channels @id) — replaces existing.
      */
     public function __invoke(
         string $code,
@@ -70,10 +70,7 @@ final readonly class Update
         }
 
         if ($channels !== []) {
-            $body['channels'] = array_map(
-                fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))),
-                $channels,
-            );
+            $body['channels'] = $channels;
         }
 
         return $this->client->put(sprintf('products/%s', $code), $body);

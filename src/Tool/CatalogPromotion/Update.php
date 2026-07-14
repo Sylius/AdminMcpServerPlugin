@@ -13,7 +13,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 update_catalog_promotion — Updates a catalog promotion. Only provided fields are changed; omitted fields keep their current values.
 
 REQUIRED: code (the catalog promotion code to update).
-OPTIONAL: name, channelCodes, label, description, localeCode, enabled, exclusive, priority, startDate, endDate.
+OPTIONAL: name, channels (array of channel IRIs from list_channels @id), label, description, localeCode, enabled, exclusive, priority, startDate, endDate.
 OPTIONAL: scopes/actions (JSON strings — omit or pass '[]' to keep existing):
 - scopes: '[{"type":"for_taxons","configuration":{"taxons":["TAXON_CODE"]}}]' or '[{"type":"for_variants","configuration":{"variants":["VARIANT_CODE"]}}]' or '[{"type":"for_products","configuration":{"products":["PRODUCT_CODE"]}}]'
 - actions: '[{"type":"percentage_discount","configuration":{"amount":0.2}}]' (20% off) or '[{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]' (10.00 off — ALL channels required)
@@ -24,12 +24,12 @@ final readonly class Update
     public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string[] $channelCodes
+     * @param string[] $channels Array of channel IRIs (from list_channels @id).
      */
     public function __invoke(
         string $code,
         string $name = '',
-        array $channelCodes = [],
+        array $channels = [],
         string $scopes = '[]',
         string $actions = '[]',
         string $label = '',
@@ -66,9 +66,7 @@ final readonly class Update
             'enabled'     => $enabled ?? ($existing['enabled'] ?? true),
             'exclusive'   => $exclusive ?? ($existing['exclusive'] ?? false),
             'priority'    => $priority >= 0 ? $priority : ($existing['priority'] ?? 0),
-            'channels'    => $channelCodes !== []
-                ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $this->client->normalizeCode($c))), $channelCodes)
-                : ($existing['channels'] ?? []),
+            'channels'    => $channels !== [] ? $channels : ($existing['channels'] ?? []),
             'scopes'      => ($decodedScopes !== null && $decodedScopes !== [])  ? $decodedScopes  : $this->stripMeta($existing['scopes']  ?? []),
             'actions'     => ($decodedActions !== null && $decodedActions !== []) ? $decodedActions : $this->stripMeta($existing['actions'] ?? []),
             'translations' => $translations,
