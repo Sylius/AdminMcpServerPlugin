@@ -4,14 +4,8 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Api;
 
-interface ApiClientInterface
+interface ApiClientInterface extends IriConverterInterface
 {
-    /**
-     * Builds a full IRI path (e.g. /api/v2/admin/channels/WEB) from a relative resource path.
-     * Use instead of hardcoding /api/v2/admin/ in tool classes.
-     */
-    public function iri(string $path): string;
-
     /**
      * @param array<string, mixed> $query
      */

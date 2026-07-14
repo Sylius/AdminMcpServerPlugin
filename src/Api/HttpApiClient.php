@@ -16,16 +16,13 @@ final readonly class HttpApiClient implements ApiClientInterface
         private HttpClientInterface $apiClient,
         private HttpClientInterface $mergePatchClient,
         private TokenProviderInterface $tokenProvider,
-        private string $baseUri,
+        private IriConverterInterface $iriConverter,
     ) {
     }
 
     public function iri(string $path): string
     {
-        $parsed = parse_url($this->baseUri, \PHP_URL_PATH);
-        $basePath = rtrim(\is_string($parsed) ? $parsed : '/api/v2/admin', '/');
-
-        return $basePath . '/' . ltrim($path, '/');
+        return $this->iriConverter->iri($path);
     }
 
     public function get(string $path, array $query = []): string
