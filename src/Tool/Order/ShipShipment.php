@@ -18,7 +18,7 @@ final readonly class ShipShipment
     public function __invoke(int $shipmentId, string $trackingCode = ''): string
     {
         $body = [];
-        if ($trackingCode !== '') { $body['tracking'] = $trackingCode; }
+        if ($trackingCode !== '') { $body['trackingCode'] = $trackingCode; }
         return $this->client->patch(sprintf('shipments/%d/ship', $shipmentId), $body);
     }
 }

@@ -14,7 +14,8 @@ create_product_variant — Creates a product variant (every product needs at lea
 
 REQUIRED: code (unique variant ID, e.g. "SUMMER_HAT_001-default"), productCode (the product this variant belongs to), price (price in smallest currency unit: 1000 = 10.00 EUR/USD).
 OPTIONAL: name (variant name), onHand (stock quantity, default 0), enabled (default true), tracked (track stock levels, default false), localeCode (default "en_US").
-CHANNEL PRICES: The price is automatically applied to ALL channels the product belongs to (Sylius requires pricing for every channel). To set different prices per channel, pass channelPrices as JSON, e.g. '{"FASHION_WEB":2500,"WEB_EUR":2200}'. If channelPrices is provided it overrides the single price parameter.
+CHANNEL PRICES: The price is automatically applied to ALL channels the product belongs to (Sylius requires pricing for every channel). To set different prices per channel, pass channelPrices as JSON string, e.g. '{"FASHION_WEB":2500,"WEB_EUR":2200}'. If channelPrices is provided it overrides the single price parameter.
+WARNING: If the product has no channels assigned yet (channels: []), channelPricings will be empty and the variant won't have a price — use update_product(code, channels=["FASHION_WEB"]) to assign channels BEFORE creating the variant.
 
 IMPORTANT: After creating a product, always create at least one variant with a price. Ask user for the price if not provided. Suggest code = productCode + "-default" for a single variant.
 DESC,

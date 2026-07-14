@@ -14,13 +14,13 @@ create_shipping_method — Creates a shipping method (delivery option shown to c
 
 REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zoneCode (delivery zone, e.g. "WORLD" or "EU"), calculator (pricing type), channelCodes (which shops offer this shipping).
 
-calculator types:
-- "flat_rate" — same price regardless of order size; provide amount (in smallest unit: 1000 = 10.00)
-- "per_unit_rate" — price × number of items; provide amount per item
-- "percentage_discount" — reduces shipping cost by a percentage; provide percentage (0.1 = 10% off, 1.0 = free)
+calculator types — also specify the matching parameter:
+- "flat_rate" — same price regardless of order size; also pass amount=1000 (1000 = 10.00 EUR/USD, smallest currency unit)
+- "per_unit_rate" — price × number of items; also pass amount=500 (price per item in smallest currency unit)
+- "percentage_discount" — reduces shipping cost by a percentage; also pass percentage=0.1 (0.1 = 10% off, 1.0 = free)
 
-amount is in the smallest currency unit (e.g. 500 = 5.00 EUR/USD).
-The system automatically sets the rate for all channels — just provide the amount or percentage once.
+The system automatically applies the amount/percentage to all channels — just provide once.
+NOTE: the price parameter is called "amount" (not "price"). Pass amount=<value>.
 
 Ask user: what should the shipping cost be? Which zones/regions does it apply to?
 DESC,

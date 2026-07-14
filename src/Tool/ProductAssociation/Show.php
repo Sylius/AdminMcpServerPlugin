@@ -18,8 +18,14 @@ final readonly class Show
     ) {
     }
 
+    /**
+     * @param int $id Numeric association ID (from list_product_associations — extract from @id IRI or use the returned id field).
+     */
     public function __invoke(int $id): string
     {
-        return $this->client->get(sprintf('product-associations/%d', $id));
+        $data = json_decode($this->client->get(sprintf('product-associations/%d', $id)), true);
+        $data['id'] = $id;
+
+        return (string) json_encode($data);
     }
 }

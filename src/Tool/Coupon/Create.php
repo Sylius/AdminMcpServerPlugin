@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_coupon',
-    description: 'create_coupon(promotionCode, code, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. The promotion must have couponBased=true.',
+    description: 'create_coupon(promotionCode, couponCode, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. The promotion must have couponBased=true — check get_promotion(code) first; if couponBased=false the API will return an error.',
 )]
 final readonly class Create
 {
@@ -20,7 +20,7 @@ final readonly class Create
 
     /**
      * @param string   $promotionCode              Promotion code to attach the coupon to (must be couponBased).
-     * @param string   $code                       Unique coupon code customers will enter (e.g. "SUMMER20").
+     * @param string   $couponCode                 Unique coupon code customers will enter (e.g. "SUMMER20").
      * @param int|null $usageLimit                 Total number of times this coupon can be used. Null = unlimited.
      * @param int|null $perCustomerUsageLimit      Max uses per individual customer. Null = unlimited.
      * @param string   $expiresAt                  Expiry datetime in ISO 8601. Default = "" (no expiry).
@@ -28,14 +28,14 @@ final readonly class Create
      */
     public function __invoke(
         string $promotionCode,
-        string $code,
+        string $couponCode,
         ?int $usageLimit = null,
         ?int $perCustomerUsageLimit = null,
         string $expiresAt = '',
         bool $reusableFromCancelledOrders = false,
     ): string {
         $body = [
-            'code' => $code,
+            'code' => $couponCode,
             'reusableFromCancelledOrders' => $reusableFromCancelledOrders,
         ];
 

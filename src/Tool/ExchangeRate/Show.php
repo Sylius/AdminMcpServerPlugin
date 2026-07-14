@@ -18,6 +18,9 @@ final readonly class Show
     ) {
     }
 
+    /**
+     * @param int $id Numeric exchange rate ID (from list_exchange_rates).
+     */
     public function __invoke(int $id): string
     {
         return $this->client->get(sprintf('exchange-rates/%d', $id));

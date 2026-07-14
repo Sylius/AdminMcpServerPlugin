@@ -22,6 +22,16 @@ final readonly class Create
 {
     public function __construct(private ApiClientInterface $client) {}
 
+    /**
+     * @param string $email                  Customer email address (must be unique).
+     * @param string $firstName              First name.
+     * @param string $lastName               Last name.
+     * @param string $phoneNumber            Phone number (e.g. "+1 555 123 4567"). Default = "" (none).
+     * @param string $birthday               Date of birth in YYYY-MM-DD format (e.g. "1990-05-15"). Default = "" (none).
+     * @param string $gender                 Gender: "m" (male), "f" (female), "u" (unspecified). Default = "u".
+     * @param bool   $subscribedToNewsletter Whether the customer opts in to newsletter. Default = false.
+     * @param string $customerGroupCode      Customer group code (use list_customer_groups). Default = "" (none).
+     */
     public function __invoke(
         string $email,
         string $firstName,

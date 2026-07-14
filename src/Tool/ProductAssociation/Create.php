@@ -25,13 +25,19 @@ final readonly class Create
      */
     public function __invoke(string $typeCode, string $ownerCode, array $associatedProductCodes): string
     {
-        return $this->client->post('product-associations', [
+        $data = json_decode($this->client->post('product-associations', [
             'type' => sprintf('/api/v2/admin/product-association-types/%s', $typeCode),
             'owner' => sprintf('/api/v2/admin/products/%s', $ownerCode),
             'associatedProducts' => array_map(
                 static fn (string $code) => sprintf('/api/v2/admin/products/%s', $code),
                 $associatedProductCodes,
             ),
-        ]);
+        ]), true);
+
+        if (isset($data['@id']) && preg_match('/\/(\d+)$/', $data['@id'], $m)) {
+            $data['id'] = (int) $m[1];
+        }
+
+        return (string) json_encode($data);
     }
 }

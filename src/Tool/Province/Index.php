@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_provinces',
-    description: 'list_provinces(countryCode) → JSON Hydra collection of provinces for a given country. Each province has: id, code (e.g. "US-CA"), name, abbreviation. countryCode is the 2-letter ISO country code (e.g. "US", "CA", "DE").',
+    description: 'list_provinces(countryCode) → JSON Hydra collection of provinces for a given country. Each province has: code (e.g. "US-CA"), name, abbreviation. countryCode is the 2-letter ISO country code (e.g. "US", "CA", "DE").',
 )]
 final readonly class Index
 {

@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'archive_promotion',
-    description: 'archive_promotion(code) → Archives (soft-deletes) a Sylius cart promotion. The promotion is hidden from the shop but preserved in the database. Use restore_promotion to undo. Returns JSON of the archived promotion.',
+    description: 'archive_promotion(code) → Archives (soft-deletes) a Sylius cart promotion. The promotion is hidden from the shop but preserved in the database. Calling this on an already-archived promotion updates the archivedAt timestamp (Sylius allows it). Use restore_promotion to undo. Returns JSON of the archived promotion.',
 )]
 final readonly class Archive
 {

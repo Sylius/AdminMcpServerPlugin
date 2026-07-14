@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_countries',
-    description: 'list_countries(page?, itemsPerPage?) → Lists countries enabled in the store. Each has: code (2-letter ISO, e.g. "US", "DE", "PL"), name (full country name), enabled, provinces (list of province IRIs — use list_provinces(countryCode) to see them). Use create_country to add a new country.',
+    description: 'list_countries(page?, itemsPerPage?) → Lists all countries registered in the store (both enabled and disabled). Each has: code (2-letter ISO, e.g. "US", "DE", "PL"), name (full country name), enabled, provinces (list of province IRIs — use list_provinces(countryCode) to see them). Use create_country to add a new country.',
 )]
 final readonly class Index
 {

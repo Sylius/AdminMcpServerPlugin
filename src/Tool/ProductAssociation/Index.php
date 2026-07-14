@@ -34,6 +34,14 @@ final readonly class Index
             $params['type.code'] = $typeCode;
         }
 
-        return $this->client->get('product-associations', $params);
+        $data = json_decode($this->client->get('product-associations', $params), true);
+
+        foreach (array_keys($data['hydra:member'] ?? []) as $i) {
+            if (isset($data['hydra:member'][$i]['@id']) && preg_match('/\/(\d+)$/', $data['hydra:member'][$i]['@id'], $m)) {
+                $data['hydra:member'][$i]['id'] = (int) $m[1];
+            }
+        }
+
+        return (string) json_encode($data);
     }
 }

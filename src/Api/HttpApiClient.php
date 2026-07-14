@@ -68,7 +68,14 @@ final readonly class HttpApiClient implements ApiClientInterface
                 return $this->request($client, $method, $path, $options, forceRefresh: true);
             }
 
-            return $response->getContent(false);
+            $content    = $response->getContent(false);
+            $statusCode = $response->getStatusCode();
+
+            if ($statusCode >= 400) {
+                throw new ToolCallException($content);
+            }
+
+            return $content;
         } catch (NotAuthenticatedException | AuthenticationFailedException $e) {
             throw new ToolCallException($e->getMessage(), 0, $e);
         }

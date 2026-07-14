@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_product_variants',
-    description: 'list_product_variants(page?, itemsPerPage?, productCode?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale).',
+    description: 'list_product_variants(page?, itemsPerPage?, productCode?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). TIP: Always pass productCode to filter by product — without it, all variants across the entire store are returned (can be hundreds).',
 )]
 final readonly class Index
 {

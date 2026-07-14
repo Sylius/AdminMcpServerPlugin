@@ -25,7 +25,9 @@ final readonly class Index
     /**
      * @param int    $page         Page number (1-based). Default = 1.
      * @param int    $itemsPerPage Items per page. Default = 30.
-     * @param string $email        Filter by exact email address. Leave empty to list all.
+     * @param string $email        Filter by exact email address. Leave empty to skip.
+     * @param string $firstName    Filter by first name (partial match). Leave empty to skip.
+     * @param string $lastName     Filter by last name (partial match). Leave empty to skip.
      */
     public function __invoke(int $page = 1, int $itemsPerPage = 30, string $email = '', string $firstName = '', string $lastName = ''): string
     {
