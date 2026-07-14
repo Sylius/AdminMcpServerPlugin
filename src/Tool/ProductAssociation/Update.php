@@ -26,7 +26,7 @@ final readonly class Update
     {
         return $this->client->put(sprintf('product-associations/%d', $id), [
             'associatedProducts' => array_map(
-                static fn (string $code) => sprintf('/api/v2/admin/products/%s', $code),
+                fn (string $code) => $this->client->iri(sprintf('products/%s', $code)),
                 $associatedProductCodes,
             ),
         ]);

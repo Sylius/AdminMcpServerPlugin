@@ -57,7 +57,7 @@ final readonly class Create
             'exclusive'   => $exclusive,
             'couponBased' => $couponBased,
             'channels'    => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
                 $channelCodes,
             ),
             'rules'   => json_decode($rules, true) ?? [],

@@ -40,7 +40,7 @@ final readonly class Create
         ];
 
         if ($parentCode !== '') {
-            $body['parent'] = sprintf('/api/v2/admin/taxons/%s', $parentCode);
+            $body['parent'] = $this->client->iri(sprintf('taxons/%s', $parentCode));
         }
 
         return $this->client->post('taxons', $body);

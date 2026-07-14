@@ -28,7 +28,7 @@ final readonly class Update
         return $this->client->put(sprintf('product-association-types/%s', $code), [
             'translations' => [
                 $localeCode => [
-                    '@id' => sprintf('/api/v2/admin/product-association-types/%s/translations/%s', $code, $localeCode),
+                    '@id' => $this->client->iri(sprintf('product-association-types/%s/translations/%s', $code, $localeCode)),
                     'locale' => $localeCode,
                     'name' => $name,
                 ],

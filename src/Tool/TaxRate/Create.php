@@ -42,8 +42,8 @@ final readonly class Create
             'amount' => $amount,
             'includedInPrice' => $includedInPrice,
             'calculator' => $calculator,
-            'category' => sprintf('/api/v2/admin/tax-categories/%s', $categoryCode),
-            'zone' => sprintf('/api/v2/admin/zones/%s', $zoneCode),
+            'category' => $this->client->iri(sprintf('tax-categories/%s', $categoryCode)),
+            'zone' => $this->client->iri(sprintf('zones/%s', $zoneCode)),
         ]);
     }
 }

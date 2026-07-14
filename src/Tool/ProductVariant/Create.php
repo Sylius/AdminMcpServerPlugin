@@ -57,7 +57,7 @@ final readonly class Create
 
         $body = [
             'code'            => $code,
-            'product'         => sprintf('/api/v2/admin/products/%s', $productCode),
+            'product'         => $this->client->iri(sprintf('products/%s', $productCode)),
             'enabled'         => $enabled,
             'tracked'         => $tracked,
             'onHand'          => $onHand,

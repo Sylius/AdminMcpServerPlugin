@@ -67,15 +67,13 @@ final readonly class Update
                 $existing['translations'][$localeCode]['name'] = $name;
             } else {
                 $existing['translations'][$localeCode] = [
-                    '@id' => sprintf('/api/v2/admin/product-variants/%s/translations/%s', $code, $localeCode),
+                    '@id' => $this->client->iri(sprintf('product-variants/%s/translations/%s', $code, $localeCode)),
                     'locale' => $localeCode,
                     'name'   => $name,
                 ];
             }
         }
 
-        // Must use application/ld+json so the server resolves @id references in
-        // channelPricings and translations as updates rather than new creates
-        return $this->client->putLd(sprintf('product-variants/%s', $code), $existing);
+        return $this->client->put(sprintf('product-variants/%s', $code), $existing);
     }
 }

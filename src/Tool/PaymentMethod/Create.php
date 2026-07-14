@@ -56,7 +56,7 @@ final readonly class Create
                 'gatewayName' => $gatewayName,
             ],
             'channels' => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
                 $channelCodes,
             ),
             'translations' => [$localeCode => $translation],

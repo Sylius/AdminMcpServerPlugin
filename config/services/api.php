@@ -22,6 +22,7 @@ return static function (ContainerConfigurator $container): void {
             service('sylius_admin_mcp_server.http_client.api'),
             service('sylius_admin_mcp_server.http_client.api_merge_patch'),
             service('sylius_admin_mcp_server.provider.token'),
+            '%sylius_admin_mcp_server.api.base_uri%',
         ]);
 
     $services->alias(ApiClientInterface::class, 'sylius_admin_mcp_server.client.api');

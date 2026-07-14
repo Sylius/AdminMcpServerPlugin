@@ -41,7 +41,7 @@ final readonly class Update
         $resolvedName = $name !== '' ? $name : ($existing['translations'][$localeCode]['name'] ?? $code);
 
         $translation = [
-            '@id'    => sprintf('/api/v2/admin/payment-methods/%s/translations/%s', $code, $localeCode),
+            '@id'    => $this->client->iri(sprintf('payment-methods/%s/translations/%s', $code, $localeCode)),
             'locale' => $localeCode,
             'name'   => $resolvedName,
         ];
@@ -59,7 +59,7 @@ final readonly class Update
         }
         if ($channelCodes !== []) {
             $body['channels'] = array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
                 $channelCodes,
             );
         }

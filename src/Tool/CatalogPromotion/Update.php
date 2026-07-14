@@ -67,7 +67,7 @@ final readonly class Update
             'exclusive'   => $exclusive ?? ($existing['exclusive'] ?? false),
             'priority'    => $priority >= 0 ? $priority : ($existing['priority'] ?? 0),
             'channels'    => $channelCodes !== []
-                ? array_map(static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c), $channelCodes)
+                ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)), $channelCodes)
                 : ($existing['channels'] ?? []),
             'scopes'      => ($decodedScopes !== null && $decodedScopes !== [])  ? $decodedScopes  : $this->stripMeta($existing['scopes']  ?? []),
             'actions'     => ($decodedActions !== null && $decodedActions !== []) ? $decodedActions : $this->stripMeta($existing['actions'] ?? []),

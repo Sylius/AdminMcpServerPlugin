@@ -71,7 +71,7 @@ final readonly class Update
 
         if ($channels !== []) {
             $body['channels'] = array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
                 $channels,
             );
         }

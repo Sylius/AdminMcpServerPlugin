@@ -62,16 +62,16 @@ final readonly class Create
             'enabled'       => $enabled,
             'calculator'    => $calculator,
             'configuration' => $configuration,
-            'zone'          => sprintf('/api/v2/admin/zones/%s', $zoneCode),
+            'zone'          => $this->client->iri(sprintf('zones/%s', $zoneCode)),
             'channels'      => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)),
                 $channelCodes,
             ),
             'translations'  => [$localeCode => $translation],
         ];
 
-        if ($categoryCode !== '') { $body['category'] = sprintf('/api/v2/admin/shipping-categories/%s', $categoryCode); }
-        if ($taxCategoryCode !== '') { $body['taxCategory'] = sprintf('/api/v2/admin/tax-categories/%s', $taxCategoryCode); }
+        if ($categoryCode !== '') { $body['category'] = $this->client->iri(sprintf('shipping-categories/%s', $categoryCode)); }
+        if ($taxCategoryCode !== '') { $body['taxCategory'] = $this->client->iri(sprintf('tax-categories/%s', $taxCategoryCode)); }
 
         return $this->client->post('shipping-methods', $body);
     }

@@ -46,11 +46,11 @@ final readonly class Update
 
         $resolvedCalculator = $calculator !== '' ? $calculator : ($existing['shippingChargesCalculator'] ?? 'flat_rate');
         $resolvedZone = $zoneCode !== ''
-            ? sprintf('/api/v2/admin/zones/%s', $zoneCode)
+            ? $this->client->iri(sprintf('zones/%s', $zoneCode))
             : ($existing['zone'] ?? '');
 
         $resolvedChannels = $channelCodes !== []
-            ? array_map(static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c), $channelCodes)
+            ? array_map(fn (string $c) => $this->client->iri(sprintf('channels/%s', $c)), $channelCodes)
             : ($existing['channels'] ?? []);
 
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
@@ -95,14 +95,14 @@ final readonly class Update
 
         $existingCategory = $existing['category'] ?? null;
         if ($categoryCode !== '') {
-            $body['category'] = sprintf('/api/v2/admin/shipping-categories/%s', $categoryCode);
+            $body['category'] = $this->client->iri(sprintf('shipping-categories/%s', $categoryCode));
         } elseif ($existingCategory !== null) {
             $body['category'] = $existingCategory;
         }
 
         $existingTaxCategory = $existing['taxCategory'] ?? null;
         if ($taxCategoryCode !== '') {
-            $body['taxCategory'] = sprintf('/api/v2/admin/tax-categories/%s', $taxCategoryCode);
+            $body['taxCategory'] = $this->client->iri(sprintf('tax-categories/%s', $taxCategoryCode));
         } elseif ($existingTaxCategory !== null) {
             $body['taxCategory'] = $existingTaxCategory;
         }

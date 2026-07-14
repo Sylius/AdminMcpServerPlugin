@@ -53,7 +53,7 @@ final readonly class Create
         if ($phoneNumber !== '') { $body['phoneNumber'] = $phoneNumber; }
         if ($birthday !== '') { $body['birthday'] = $birthday; }
         if ($customerGroupCode !== '') {
-            $body['group'] = sprintf('/api/v2/admin/customer-groups/%s', $customerGroupCode);
+            $body['group'] = $this->client->iri(sprintf('customer-groups/%s', $customerGroupCode));
         }
 
         return $this->client->post('customers', $body);

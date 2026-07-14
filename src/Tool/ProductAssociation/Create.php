@@ -26,10 +26,10 @@ final readonly class Create
     public function __invoke(string $typeCode, string $ownerCode, array $associatedProductCodes): string
     {
         $data = json_decode($this->client->post('product-associations', [
-            'type' => sprintf('/api/v2/admin/product-association-types/%s', $typeCode),
-            'owner' => sprintf('/api/v2/admin/products/%s', $ownerCode),
+            'type' => $this->client->iri(sprintf('product-association-types/%s', $typeCode)),
+            'owner' => $this->client->iri(sprintf('products/%s', $ownerCode)),
             'associatedProducts' => array_map(
-                static fn (string $code) => sprintf('/api/v2/admin/products/%s', $code),
+                fn (string $code) => $this->client->iri(sprintf('products/%s', $code)),
                 $associatedProductCodes,
             ),
         ]), true);

@@ -16,7 +16,15 @@ final readonly class HttpApiClient implements ApiClientInterface
         private HttpClientInterface $apiClient,
         private HttpClientInterface $mergePatchClient,
         private TokenProviderInterface $tokenProvider,
+        private string $baseUri,
     ) {
+    }
+
+    public function iri(string $path): string
+    {
+        $basePath = rtrim(parse_url($this->baseUri, \PHP_URL_PATH) ?? '/api/v2/admin', '/');
+
+        return $basePath . '/' . ltrim($path, '/');
     }
 
     public function get(string $path, array $query = []): string
@@ -26,20 +34,12 @@ final readonly class HttpApiClient implements ApiClientInterface
 
     public function post(string $path, array $body = []): string
     {
-        return $this->request($this->apiClient, 'POST', $path, ['json' => $body]);
+        return $this->request($this->apiClient, 'POST', $path, ['body' => json_encode($body, \JSON_THROW_ON_ERROR)]);
     }
 
     public function put(string $path, array $body = []): string
     {
-        return $this->request($this->apiClient, 'PUT', $path, ['json' => $body]);
-    }
-
-    public function putLd(string $path, array $body = []): string
-    {
-        return $this->request($this->apiClient, 'PUT', $path, [
-            'body'    => json_encode($body, \JSON_THROW_ON_ERROR),
-            'headers' => ['Content-Type' => 'application/ld+json'],
-        ]);
+        return $this->request($this->apiClient, 'PUT', $path, ['body' => json_encode($body, \JSON_THROW_ON_ERROR)]);
     }
 
     public function patch(string $path, array $body = []): string

@@ -55,14 +55,14 @@ final readonly class Update
             'enabled'  => $enabled ?? ($existing['enabled'] ?? true),
             'taxCalculationStrategy' => $resolvedStrategy,
             'shippingAddressInCheckoutRequired' => $shippingAddressInCheckoutRequired ?? ($existing['shippingAddressInCheckoutRequired'] ?? false),
-            'defaultLocale' => sprintf('/api/v2/admin/locales/%s', $resolvedLocale),
-            'baseCurrency'  => sprintf('/api/v2/admin/currencies/%s', $resolvedCurrency),
+            'defaultLocale' => $this->client->iri(sprintf('locales/%s', $resolvedLocale)),
+            'baseCurrency'  => $this->client->iri(sprintf('currencies/%s', $resolvedCurrency)),
             'locales'    => $localeCode !== ''
-                ? [sprintf('/api/v2/admin/locales/%s', $localeCode)]
-                : ($existing['locales'] ?? [sprintf('/api/v2/admin/locales/%s', $resolvedLocale)]),
+                ? [$this->client->iri(sprintf('locales/%s', $localeCode))]
+                : ($existing['locales'] ?? [$this->client->iri(sprintf('locales/%s', $resolvedLocale))]),
             'currencies' => $currencyCode !== ''
-                ? [sprintf('/api/v2/admin/currencies/%s', $currencyCode)]
-                : ($existing['currencies'] ?? [sprintf('/api/v2/admin/currencies/%s', $resolvedCurrency)]),
+                ? [$this->client->iri(sprintf('currencies/%s', $currencyCode))]
+                : ($existing['currencies'] ?? [$this->client->iri(sprintf('currencies/%s', $resolvedCurrency))]),
         ];
 
         // Preserve optional fields from existing when not overridden
@@ -89,7 +89,7 @@ final readonly class Update
 
         $existingZone = $existing['defaultTaxZone'] ?? null;
         if ($taxZoneCode !== '') {
-            $body['taxZone'] = sprintf('/api/v2/admin/zones/%s', $taxZoneCode);
+            $body['taxZone'] = $this->client->iri(sprintf('zones/%s', $taxZoneCode));
         } elseif ($existingZone !== null) {
             $body['taxZone'] = $existingZone;
         }

@@ -38,7 +38,7 @@ final readonly class Update
 
         if ($productVariantCodes !== []) {
             $body['productVariants'] = array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/product-variants/%s', $c),
+                fn (string $c) => $this->client->iri(sprintf('product-variants/%s', $c)),
                 $productVariantCodes,
             );
         } else {
