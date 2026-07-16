@@ -10,12 +10,11 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_product_variant',
     description: <<<'DESC'
-update_product_variant — Updates a product variant. Only provided fields are changed; omitted fields keep their current values.
+update_product_variant(code, body) → JSON of the updated product variant. Only fields in body are changed.
 
-OPTIONAL: name (variant display name), onHand (stock quantity), enabled, tracked (stock tracking), localeCode (default "en_US").
-PRICE UPDATE: To change the price for a single channel pass price + channelCode (e.g. channelCode="FASHION_WEB", price=3000). To update prices for multiple channels at once pass channelPrices as JSON, e.g. '{"FASHION_WEB":3000,"WEB_EUR":2800}'. If channelPrices is given, channelCode/price are ignored.
-
-The variant code identifies which variant to update. Get variant codes from list_product_variants or get_product.
+body (JSON string) — fields: enabled (bool), tracked (bool), onHand (int), translations (map of locale → {name?}), channelPricings (map of channel code → {price: int} — price in smallest currency unit, e.g. 3000=30.00).
+Shorthand for single channel: pass price (int) + channelCode (string) in body instead of channelPricings.
+Example: '{"enabled":true,"onHand":50,"channelPricings":{"FASHION_WEB":{"price":2999},"WEB_EUR":{"price":2799}}}'
 DESC,
 )]
 final readonly class Update
@@ -25,48 +24,42 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(
-        string $code,
-        string $name = '',
-        string $localeCode = 'en_US',
-        ?int $onHand = null,
-        ?bool $enabled = null,
-        ?bool $tracked = null,
-        ?int $price = null,
-        string $channelCode = '',
-        string $channelPrices = '',
-    ): string {
-        // Fetch existing variant to merge changes into (required for ld+json PUT)
+    public function __invoke(string $code, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('product-variants/%s', $code)), true);
+        $b = json_decode($body, true) ?? [];
 
-        if ($enabled !== null) {
-            $existing['enabled'] = $enabled;
+        if (isset($b['enabled'])) {
+            $existing['enabled'] = $b['enabled'];
         }
-        if ($tracked !== null) {
-            $existing['tracked'] = $tracked;
+        if (isset($b['tracked'])) {
+            $existing['tracked'] = $b['tracked'];
         }
-        if ($onHand !== null) {
-            $existing['onHand'] = $onHand;
+        if (isset($b['onHand'])) {
+            $existing['onHand'] = $b['onHand'];
         }
 
-        if ($channelPrices !== '') {
-            $overrides = json_decode($channelPrices, true) ?? [];
-            foreach ($overrides as $ch => $p) {
+        if (isset($b['channelPricings'])) {
+            foreach ($b['channelPricings'] as $ch => $pricing) {
                 if (isset($existing['channelPricings'][$ch])) {
-                    $existing['channelPricings'][$ch]['price'] = (int) $p;
+                    $existing['channelPricings'][$ch]['price'] = (int) $pricing['price'];
                 }
             }
-        } elseif ($price !== null && $channelCode !== '') {
-            if (isset($existing['channelPricings'][$channelCode])) {
-                $existing['channelPricings'][$channelCode]['price'] = $price;
+        } elseif (isset($b['price'], $b['channelCode'])) {
+            if (isset($existing['channelPricings'][$b['channelCode']])) {
+                $existing['channelPricings'][$b['channelCode']]['price'] = (int) $b['price'];
             }
         }
 
-        if ($name !== '') {
-            if (isset($existing['translations'][$localeCode])) {
-                $existing['translations'][$localeCode]['name'] = $name;
-            } else {
-                $existing['translations'][$localeCode] = ['name' => $name];
+        if (isset($b['translations'])) {
+            foreach ($b['translations'] as $locale => $fields) {
+                if (isset($existing['translations'][$locale])) {
+                    foreach ($fields as $key => $value) {
+                        $existing['translations'][$locale][$key] = $value;
+                    }
+                } else {
+                    $existing['translations'][$locale] = $fields;
+                }
             }
         }
 

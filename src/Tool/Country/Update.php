@@ -9,23 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_country',
-    description: 'update_country(code, enabled) → Enables or disables a country in the store. When disabled, customers cannot select it as a shipping/billing destination. Returns JSON of the updated country.',
+    description: 'update_country(code, body) → JSON of the updated country. body (JSON string) — fields: enabled (bool). Example: \'{"enabled": true}\'',
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param string $code    ISO 3166-1 alpha-2 country code to update.
-     * @param bool   $enabled Whether the country is enabled.
-     */
-    public function __invoke(string $code, bool $enabled): string
+    public function __invoke(string $code, string $body): string
     {
-        return $this->client->put(sprintf('countries/%s', $code), [
-            'enabled' => $enabled,
-        ]);
+        return $this->client->put(sprintf('countries/%s', $code), json_decode($body, true) ?? []);
     }
 }

@@ -9,7 +9,12 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_taxon_image',
-    description: 'update_taxon_image(taxonCode, imageId, type?) → Updates the type label of a taxon image (e.g. "main", "banner"). Returns JSON of the updated image. Use list_taxon_images to find the imageId.',
+    description: <<<'DESC'
+update_taxon_image(taxonCode, imageId, body) → JSON of the updated taxon image. Only fields in body are changed.
+
+body (JSON string) — fields: type (string label, e.g. "main"/"banner").
+Example: '{"type":"banner"}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,16 +23,17 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(string $taxonCode, int $imageId, string $type = ''): string
+    public function __invoke(string $taxonCode, int $imageId, string $body): string
     {
         $existing = json_decode(
             $this->client->get(sprintf('taxons/%s/images/%d', $taxonCode, $imageId)),
             true,
         );
+        $b = json_decode($body, true) ?? [];
 
         return $this->client->put(
             sprintf('taxons/%s/images/%d', $taxonCode, $imageId),
-            ['type' => $type !== '' ? $type : ($existing['type'] ?? null)],
+            ['type' => $b['type'] ?? ($existing['type'] ?? null)],
         );
     }
 }

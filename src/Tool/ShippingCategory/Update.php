@@ -9,7 +9,12 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_shipping_category',
-    description: 'update_shipping_category(code, name?, description?) → JSON object of the updated shipping category. Only provided fields are changed; omitted fields keep their current values.',
+    description: <<<'DESC'
+update_shipping_category(code, body) → JSON of the updated shipping category. Only fields in body are changed.
+
+body (JSON string) — fields: name (string), description (string).
+Example: '{"name":"Heavy Goods","description":"Items over 20kg"}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,18 +23,18 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(string $code, string $name = '', string $description = ''): string
+    public function __invoke(string $code, string $body): string
     {
         $existing = json_decode($this->client->get(sprintf('shipping-categories/%s', $code)), true);
+        $b = json_decode($body, true) ?? [];
 
-        $body = ['name' => $name !== '' ? $name : ($existing['name'] ?? $code)];
+        $merged = ['name' => $b['name'] ?? ($existing['name'] ?? $code)];
 
-        if ($description !== '') {
-            $body['description'] = $description;
-        } elseif (isset($existing['description']) && $existing['description'] !== null) {
-            $body['description'] = $existing['description'];
+        $description = $b['description'] ?? ($existing['description'] ?? null);
+        if ($description !== null) {
+            $merged['description'] = $description;
         }
 
-        return $this->client->put(sprintf('shipping-categories/%s', $code), $body);
+        return $this->client->put(sprintf('shipping-categories/%s', $code), $merged);
     }
 }

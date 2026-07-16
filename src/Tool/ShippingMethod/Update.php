@@ -10,12 +10,11 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'update_shipping_method',
     description: <<<'DESC'
-update_shipping_method — Updates a shipping method. Only provided fields are changed; omitted fields keep their current values.
+update_shipping_method(code, body) → JSON of the updated shipping method. Only fields in body are changed.
 
-REQUIRED: code (the shipping method code to update).
-OPTIONAL: translations (JSON map of locale → {name?, description?} — pass multiple locales at once, e.g. '{"en_US":{"name":"Express","description":"Next day"},"pl_PL":{"name":"Ekspres"}}'), zone (IRI e.g. "/api/v2/admin/zones/WORLD"), calculator (flat_rate/per_unit_rate/percentage_discount), channels (array of channel IRIs), amount (smallest unit, e.g. 500=5.00), percentage (decimal, e.g. 0.1=10%), category (IRI), taxCategory (IRI), enabled.
-
+body (JSON string) — fields: translations (map of locale → {name?, description?}), zone (IRI e.g. "/api/v2/admin/zones/WORLD"), calculator ("flat_rate"/"per_unit_rate"/"percentage_discount"), channels (array of channel IRIs from list_channels @id), amount (int, smallest currency unit e.g. 500=5.00), percentage (float, e.g. 0.1=10%), category (IRI from list_shipping_categories @id), taxCategory (IRI from list_tax_categories @id), enabled (bool).
 Configuration is automatically built for all channels in the system.
+Example: '{"translations":{"en_US":{"name":"Express","description":"Next day delivery"},"pl_PL":{"name":"Ekspres"}},"amount":999}'
 DESC,
 )]
 final readonly class Update
@@ -25,27 +24,16 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $translations JSON map of locale → {name?, description?}. Pass multiple locales at once.
-     * @param string[]  $channels     Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
-     */
-    public function __invoke(
-        string $code,
-        string $translations = '{}',
-        string $zone = '',
-        string $calculator = '',
-        array $channels = [],
-        int $amount = -1,
-        float $percentage = -1.0,
-        string $category = '',
-        string $taxCategory = '',
-        ?bool $enabled = null,
-    ): string {
+    public function __invoke(string $code, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('shipping-methods/%s', $code)), true);
+        $b = json_decode($body, true) ?? [];
 
-        $resolvedCalculator = $calculator !== '' ? $calculator : ($existing['shippingChargesCalculator'] ?? 'flat_rate');
-        $resolvedZone = $zone !== '' ? $zone : ($existing['zone'] ?? '');
-        $resolvedChannels = $channels !== [] ? $channels : ($existing['channels'] ?? []);
+        $resolvedCalculator = $b['calculator'] ?? ($existing['shippingChargesCalculator'] ?? 'flat_rate');
+        $resolvedZone       = $b['zone']       ?? ($existing['zone'] ?? '');
+        $resolvedChannels   = $b['channels']   ?? ($existing['channels'] ?? []);
+        $amount             = $b['amount']     ?? null;
+        $percentage         = $b['percentage'] ?? null;
 
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
         $configuration = [];
@@ -53,18 +41,15 @@ final readonly class Update
             $channelCode = $channel['code'];
             $existingConfig = $existing['shippingChargesCalculatorConfiguration'][$channelCode] ?? [];
             if ($resolvedCalculator === 'percentage_discount') {
-                $resolvedPercentage = $percentage >= 0.0 ? $percentage : ($existingConfig['percentage'] ?? 0.0);
-                $configuration[$channelCode] = ['percentage' => $resolvedPercentage];
+                $configuration[$channelCode] = ['percentage' => $percentage ?? ($existingConfig['percentage'] ?? 0.0)];
             } else {
-                $resolvedAmount = $amount >= 0 ? $amount : ($existingConfig['amount'] ?? 0);
-                $configuration[$channelCode] = ['amount' => $resolvedAmount];
+                $configuration[$channelCode] = ['amount' => $amount ?? ($existingConfig['amount'] ?? 0)];
             }
         }
 
         $mergedTranslations = $existing['translations'] ?? [];
-        $incoming = json_decode($translations, true);
-        if (!empty($incoming)) {
-            foreach ($incoming as $locale => $fields) {
+        if (isset($b['translations'])) {
+            foreach ($b['translations'] as $locale => $fields) {
                 if (!isset($mergedTranslations[$locale])) {
                     $mergedTranslations[$locale] = [];
                 }
@@ -73,34 +58,29 @@ final readonly class Update
                 }
             }
         }
-        $translations = $mergedTranslations;
 
-        $body = [
+        $merged = [
             'calculator'    => $resolvedCalculator,
             'configuration' => $configuration,
             'zone'          => $resolvedZone,
             'channels'      => $resolvedChannels,
-            'translations'  => $translations,
+            'translations'  => $mergedTranslations,
         ];
 
-        if ($enabled !== null) {
-            $body['enabled'] = $enabled;
+        if (isset($b['enabled'])) {
+            $merged['enabled'] = $b['enabled'];
+        } elseif (isset($existing['enabled'])) {
+            $merged['enabled'] = $existing['enabled'];
         }
 
-        $existingCategory = $existing['category'] ?? null;
-        if ($category !== '') {
-            $body['category'] = $category;
-        } elseif ($existingCategory !== null) {
-            $body['category'] = $existingCategory;
+        foreach (['category', 'taxCategory'] as $opt) {
+            if (isset($b[$opt])) {
+                $merged[$opt] = $b[$opt];
+            } elseif (isset($existing[$opt])) {
+                $merged[$opt] = $existing[$opt];
+            }
         }
 
-        $existingTaxCategory = $existing['taxCategory'] ?? null;
-        if ($taxCategory !== '') {
-            $body['taxCategory'] = $taxCategory;
-        } elseif ($existingTaxCategory !== null) {
-            $body['taxCategory'] = $existingTaxCategory;
-        }
-
-        return $this->client->put(sprintf('shipping-methods/%s', $code), $body);
+        return $this->client->put(sprintf('shipping-methods/%s', $code), $merged);
     }
 }

@@ -10,12 +10,11 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_address',
     description: <<<'DESC'
-update_address — Updates an address. Only the fields you provide are changed; everything else stays the same (the tool fetches the current address first and merges your changes).
+update_address(id, body) → JSON of the updated address. Only fields in body are changed; everything else stays the same (the tool fetches the current address first and merges your changes).
 
-REQUIRED: id (address numeric ID — get it from list_customer_addresses).
-OPTIONAL: firstName, lastName, street, city, postcode, countryCode (ISO 2-letter, e.g. "US", "FR", "DE"), company, phoneNumber, provinceCode (e.g. "US-NY"), provinceName (e.g. "New York").
-
-Use list_customer_addresses(customerId) to find the address id before calling this tool.
+id: numeric address ID (from list_customer_addresses).
+body (JSON string) — fields: firstName, lastName, street, city, postcode, countryCode (ISO 2-letter, e.g. "US"), company, phoneNumber, provinceCode (e.g. "US-NY"), provinceName (e.g. "New York").
+Example: '{"firstName":"Jan","city":"Warsaw","countryCode":"PL"}'
 DESC,
 )]
 final readonly class Update
@@ -25,39 +24,27 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(
-        int $id,
-        string $firstName = '',
-        string $lastName = '',
-        string $street = '',
-        string $city = '',
-        string $postcode = '',
-        string $countryCode = '',
-        string $company = '',
-        string $phoneNumber = '',
-        string $provinceCode = '',
-        string $provinceName = '',
-    ): string {
-        // GET the existing address so we can do a smart merge (PUT requires all required fields)
+    public function __invoke(int $id, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('addresses/%d', $id)), true);
+        $b = json_decode($body, true) ?? [];
 
-        $body = [
-            'firstName'   => $firstName !== '' ? $firstName : ($existing['firstName'] ?? ''),
-            'lastName'    => $lastName !== '' ? $lastName : ($existing['lastName'] ?? ''),
-            'street'      => $street !== '' ? $street : ($existing['street'] ?? ''),
-            'city'        => $city !== '' ? $city : ($existing['city'] ?? ''),
-            'postcode'    => $postcode !== '' ? $postcode : ($existing['postcode'] ?? ''),
-            'countryCode' => $countryCode !== '' ? $countryCode : ($existing['countryCode'] ?? ''),
+        $merged = [
+            'firstName'   => $b['firstName']   ?? ($existing['firstName'] ?? ''),
+            'lastName'    => $b['lastName']    ?? ($existing['lastName'] ?? ''),
+            'street'      => $b['street']      ?? ($existing['street'] ?? ''),
+            'city'        => $b['city']        ?? ($existing['city'] ?? ''),
+            'postcode'    => $b['postcode']    ?? ($existing['postcode'] ?? ''),
+            'countryCode' => $b['countryCode'] ?? ($existing['countryCode'] ?? ''),
         ];
 
-        $body['company']      = $company !== '' ? $company : ($existing['company'] ?? null);
-        $body['phoneNumber']  = $phoneNumber !== '' ? $phoneNumber : ($existing['phoneNumber'] ?? null);
-        $body['provinceCode'] = $provinceCode !== '' ? $provinceCode : ($existing['provinceCode'] ?? null);
-        $body['provinceName'] = $provinceName !== '' ? $provinceName : ($existing['provinceName'] ?? null);
+        foreach (['company', 'phoneNumber', 'provinceCode', 'provinceName'] as $opt) {
+            $val = $b[$opt] ?? ($existing[$opt] ?? null);
+            if ($val !== null) {
+                $merged[$opt] = $val;
+            }
+        }
 
-        // Remove null optional fields to avoid overwriting existing data with null
-        $body = array_filter($body, static fn ($v) => $v !== null);
-
-        return $this->client->put(sprintf('addresses/%d', $id), $body);
+        return $this->client->put(sprintf('addresses/%d', $id), $merged);
     }
 }

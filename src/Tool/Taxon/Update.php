@@ -10,13 +10,11 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_taxon',
     description: <<<'DESC'
-update_taxon — Updates a product category. All fields are optional — only provided values change. Existing translations in other locales are always preserved.
+update_taxon(code, body) → JSON of the updated taxon (product category). Only fields in body are changed. Existing translations in other locales are always preserved.
 
-translations (JSON string) — map of locale → translation fields (name, slug). Pass multiple locales at once:
-'{"en_US": {"name": "T-Shirts", "slug": "t-shirts"}, "pl_PL": {"name": "Koszulki", "slug": "koszulki"}}'
+body (JSON string) — fields: enabled (bool), parent (IRI from list_taxons @id — moves to a different parent category), translations (map of locale → {name?, slug?}).
 NOTE: slug does NOT auto-update when you change the name; update it separately if needed.
-
-enabled (true=visible in shop, false=hidden), parent (move to a different parent category — IRI from list_taxons @id, e.g. "/api/v2/admin/taxons/CLOTHING").
+Example: '{"enabled":true,"translations":{"en_US":{"name":"T-Shirts","slug":"t-shirts"},"pl_PL":{"name":"Koszulki","slug":"koszulki"}}}'
 DESC,
 )]
 final readonly class Update
@@ -26,25 +24,15 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $code         Taxon code to update.
-     * @param string    $translations JSON map of locale → {name?, slug?}.
-     * @param bool|null $enabled      Set enabled status. Null = do not change.
-     * @param string    $parent       New parent taxon IRI from list_taxons @id. Leave empty to keep current parent.
-     */
-    public function __invoke(
-        string $code,
-        string $translations = '{}',
-        ?bool $enabled = null,
-        string $parent = '',
-    ): string {
-        $body = [];
+    public function __invoke(string $code, string $body): string
+    {
+        $b = json_decode($body, true) ?? [];
+        $result = [];
 
-        $incoming = json_decode($translations, true);
-        if (!empty($incoming)) {
+        if (isset($b['translations'])) {
             $existing = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
             $merged = $existing['translations'] ?? [];
-            foreach ($incoming as $locale => $fields) {
+            foreach ($b['translations'] as $locale => $fields) {
                 if (!isset($merged[$locale])) {
                     $merged[$locale] = [];
                 }
@@ -52,16 +40,16 @@ final readonly class Update
                     $merged[$locale][$key] = $value;
                 }
             }
-            $body['translations'] = $merged;
+            $result['translations'] = $merged;
         }
 
-        if ($enabled !== null) {
-            $body['enabled'] = $enabled;
+        if (isset($b['enabled'])) {
+            $result['enabled'] = $b['enabled'];
         }
-        if ($parent !== '') {
-            $body['parent'] = $parent;
+        if (isset($b['parent'])) {
+            $result['parent'] = $b['parent'];
         }
 
-        return $this->client->put(sprintf('taxons/%s', $code), $body);
+        return $this->client->put(sprintf('taxons/%s', $code), $result);
     }
 }

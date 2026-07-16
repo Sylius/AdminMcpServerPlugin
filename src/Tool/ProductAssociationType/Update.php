@@ -9,7 +9,12 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_association_type',
-    description: 'update_product_association_type(code, name, localeCode?) → JSON object of the updated Sylius product association type. Updates the translation name for the given locale.',
+    description: <<<'DESC'
+update_product_association_type(code, body) → JSON of the updated product association type. Only fields in body are changed.
+
+body (JSON string) — fields: translations (map of locale → {name?}).
+Example: '{"translations":{"en_US":{"name":"Similar Products"},"pl_PL":{"name":"Podobne Produkty"}}}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,19 +23,19 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string $code       Product association type code to update.
-     * @param string $name       New display name for the given locale.
-     * @param string $localeCode Locale for the translation. Default = "en_US".
-     */
-    public function __invoke(string $code, string $name, string $localeCode = 'en_US'): string
+    public function __invoke(string $code, string $body): string
     {
+        $b = json_decode($body, true) ?? [];
         $existing = json_decode($this->client->get(sprintf('product-association-types/%s', $code)), true);
         $translations = $existing['translations'] ?? [];
-        if (isset($translations[$localeCode])) {
-            $translations[$localeCode]['name'] = $name;
-        } else {
-            $translations[$localeCode] = ['name' => $name];
+
+        foreach ($b['translations'] ?? [] as $locale => $fields) {
+            if (!isset($translations[$locale])) {
+                $translations[$locale] = [];
+            }
+            foreach ($fields as $key => $value) {
+                $translations[$locale][$key] = $value;
+            }
         }
 
         return $this->client->put(sprintf('product-association-types/%s', $code), ['translations' => $translations]);

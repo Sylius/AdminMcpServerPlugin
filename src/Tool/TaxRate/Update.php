@@ -9,7 +9,12 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_tax_rate',
-    description: 'update_tax_rate(code, name?, amount?, category?, zone?, includedInPrice?, calculator?) → JSON object of the updated Sylius tax rate. Only provided fields are changed; omitted fields keep their current values. amount is a float (e.g. 0.23 = 23%). category is the IRI from list_tax_categories @id. zone is the IRI from list_zones @id.',
+    description: <<<'DESC'
+update_tax_rate(code, body) → JSON of the updated tax rate. Only fields in body are changed.
+
+body (JSON string) — fields: name (string), amount (float, e.g. 0.23=23%), includedInPrice (bool), calculator (string, default "default"), category (IRI from list_tax_categories @id), zone (IRI from list_zones @id).
+Example: '{"name":"VAT 23%","amount":0.23,"includedInPrice":false}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,33 +23,18 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string     $code            Tax rate code to update.
-     * @param string     $name            New display name (omit to keep current).
-     * @param float|null $amount          New tax rate as decimal (e.g. 0.23 for 23%). Null = keep current.
-     * @param string     $category        Tax category IRI from list_tax_categories @id (omit to keep current).
-     * @param string     $zone            Zone IRI from list_zones @id (omit to keep current).
-     * @param bool|null  $includedInPrice Whether the tax is included in the displayed price. Null = keep current.
-     * @param string     $calculator      Calculator type (omit to keep current).
-     */
-    public function __invoke(
-        string $code,
-        string $name = '',
-        ?float $amount = null,
-        string $category = '',
-        string $zone = '',
-        ?bool $includedInPrice = null,
-        string $calculator = '',
-    ): string {
+    public function __invoke(string $code, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('tax-rates/%s', $code)), true);
+        $b = json_decode($body, true) ?? [];
 
         return $this->client->put(sprintf('tax-rates/%s', $code), [
-            'name'            => $name !== '' ? $name : ($existing['name'] ?? $code),
-            'amount'          => $amount ?? ($existing['amount'] ?? 0.0),
-            'includedInPrice' => $includedInPrice ?? ($existing['includedInPrice'] ?? false),
-            'calculator'      => $calculator !== '' ? $calculator : ($existing['calculator'] ?? 'default'),
-            'category'        => $category !== '' ? $category : ($existing['category'] ?? ''),
-            'zone'            => $zone !== '' ? $zone : ($existing['zone'] ?? ''),
+            'name'            => $b['name']            ?? ($existing['name'] ?? $code),
+            'amount'          => $b['amount']          ?? ($existing['amount'] ?? 0.0),
+            'includedInPrice' => $b['includedInPrice'] ?? ($existing['includedInPrice'] ?? false),
+            'calculator'      => $b['calculator']      ?? ($existing['calculator'] ?? 'default'),
+            'category'        => $b['category']        ?? ($existing['category'] ?? ''),
+            'zone'            => $b['zone']            ?? ($existing['zone'] ?? ''),
         ]);
     }
 }

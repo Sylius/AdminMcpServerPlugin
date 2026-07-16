@@ -9,7 +9,12 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_review',
-    description: 'update_product_review(id, title?, rating?, comment?) → Updates a product review content. Only provided fields are changed; omitted fields keep their current values. Rating must be 1–5 if provided. To approve or reject a review use accept_product_review or reject_product_review instead.',
+    description: <<<'DESC'
+update_product_review(id, body) → JSON of the updated product review. Only fields in body are changed. To approve or reject a review use accept_product_review or reject_product_review instead.
+
+body (JSON string) — fields: title (string), rating (1–5), comment (string).
+Example: '{"title":"Great product","rating":5,"comment":"Excellent quality!"}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,18 +23,15 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(
-        int $id,
-        string $title = '',
-        ?int $rating = null,
-        string $comment = '',
-    ): string {
+    public function __invoke(int $id, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('product-reviews/%d', $id)), true);
+        $b = json_decode($body, true) ?? [];
 
         return $this->client->put(sprintf('product-reviews/%d', $id), [
-            'title'   => $title !== '' ? $title : ($existing['title'] ?? ''),
-            'rating'  => $rating ?? ($existing['rating'] ?? 5),
-            'comment' => $comment !== '' ? $comment : ($existing['comment'] ?? ''),
+            'title'   => $b['title']   ?? ($existing['title'] ?? ''),
+            'rating'  => $b['rating']  ?? ($existing['rating'] ?? 5),
+            'comment' => $b['comment'] ?? ($existing['comment'] ?? ''),
         ]);
     }
 }

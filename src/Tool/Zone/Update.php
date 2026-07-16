@@ -10,12 +10,11 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'update_zone',
     description: <<<'DESC'
-update_zone — Updates a zone. Only provided fields are changed; omitted fields keep their current values.
+update_zone(code, body) → JSON of the updated zone. Only fields in body are changed.
 
-REQUIRED: code (the zone code to update).
-OPTIONAL: name, type (country/zone/province), scope (shipping/tax/all), memberCodes (replaces all existing members — provide the full new list).
-
-NOTE: memberCodes replaces the entire member list. Use add_zone_member / remove_zone_member to add or remove individual members without affecting others.
+body (JSON string) — fields: name (string), type ("country"/"zone"/"province"), scope ("shipping"/"tax"/"all"), memberCodes (array of codes — replaces the entire member list).
+NOTE: memberCodes replaces all existing members. Use add_zone_member / remove_zone_member to add or remove individual members without affecting others.
+Example: '{"name":"European Union","memberCodes":["DE","FR","PL"]}'
 DESC,
 )]
 final readonly class Update
@@ -25,33 +24,26 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string[] $memberCodes New list of member codes (replaces existing).
-     */
-    public function __invoke(
-        string $code,
-        string $name = '',
-        string $type = '',
-        string $scope = '',
-        array $memberCodes = [],
-    ): string {
+    public function __invoke(string $code, string $body): string
+    {
         $existing = json_decode($this->client->get(sprintf('zones/%s', $code)), true);
+        $b = json_decode($body, true) ?? [];
 
-        $body = [
-            'name'  => $name !== '' ? $name : ($existing['name'] ?? $code),
-            'type'  => $type !== '' ? $type : ($existing['type'] ?? 'country'),
-            'scope' => $scope !== '' ? $scope : ($existing['scope'] ?? 'all'),
+        $merged = [
+            'name'  => $b['name']  ?? ($existing['name'] ?? $code),
+            'type'  => $b['type']  ?? ($existing['type'] ?? 'country'),
+            'scope' => $b['scope'] ?? ($existing['scope'] ?? 'all'),
         ];
 
-        if ($memberCodes !== []) {
-            $body['members'] = array_map(
+        if (isset($b['memberCodes']) && $b['memberCodes'] !== []) {
+            $merged['members'] = array_map(
                 static fn (string $memberCode) => ['code' => $memberCode],
-                $memberCodes,
+                $b['memberCodes'],
             );
         } else {
-            $body['members'] = $existing['members'] ?? [];
+            $merged['members'] = $existing['members'] ?? [];
         }
 
-        return $this->client->put(sprintf('zones/%s', $code), $body);
+        return $this->client->put(sprintf('zones/%s', $code), $merged);
     }
 }

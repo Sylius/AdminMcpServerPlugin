@@ -9,23 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_exchange_rate',
-    description: 'update_exchange_rate(id, ratio) → JSON object of the updated Sylius exchange rate. Uses PUT. id is the numeric exchange rate ID (get it from list_exchange_rates).',
+    description: 'update_exchange_rate(id, body) → JSON of the updated exchange rate. id is numeric (from list_exchange_rates). body (JSON string) — fields: ratio (float). Example: \'{"ratio": 0.95}\'',
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param int   $id    Numeric exchange rate ID.
-     * @param float $ratio New exchange ratio (e.g. 0.95).
-     */
-    public function __invoke(int $id, float $ratio): string
+    public function __invoke(int $id, string $body): string
     {
-        return $this->client->put(sprintf('exchange-rates/%d', $id), [
-            'ratio' => $ratio,
-        ]);
+        return $this->client->put(sprintf('exchange-rates/%d', $id), json_decode($body, true) ?? []);
     }
 }

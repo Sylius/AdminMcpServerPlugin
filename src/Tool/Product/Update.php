@@ -10,14 +10,12 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_product',
     description: <<<'DESC'
-update_product(code, translations?, enabled?, channels?) → JSON object of the updated Sylius product. Only provided fields are changed.
+update_product(code, body) → JSON of the updated Sylius product. Only fields in body are changed.
 
-translations (JSON string) — map of locale → translation fields (name, slug, description, shortDescription). Pass multiple locales at once:
-'{"en_US": {"name": "My Product", "slug": "my-product", "description": "A great product"}, "pl_PL": {"name": "Mój produkt", "slug": "moj-produkt"}}'
+body (JSON string) — fields: enabled (bool), channels (array of channel IRIs from list_channels @id), translations (map of locale → {name?, slug?, description?, shortDescription?}).
 NOTE: slug does NOT auto-update when you change the name; update it separately if needed.
-
-channels: array of channel IRIs from list_channels @id (replaces existing). Omit to keep current.
 NOTE: to assign/remove product categories (taxons) use create_product_taxon / delete_product_taxon instead.
+Example: '{"enabled":true,"translations":{"en_US":{"name":"My Product","slug":"my-product"},"pl_PL":{"name":"Mój produkt","slug":"moj-produkt"}}}'
 DESC,
 )]
 final readonly class Update
@@ -27,25 +25,15 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $code         Product code to update.
-     * @param string    $translations JSON map of locale → {name?, slug?, description?, shortDescription?}.
-     * @param bool|null $enabled      Set enabled status. Null = do not change.
-     * @param string[]  $channels     Array of channel IRIs (from list_channels @id) — replaces existing. Empty = do not change.
-     */
-    public function __invoke(
-        string $code,
-        string $translations = '{}',
-        ?bool $enabled = null,
-        array $channels = [],
-    ): string {
-        $body = [];
+    public function __invoke(string $code, string $body): string
+    {
+        $b = json_decode($body, true) ?? [];
+        $result = [];
 
-        $incoming = json_decode($translations, true);
-        if (!empty($incoming)) {
+        if (isset($b['translations'])) {
             $existing = json_decode($this->client->get(sprintf('products/%s', $code)), true);
             $merged = $existing['translations'] ?? [];
-            foreach ($incoming as $locale => $fields) {
+            foreach ($b['translations'] as $locale => $fields) {
                 if (!isset($merged[$locale])) {
                     $merged[$locale] = [];
                 }
@@ -53,16 +41,16 @@ final readonly class Update
                     $merged[$locale][$key] = $value;
                 }
             }
-            $body['translations'] = $merged;
+            $result['translations'] = $merged;
         }
 
-        if ($enabled !== null) {
-            $body['enabled'] = $enabled;
+        if (isset($b['enabled'])) {
+            $result['enabled'] = $b['enabled'];
         }
-        if ($channels !== []) {
-            $body['channels'] = $channels;
+        if (isset($b['channels'])) {
+            $result['channels'] = $b['channels'];
         }
 
-        return $this->client->put(sprintf('products/%s', $code), $body);
+        return $this->client->put(sprintf('products/%s', $code), $result);
     }
 }

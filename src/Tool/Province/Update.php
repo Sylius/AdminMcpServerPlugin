@@ -9,7 +9,13 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_province',
-    description: 'update_province(countryCode, provinceCode, name?, abbreviation?) → Updates a province. Only provided fields are changed. provinceCode is the full code including country prefix (e.g. "US-CA"). Returns JSON of the updated province.',
+    description: <<<'DESC'
+update_province(countryCode, provinceCode, body) → JSON of the updated province. Only fields in body are changed.
+
+countryCode: 2-letter ISO code (e.g. "US"). provinceCode: full code including country prefix (e.g. "US-CA").
+body (JSON string) — fields: name (string), abbreviation (string).
+Example: '{"name":"California","abbreviation":"CA"}'
+DESC,
 )]
 final readonly class Update
 {
@@ -18,29 +24,27 @@ final readonly class Update
     ) {
     }
 
-    public function __invoke(
-        string $countryCode,
-        string $provinceCode,
-        string $name = '',
-        string $abbreviation = '',
-    ): string {
+    public function __invoke(string $countryCode, string $provinceCode, string $body): string
+    {
         $existing = json_decode(
             $this->client->get(sprintf('countries/%s/provinces/%s', $countryCode, $provinceCode)),
             true,
         );
+        $b = json_decode($body, true) ?? [];
 
-        $body = [
+        $merged = [
             'code' => $provinceCode,
-            'name' => $name !== '' ? $name : ($existing['name'] ?? $provinceCode),
+            'name' => $b['name'] ?? ($existing['name'] ?? $provinceCode),
         ];
-        $resolvedAbbreviation = $abbreviation !== '' ? $abbreviation : ($existing['abbreviation'] ?? '');
-        if ($resolvedAbbreviation !== '') {
-            $body['abbreviation'] = $resolvedAbbreviation;
+
+        $abbreviation = $b['abbreviation'] ?? ($existing['abbreviation'] ?? '');
+        if ($abbreviation !== '') {
+            $merged['abbreviation'] = $abbreviation;
         }
 
         return $this->client->put(
             sprintf('countries/%s/provinces/%s', $countryCode, $provinceCode),
-            $body,
+            $merged,
         );
     }
 }
