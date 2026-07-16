@@ -9,72 +9,38 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_catalog_promotion',
-    description: 'update_catalog_promotion(code, name, channelCodes, scopes, actions, label?, description?, localeCode?, enabled?, exclusive?, priority?, startDate?, endDate?) → JSON of the updated Sylius catalog promotion. Uses PUT. Fetches existing translations to avoid overwriting other locales.',
+    description: <<<'DESC'
+update_catalog_promotion(code, body) → JSON of the updated catalog promotion.
+
+IMPORTANT: First call get_catalog_promotion to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
+
+scopes examples: [{"type":"for_taxons","configuration":{"taxons":["TAXON_CODE"]}}] or [{"type":"for_variants","configuration":{"variants":["VARIANT_CODE"]}}]
+actions examples: [{"type":"percentage_discount","configuration":{"amount":0.2}}] (20% off) or [{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] (ALL channels required)
+Note: nested @id/@type/id in scopes/actions are stripped automatically (Sylius rejects them on PUT).
+DESC,
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
+    public function __construct(private ApiClientInterface $client) {}
+
+    public function __invoke(string $code, string $body): string
+    {
+        $b = json_decode($body, true) ?? [];
+        if (isset($b['scopes'])) {
+            $b['scopes'] = $this->stripMeta($b['scopes']);
+        }
+        if (isset($b['actions'])) {
+            $b['actions'] = $this->stripMeta($b['actions']);
+        }
+        return $this->client->put(sprintf('catalog-promotions/%s', $code), $b);
     }
 
-    /**
-     * @param string   $code         Catalog promotion code to update.
-     * @param string   $name         Internal name.
-     * @param string[] $channelCodes Channel codes (replaces existing).
-     * @param array    $scopes       Scopes array (replaces existing).
-     * @param array    $actions      Actions array (replaces existing).
-     * @param string   $label        Customer-facing label for the given locale. Default = same as name.
-     * @param string   $description  Customer-facing description. Default = "".
-     * @param string   $localeCode   Locale for label/description. Default = "en_US".
-     * @param bool     $enabled      Whether the promotion is active. Default = true.
-     * @param bool     $exclusive    Exclusive flag. Default = false.
-     * @param int      $priority     Priority. Default = 0.
-     * @param string   $startDate    Start datetime ISO 8601. Default = "" (no start limit).
-     * @param string   $endDate      End datetime ISO 8601. Default = "" (no end limit).
-     */
-    public function __invoke(
-        string $code,
-        string $name,
-        array $channelCodes,
-        array $scopes,
-        array $actions,
-        string $label = '',
-        string $description = '',
-        string $localeCode = 'en_US',
-        bool $enabled = true,
-        bool $exclusive = false,
-        int $priority = 0,
-        string $startDate = '',
-        string $endDate = '',
-    ): string {
-        $existing = json_decode($this->client->get(sprintf('catalog-promotions/%s', $code)), true);
-        $translations = $existing['translations'] ?? [];
-
-        if (!isset($translations[$localeCode])) {
-            $translations[$localeCode] = ['locale' => $localeCode];
-        }
-        $translations[$localeCode]['label'] = $label !== '' ? $label : $name;
-        if ($description !== '') {
-            $translations[$localeCode]['description'] = $description;
-        }
-
-        $body = [
-            'name' => $name,
-            'enabled' => $enabled,
-            'exclusive' => $exclusive,
-            'priority' => $priority,
-            'channels' => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channelCodes,
-            ),
-            'scopes' => $scopes,
-            'actions' => $actions,
-            'translations' => $translations,
-            'startDate' => $startDate !== '' ? $startDate : null,
-            'endDate' => $endDate !== '' ? $endDate : null,
-        ];
-
-        return $this->client->put(sprintf('catalog-promotions/%s', $code), $body);
+    /** @param array<int, array<string, mixed>> $items */
+    private function stripMeta(array $items): array
+    {
+        return array_map(static function (array $item): array {
+            unset($item['@id'], $item['@type'], $item['id']);
+            return $item;
+        }, $items);
     }
 }

@@ -9,23 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_taxon',
-    description: 'update_product_taxon(id, position) → JSON object of the updated Sylius product-taxon assignment. Updates the display position.',
+    description: 'update_product_taxon(id, body) → JSON of the updated product-taxon assignment. Updates the display position of a product within a category. id is numeric (from list_product_taxons). body (JSON string) — fields: position (int). Example: \'{"position": 3}\'',
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param int $id       Product-taxon assignment ID.
-     * @param int $position New display position within the taxon.
-     */
-    public function __invoke(int $id, int $position): string
+    public function __invoke(int $id, string $body): string
     {
-        return $this->client->put(sprintf('product-taxons/%d', $id), [
-            'position' => $position,
-        ]);
+        return $this->client->put(sprintf('product-taxons/%d', $id), json_decode($body, true) ?? []);
     }
 }

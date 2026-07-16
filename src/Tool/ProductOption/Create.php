@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product_option',
-    description: 'create_product_option(code, name, localeCode?, valueCode?, valueName?) → JSON object of the newly created Sylius product option. Optionally creates a first option value.',
+    description: <<<'DESC'
+create_product_option — Creates a product option (a dimension like "Size" or "Color" used to create product variants). Options define what choices a customer makes when buying a product.
+
+REQUIRED: code (e.g. "hat_size"), name (e.g. "Size").
+OPTIONAL: valueCode + valueName to add the first option value immediately (e.g. valueCode="hat_size_sm", valueName="Small").
+
+CONTEXT: Product options are shared across products. After creating an option, add more values using add_product_option_value(optionCode, valueCode, valueName). You can add the first value directly in this call via valueCode + valueName. Variants are then created with specific option value combinations.
+DESC,
 )]
 final readonly class Create
 {

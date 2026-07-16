@@ -9,7 +9,14 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_zone',
-    description: 'update_zone(code, name, type, scope?, memberCodes?) → JSON of the updated Sylius zone. Uses PUT — replaces the full zone. memberCodes replaces all existing members.',
+    description: <<<'DESC'
+update_zone(code, body) → JSON of the updated zone.
+
+IMPORTANT: First call get_zone to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+
+Convenience: instead of members (array of member objects), you may pass memberCodes (array of code strings) and the tool converts them automatically.
+NOTE: memberCodes replaces all existing members. Use add_zone_member / remove_zone_member to add or remove individual members without affecting others.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,30 +25,13 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string   $code        Zone code to update.
-     * @param string   $name        New display name.
-     * @param string   $type        Zone type: "country", "zone", "province".
-     * @param string   $scope       Zone scope: "shipping", "tax", "all". Default = "all".
-     * @param string[] $memberCodes New list of member codes (replaces existing).
-     */
-    public function __invoke(
-        string $code,
-        string $name,
-        string $type,
-        string $scope = 'all',
-        array $memberCodes = [],
-    ): string {
-        $body = [
-            'name' => $name,
-            'type' => $type,
-            'scope' => $scope,
-            'members' => array_map(
-                static fn (string $memberCode) => ['code' => $memberCode],
-                $memberCodes,
-            ),
-        ];
-
-        return $this->client->put(sprintf('zones/%s', $code), $body);
+    public function __invoke(string $code, string $body): string
+    {
+        $b = json_decode($body, true) ?? [];
+        if (isset($b['memberCodes'])) {
+            $b['members'] = array_map(static fn (string $c) => ['code' => $c], $b['memberCodes']);
+            unset($b['memberCodes']);
+        }
+        return $this->client->put(sprintf('zones/%s', $code), $b);
     }
 }

@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'delete_customer_user',
-    description: 'delete_customer_user(id) → empty string on success (HTTP 204). Deletes the shop user account associated with the customer, preventing login. The customer record itself is preserved. Returns 404 if the customer has no user account.',
+    description: 'delete_customer_user(id) → Removes the login account (shop user) from a customer, preventing them from logging into the shop. The customer profile, order history and addresses are all preserved. Returns 404 if the customer never registered a login. Use get_customer(id) to check if a customer has a user account (look at the "user" field).',
 )]
 final readonly class DeleteUser
 {

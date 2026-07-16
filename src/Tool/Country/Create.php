@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_country',
-    description: 'create_country(code, enabled?) → JSON object of the newly created Sylius country. code must be ISO 3166-1 alpha-2 (e.g. "US", "PL", "DE", "FR").',
+    description: 'create_country(code, enabled?) → Adds a country to the store. code must be ISO 3166-1 alpha-2 (e.g. "US", "PL", "DE", "FR"). Returns JSON with the country name. Note: countries cannot be deleted via API — use update_country(code, enabled=false) to hide one instead.',
 )]
 final readonly class Create
 {

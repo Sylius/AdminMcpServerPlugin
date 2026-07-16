@@ -9,23 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_customer_group',
-    description: 'update_customer_group(code, name) → JSON object of the updated Sylius customer group.',
+    description: 'update_customer_group(code, body) → JSON of the updated customer group. body (JSON string) — fields: name (string). Example: \'{"name": "VIP Customers"}\'',
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param string $code Customer group code to update.
-     * @param string $name New display name for the customer group.
-     */
-    public function __invoke(string $code, string $name): string
+    public function __invoke(string $code, string $body): string
     {
-        return $this->client->put(sprintf('customer-groups/%s', $code), [
-            'name' => $name,
-        ]);
+        return $this->client->put(sprintf('customer-groups/%s', $code), json_decode($body, true) ?? []);
     }
 }

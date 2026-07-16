@@ -9,65 +9,48 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product',
-    description: 'create_product(code, name, localeCode?, slug?, description?, shortDescription?, enabled?, channels?) → JSON object of the newly created Sylius product. slug is auto-generated from name if omitted. IMPORTANT: assign channels (use list_channels to find codes) — without channels the product will not appear in any shop.',
+    description: <<<'DESC'
+create_product — Creates a new product in the store catalog. IMPORTANT: run list_channels first to get channel IRIs — a product without channels won't appear in any shop.
+
+REQUIRED: code (unique product identifier, no spaces, e.g. "BLUE_MUG_001"), name (default display name for en_US fallback).
+RECOMMENDED: channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
+OPTIONAL: translations (JSON map of locale → {name, slug?, description?, shortDescription?} — provide all languages at once, e.g. '{"en_US":{"name":"Blue Mug","slug":"blue-mug"},"pl_PL":{"name":"Niebieski kubek","slug":"niebieski-kubek"}}'), enabled (default true). Slug is auto-generated if omitted.
+
+After creating a product:
+1. Call create_product_variant with a price (the product needs at least one variant to be purchasable).
+2. Call create_product_taxon to assign the product to a category (taxon).
+
+If user only provides a name, suggest a code (uppercase with underscores from name), ask about channels, and proceed with defaults for the rest.
+DESC,
 )]
 final readonly class Create
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string   $code             Unique product code (e.g. "MUG_BLUE").
-     * @param string   $name             Product name for the given locale.
-     * @param string   $localeCode       Locale code for the translation. Default = "en_US".
-     * @param string   $slug             URL slug for the given locale (e.g. "blue-mug"). Auto-generated from name if empty.
-     * @param string   $description      Full description. Default = "".
-     * @param string   $shortDescription Short description. Default = "".
-     * @param bool     $enabled          Whether the product is enabled. Default = true.
-     * @param string[] $channels         List of channel codes to assign (e.g. ["FASHION_WEB"]). Use list_channels to get available codes.
+     * @param string   $translations JSON map of locale → {name, slug?, description?, shortDescription?}.
+     * @param string[] $channels     Channel IRIs (from list_channels @id).
      */
     public function __invoke(
         string $code,
         string $name,
-        string $localeCode = 'en_US',
-        string $slug = '',
-        string $description = '',
-        string $shortDescription = '',
+        string $translations = '{}',
         bool $enabled = true,
         array $channels = [],
     ): string {
-        $translation = [
-            'name' => $name,
-            'locale' => $localeCode,
-        ];
-
-        if ($slug !== '') {
-            $translation['slug'] = $slug;
-        }
-
-        if ($description !== '') {
-            $translation['description'] = $description;
-        }
-
-        if ($shortDescription !== '') {
-            $translation['shortDescription'] = $shortDescription;
+        $decodedTranslations = json_decode($translations, true);
+        if (empty($decodedTranslations)) {
+            $decodedTranslations = ['en_US' => ['name' => $name]];
         }
 
         $body = [
-            'code' => $code,
-            'enabled' => $enabled,
-            'translations' => [
-                $localeCode => $translation,
-            ],
+            'code'         => $code,
+            'enabled'      => $enabled,
+            'translations' => $decodedTranslations,
         ];
 
         if ($channels !== []) {
-            $body['channels'] = array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channels,
-            );
+            $body['channels'] = $channels;
         }
 
         return $this->client->post('products', $body);

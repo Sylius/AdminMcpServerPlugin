@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_shipping_methods',
-    description: 'list_shipping_methods(page?, itemsPerPage?) → JSON Hydra collection of Sylius shipping methods. Each method has: id, code, enabled, position, calculator, configuration (channel-keyed amounts), zone, category, taxCategory, channels, translations (name, description per locale).',
+    description: 'list_shipping_methods(page?, itemsPerPage?) → Lists all shipping methods (delivery options shown at checkout). Each has: code, enabled, shippingChargesCalculator (flat_rate/per_unit_rate/percentage_discount), shippingChargesCalculatorConfiguration (cost per channel), zone, channels, translations (name per locale). Use get_shipping_method(code) for full details.',
 )]
 final readonly class Index
 {

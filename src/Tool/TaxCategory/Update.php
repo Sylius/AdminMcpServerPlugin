@@ -9,7 +9,11 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_tax_category',
-    description: 'update_tax_category(code, name, description?) → JSON object of the updated Sylius tax category.',
+    description: <<<'DESC'
+update_tax_category(code, body) → JSON of the updated tax category.
+
+IMPORTANT: First call get_tax_category to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,18 +22,8 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string $code        Tax category code to update.
-     * @param string $name        New display name.
-     * @param string $description New description. Default = "".
-     */
-    public function __invoke(string $code, string $name, string $description = ''): string
+    public function __invoke(string $code, string $body): string
     {
-        $body = ['name' => $name];
-        if ($description !== '') {
-            $body['description'] = $description;
-        }
-
-        return $this->client->put(sprintf('tax-categories/%s', $code), $body);
+        return $this->client->put(sprintf('tax-categories/%s', $code), json_decode($body, true) ?? []);
     }
 }

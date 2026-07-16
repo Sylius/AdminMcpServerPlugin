@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product_taxon',
-    description: 'create_product_taxon(productCode, taxonCode, position?) → JSON object of the newly created Sylius product-taxon assignment. Each product+taxon pair must be unique.',
+    description: 'create_product_taxon(product, taxon, position?) → Assigns a product to a category (taxon) so it appears in that section of the shop. Each product+taxon pair must be unique — assigning it twice gives a 422 error. product is the IRI from list_products @id. taxon is the IRI from list_taxons @id. position controls display order within the category (lower = earlier). Returns the assignment object with its id (needed for delete_product_taxon).',
 )]
 final readonly class Create
 {
@@ -19,15 +19,15 @@ final readonly class Create
     }
 
     /**
-     * @param string $productCode Product code to assign the taxon to.
-     * @param string $taxonCode   Taxon code to assign.
-     * @param int    $position    Display position within the taxon. Default = 0.
+     * @param string $product   Product IRI from list_products @id.
+     * @param string $taxon     Taxon IRI from list_taxons @id.
+     * @param int    $position  Display position within the taxon. Default = 0.
      */
-    public function __invoke(string $productCode, string $taxonCode, int $position = 0): string
+    public function __invoke(string $product, string $taxon, int $position = 0): string
     {
         return $this->client->post('product-taxons', [
-            'product' => sprintf('/api/v2/admin/products/%s', $productCode),
-            'taxon' => sprintf('/api/v2/admin/taxons/%s', $taxonCode),
+            'product'  => $product,
+            'taxon'    => $taxon,
             'position' => $position,
         ]);
     }

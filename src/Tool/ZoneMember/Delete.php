@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'remove_zone_member',
-    description: 'remove_zone_member(zoneCode, memberCode) → Removes a member from a Sylius zone by its code. Returns empty string on success.',
+    description: 'remove_zone_member(zoneCode, memberCode) → Removes a member from a Sylius zone by its code. Returns {"removed":true,"zoneCode":..,"memberCode":..} on success.',
 )]
 final readonly class Delete
 {
@@ -38,6 +38,6 @@ final readonly class Delete
             'members' => $members,
         ]);
 
-        return '';
+        return (string) json_encode(['removed' => true, 'zoneCode' => $zoneCode, 'memberCode' => $memberCode]);
     }
 }

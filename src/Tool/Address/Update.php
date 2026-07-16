@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_address',
-    description: 'update_address(id, firstName, lastName, street, city, postcode, countryCode, company?, phoneNumber?, provinceCode?, provinceName?) → JSON object of the updated Sylius address. firstName, lastName, street, city, postcode and countryCode are required by the API.',
+    description: <<<'DESC'
+update_address(id, body) → JSON of the updated address.
+
+IMPORTANT: First call get_address to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+
+id: numeric address ID (from list_customer_addresses).
+body (JSON string): full modified address JSON.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,54 +25,8 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param int    $id            Address ID.
-     * @param string $firstName     First name (required).
-     * @param string $lastName      Last name (required).
-     * @param string $street        Street address (required).
-     * @param string $city          City (required).
-     * @param string $postcode      Postal code (required).
-     * @param string $countryCode   ISO 3166-1 alpha-2 country code, e.g. "US", "FR" (required).
-     * @param string $company       Company name. Default = "".
-     * @param string $phoneNumber   Phone number. Default = "".
-     * @param string $provinceCode  Province/state code. Default = "".
-     * @param string $provinceName  Province/state name. Default = "".
-     */
-    public function __invoke(
-        int $id,
-        string $firstName,
-        string $lastName,
-        string $street,
-        string $city,
-        string $postcode,
-        string $countryCode,
-        string $company = '',
-        string $phoneNumber = '',
-        string $provinceCode = '',
-        string $provinceName = '',
-    ): string {
-        $body = [
-            'firstName' => $firstName,
-            'lastName' => $lastName,
-            'street' => $street,
-            'city' => $city,
-            'postcode' => $postcode,
-            'countryCode' => $countryCode,
-        ];
-
-        if ($company !== '') {
-            $body['company'] = $company;
-        }
-        if ($phoneNumber !== '') {
-            $body['phoneNumber'] = $phoneNumber;
-        }
-        if ($provinceCode !== '') {
-            $body['provinceCode'] = $provinceCode;
-        }
-        if ($provinceName !== '') {
-            $body['provinceName'] = $provinceName;
-        }
-
-        return $this->client->put(sprintf('addresses/%d', $id), $body);
+    public function __invoke(int $id, string $body): string
+    {
+        return $this->client->put(sprintf('addresses/%d', $id), json_decode($body, true) ?? []);
     }
 }

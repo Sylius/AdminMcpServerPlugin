@@ -9,7 +9,13 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_variant',
-    description: 'update_product_variant(code, name?, localeCode?, onHand?, enabled?, tracked?, price?, channelCode?) → JSON object of the updated Sylius product variant. Uses PUT — only provided translation fields change; non-translation fields use their current API defaults if omitted.',
+    description: <<<'DESC'
+update_product_variant(code, body) → JSON of the updated product variant.
+
+IMPORTANT: First call get_product_variant to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids and channelPricings.
+
+Note: channelPricings values are objects with price (int, smallest currency unit, e.g. 3000=30.00).
+DESC,
 )]
 final readonly class Update
 {
@@ -18,55 +24,8 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $code        Variant code to update.
-     * @param string    $name        New variant name for the given locale.
-     * @param string    $localeCode  Locale for the name translation. Default = "en_US".
-     * @param int|null  $onHand      New stock quantity on hand. Null = do not change.
-     * @param bool|null $enabled     Set enabled status. Null = do not change.
-     * @param bool|null $tracked     Set stock tracking. Null = do not change.
-     * @param int|null  $price       New price in minor units. Null = do not change.
-     * @param string    $channelCode Channel code for price update. Default = "FASHION_WEB".
-     */
-    public function __invoke(
-        string $code,
-        string $name = '',
-        string $localeCode = 'en_US',
-        ?int $onHand = null,
-        ?bool $enabled = null,
-        ?bool $tracked = null,
-        ?int $price = null,
-        string $channelCode = 'FASHION_WEB',
-    ): string {
-        $body = [];
-
-        if ($enabled !== null) {
-            $body['enabled'] = $enabled;
-        }
-        if ($tracked !== null) {
-            $body['tracked'] = $tracked;
-        }
-        if ($onHand !== null) {
-            $body['onHand'] = $onHand;
-        }
-        if ($price !== null) {
-            $body['channelPricings'] = [
-                $channelCode => [
-                    '@id' => sprintf('/api/v2/admin/product-variants/%s/channel-pricings/%s', $code, $channelCode),
-                    'price' => $price,
-                ],
-            ];
-        }
-        if ($name !== '') {
-            $body['translations'] = [
-                $localeCode => [
-                    '@id' => sprintf('/api/v2/admin/product-variants/%s/translations/%s', $code, $localeCode),
-                    'locale' => $localeCode,
-                    'name' => $name,
-                ],
-            ];
-        }
-
-        return $this->client->put(sprintf('product-variants/%s', $code), $body);
+    public function __invoke(string $code, string $body): string
+    {
+        return $this->client->put(sprintf('product-variants/%s', $code), json_decode($body, true) ?? []);
     }
 }

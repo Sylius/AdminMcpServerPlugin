@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_order_items',
-    description: 'list_order_items(tokenValue) → JSON array of items for a Sylius order. Each item has: id, quantity, unitPrice, total, productName, variantName, units.',
+    description: 'list_order_items(tokenValue) → JSON array of items for a Sylius order. Each item has: id, quantity, unitPrice, total (both in smallest currency unit, e.g. 1150 = €11.50), productName, variantName, units.',
 )]
 final readonly class ListItems
 {

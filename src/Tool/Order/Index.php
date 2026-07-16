@@ -9,46 +9,27 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_orders',
-    description: 'list_orders(page?, itemsPerPage?, state?, number?, customerEmail?, channelCode?) → JSON Hydra collection of Sylius orders. Each order has: tokenValue (use this as identifier), number, state (new/cart/addressed/payment_selected/shipping_selected/partially_shipped/shipped/cancelled/fulfilled), paymentState (awaiting_payment/paid/partially_refunded/refunded), shippingState, customer, channel, total, items, shipments, payments, createdAt.',
+    description: <<<'DESC'
+list_orders(page?, itemsPerPage?, customerId?, channelCode?) → Lists orders sorted newest-first. Each order has: tokenValue (needed for all other order operations), number (like "000000012"), state (new/fulfilled/cancelled), paymentState (new/awaiting_payment/paid/refunded), shippingState (ready/shipped/cancelled), checkoutCompletedAt, total (in smallest currency unit).
+
+Filter by customerId (numeric — from list_customers) to see all orders for a specific customer. Filter by channelCode to see orders from a specific sales channel.
+
+NOTE: Filtering by order number or payment/shipping state is not supported by the API — browse pages or filter by customerId instead. Use get_order(tokenValue) for full details including items, payments and shipments.
+DESC,
 )]
 final readonly class Index
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param int    $page          Page number (1-based). Default = 1.
-     * @param int    $itemsPerPage  Items per page. Default = 30.
-     * @param string $state         Filter by order state (e.g. "new", "fulfilled", "cancelled"). Default = "".
-     * @param string $number        Filter by order number (e.g. "#000000001"). Default = "".
-     * @param string $customerEmail Filter by customer email. Default = "".
-     * @param string $channelCode   Filter by channel code. Default = "".
-     */
     public function __invoke(
         int $page = 1,
         int $itemsPerPage = 30,
-        string $state = '',
-        string $number = '',
-        string $customerEmail = '',
+        int $customerId = 0,
         string $channelCode = '',
     ): string {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
-
-        if ($state !== '') {
-            $params['state'] = $state;
-        }
-        if ($number !== '') {
-            $params['number'] = $number;
-        }
-        if ($customerEmail !== '') {
-            $params['customer.email'] = $customerEmail;
-        }
-        if ($channelCode !== '') {
-            $params['channel.code'] = $channelCode;
-        }
-
+        if ($customerId > 0) { $params['customer.id'] = $customerId; }
+        if ($channelCode !== '') { $params['channel.code'] = $channelCode; }
         return $this->client->get('orders', $params);
     }
 }

@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_promotions',
-    description: 'list_promotions(page?, itemsPerPage?) → JSON Hydra collection of Sylius cart promotions. Each item has: id, code, name, description, priority, exclusive, usageLimit, used, couponBased, channels, startsAt, endsAt, rules, actions.',
+    description: 'list_promotions(page?, itemsPerPage?) → Lists cart promotions (discounts applied at checkout). Each has: code, name, couponBased (true=requires coupon code / false=automatic), usageLimit, used (times applied), startsAt/endsAt (validity window), rules (conditions), actions (what discount). Use get_promotion(code) for full details including rules and actions.',
 )]
 final readonly class Index
 {

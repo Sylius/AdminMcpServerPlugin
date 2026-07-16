@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_locales',
-    description: 'list_locales(page?, itemsPerPage?) → JSON Hydra collection of Sylius locales. Each locale has: id, code (e.g. "en_US", "pl_PL", "de_DE").',
+    description: 'list_locales(page?, itemsPerPage?) → JSON Hydra collection of Sylius locales. Each locale has: id, code (e.g. "en_US", "pl_PL", "de_DE"), name (human-readable, e.g. "English (United States)").',
 )]
 final readonly class Index
 {

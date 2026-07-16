@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_currencies',
-    description: 'list_currencies(page?, itemsPerPage?) → JSON Hydra collection of Sylius currencies. Each currency has: id, code (ISO 4217, e.g. "USD", "EUR", "PLN").',
+    description: 'list_currencies(page?, itemsPerPage?) → JSON Hydra collection of Sylius currencies. Each currency has: code (ISO 4217, e.g. "USD", "EUR", "PLN"), name (e.g. "US Dollar"). Note: currencies cannot be deleted once added.',
 )]
 final readonly class Index
 {

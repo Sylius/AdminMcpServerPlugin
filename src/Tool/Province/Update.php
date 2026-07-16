@@ -9,7 +9,13 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_province',
-    description: 'update_province(countryCode, provinceCode, name, abbreviation?) → JSON of the updated province. Uses PUT. provinceCode is the full code including country prefix (e.g. "US-CA").',
+    description: <<<'DESC'
+update_province(countryCode, provinceCode, body) → JSON of the updated province.
+
+IMPORTANT: First call get_province to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+
+countryCode: 2-letter ISO code (e.g. "US"). provinceCode: full code including country prefix (e.g. "US-CA").
+DESC,
 )]
 final readonly class Update
 {
@@ -18,26 +24,11 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string $countryCode  2-letter ISO country code (e.g. "US").
-     * @param string $provinceCode Full province code (e.g. "US-CA").
-     * @param string $name         New province name.
-     * @param string $abbreviation Optional abbreviation. Default = "".
-     */
-    public function __invoke(
-        string $countryCode,
-        string $provinceCode,
-        string $name,
-        string $abbreviation = '',
-    ): string {
-        $body = ['code' => $provinceCode, 'name' => $name];
-        if ($abbreviation !== '') {
-            $body['abbreviation'] = $abbreviation;
-        }
-
+    public function __invoke(string $countryCode, string $provinceCode, string $body): string
+    {
         return $this->client->put(
             sprintf('countries/%s/provinces/%s', $countryCode, $provinceCode),
-            $body,
+            json_decode($body, true) ?? [],
         );
     }
 }

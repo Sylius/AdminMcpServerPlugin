@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'get_shipping_method',
-    description: 'get_shipping_method(code) → JSON object of a single Sylius shipping method. Returns: id, code, enabled, position, calculator, configuration, zone, category, taxCategory, channels, translations.',
+    description: 'get_shipping_method(code) → Full details of a shipping method. Returns: code, enabled, shippingChargesCalculator (pricing type), shippingChargesCalculatorConfiguration (amount per channel — smallest currency unit, e.g. 500=5.00), zone (IRI — last segment is zone code), channels (list of IRIs), translations (name and description per locale), archivedAt (null if active).',
 )]
 final readonly class Show
 {

@@ -9,65 +9,90 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_promotion',
-    description: 'update_promotion(code, name, channelCodes, description?, priority?, exclusive?, usageLimit?, couponBased?, startsAt?, endsAt?, rules?, actions?) → JSON of the updated Sylius cart promotion. Uses PUT — provide all fields you want to keep. Omitting rules/actions preserves existing ones. CONFIGURATION FORMATS — percentage actions (order_percentage_discount, unit_percentage_discount, shipping_percentage_discount): {"percentage":0.1}. Fixed/amount (item_total rule, order_fixed_discount, unit_fixed_discount): {"CHANNEL_CODE":{"amount":N}} for ALL channel codes.',
+    description: <<<'DESC'
+update_promotion(code, body) → JSON of the updated cart promotion.
+
+IMPORTANT: First call get_promotion to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+
+rules examples: [{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}] — min order 50.00; [{"type":"cart_quantity","configuration":{"count":3}}] — min 3 items
+actions examples: [{"type":"order_percentage_discount","configuration":{"percentage":0.1}}] — 10% off order; [{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] — fixed 10.00 off (ALL channels required)
+Note: fixed-discount rules/actions missing channels are auto-filled with zero amounts.
+DESC,
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
+    public function __construct(private ApiClientInterface $client) {}
+
+    public function __invoke(string $code, string $body): string
+    {
+        $b = json_decode($body, true) ?? [];
+        if (isset($b['rules'])) {
+            $b['rules'] = $this->stripAndFillChannels($b['rules']);
+        }
+        if (isset($b['actions'])) {
+            $b['actions'] = $this->stripAndFillChannels($b['actions']);
+        }
+        return $this->client->put(sprintf('promotions/%s', $code), $b);
     }
 
     /**
-     * @param string   $code         Promotion code to update.
-     * @param string   $name         New display name.
-     * @param string[] $channelCodes Channel codes (replaces existing list).
-     * @param string   $description  Description. Default = "".
-     * @param int      $priority     Application priority. Default = 0.
-     * @param bool     $exclusive    Exclusive flag. Default = false.
-     * @param int|null $usageLimit   Usage limit. Null = unlimited.
-     * @param bool     $couponBased  Coupon-based flag. Default = false.
-     * @param string   $startsAt     Start datetime ISO 8601. Default = "".
-     * @param string   $endsAt       End datetime ISO 8601. Default = "".
-     * @param array    $rules        Rules array. Empty = preserve existing rules.
-     * @param array    $actions      Actions array. Empty = preserve existing actions.
+     * Strips JSON-LD meta (@id, @type, id) from each item, and for items with
+     * per-channel configuration (keys that look like channel codes) auto-fills
+     * any channels currently in the system that are missing from the stored config.
+     *
+     * @param array<int, array<string, mixed>> $items
+     * @return array<int, array<string, mixed>>
      */
-    public function __invoke(
-        string $code,
-        string $name,
-        array $channelCodes,
-        string $description = '',
-        int $priority = 0,
-        bool $exclusive = false,
-        ?int $usageLimit = null,
-        bool $couponBased = false,
-        string $startsAt = '',
-        string $endsAt = '',
-        array $rules = [],
-        array $actions = [],
-    ): string {
-        $existing = json_decode($this->client->get(sprintf('promotions/%s', $code)), true);
-
-        $body = [
-            'name' => $name,
-            'priority' => $priority,
-            'exclusive' => $exclusive,
-            'couponBased' => $couponBased,
-            'channels' => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channelCodes,
-            ),
-            'rules' => $rules !== [] ? $rules : ($existing['rules'] ?? []),
-            'actions' => $actions !== [] ? $actions : ($existing['actions'] ?? []),
-        ];
-
-        if ($description !== '') {
-            $body['description'] = $description;
+    private function stripAndFillChannels(array $items): array
+    {
+        if ($items === []) {
+            return [];
         }
-        $body['usageLimit'] = $usageLimit;
-        $body['startsAt'] = $startsAt !== '' ? $startsAt : null;
-        $body['endsAt'] = $endsAt !== '' ? $endsAt : null;
 
-        return $this->client->put(sprintf('promotions/%s', $code), $body);
+        $allChannelCodes = null;
+
+        return array_map(function (array $item) use (&$allChannelCodes): array {
+            unset($item['@id'], $item['@type'], $item['id']);
+
+            $config = $item['configuration'] ?? [];
+            if (!$this->hasChannelKeys($config)) {
+                return $item;
+            }
+
+            // Lazy-fetch all channel codes once
+            if ($allChannelCodes === null) {
+                $channelsData = json_decode($this->client->get('channels', ['pagination' => false]), true);
+                $allChannelCodes = array_column($channelsData['hydra:member'] ?? [], 'code');
+            }
+
+            // Determine a template from the first existing entry
+            $template = $config ? reset($config) : [];
+            if (is_array($template)) {
+                $template = array_fill_keys(array_keys($template), 0);
+            }
+
+            foreach ($allChannelCodes as $channelCode) {
+                if (!array_key_exists($channelCode, $config)) {
+                    $config[$channelCode] = $template;
+                }
+            }
+            $item['configuration'] = $config;
+
+            return $item;
+        }, $items);
+    }
+
+    /**
+     * Returns true if the config array has uppercase string keys (channel codes).
+     * @param array<string, mixed> $config
+     */
+    private function hasChannelKeys(array $config): bool
+    {
+        foreach (array_keys($config) as $key) {
+            if (is_string($key) && strtoupper($key) === $key && strlen($key) >= 2) {
+                return true;
+            }
+        }
+        return false;
     }
 }

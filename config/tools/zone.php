@@ -8,6 +8,7 @@ use Sylius\AdminMcpServerPlugin\Tool\Zone\Index;
 use Sylius\AdminMcpServerPlugin\Tool\Zone\Show;
 use Sylius\AdminMcpServerPlugin\Tool\Zone\Create;
 use Sylius\AdminMcpServerPlugin\Tool\Zone\Update;
+use Sylius\AdminMcpServerPlugin\Tool\Zone\Delete;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
@@ -17,4 +18,5 @@ return static function (ContainerConfigurator $container): void {
     $services->set(Show::class)->args([$api])->tag('mcp.tool');
     $services->set(Create::class)->args([$api])->tag('mcp.tool');
     $services->set(Update::class)->args([$api])->tag('mcp.tool');
+    $services->set(Delete::class)->args([$api])->tag('mcp.tool');
 };

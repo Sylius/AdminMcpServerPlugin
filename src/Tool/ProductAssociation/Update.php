@@ -9,26 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_association',
-    description: 'update_product_association(id, associatedProductCodes) → JSON object of the updated Sylius product association. Replaces the full list of associated products.',
+    description: 'update_product_association(id, body) → JSON of the updated product association. Replaces the list of associated products. id is numeric (from list_product_associations). body (JSON string) — fields: associatedProducts (array of product IRIs). Example: \'{"associatedProducts": ["/api/v2/admin/products/MUG_001"]}\'',
 )]
 final readonly class Update
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param int      $id                     Product association ID.
-     * @param string[] $associatedProductCodes New list of product codes to associate (replaces existing).
-     */
-    public function __invoke(int $id, array $associatedProductCodes): string
+    public function __invoke(int $id, string $body): string
     {
-        return $this->client->put(sprintf('product-associations/%d', $id), [
-            'associatedProducts' => array_map(
-                static fn (string $code) => sprintf('/api/v2/admin/products/%s', $code),
-                $associatedProductCodes,
-            ),
-        ]);
+        return $this->client->put(sprintf('product-associations/%d', $id), json_decode($body, true) ?? []);
     }
 }

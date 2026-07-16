@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_exchange_rate',
-    description: 'create_exchange_rate(sourceCurrencyCode, targetCurrencyCode, ratio) → JSON object of the newly created Sylius exchange rate. ratio is a float, e.g. 1.25 means 1 source = 1.25 target.',
+    description: 'create_exchange_rate(sourceCurrency, targetCurrency, ratio) → JSON object of the newly created Sylius exchange rate. ratio is a float, e.g. 1.25 means 1 source = 1.25 target. sourceCurrency and targetCurrency are IRIs from list_currencies @id.',
 )]
 final readonly class Create
 {
@@ -19,19 +19,19 @@ final readonly class Create
     }
 
     /**
-     * @param string $sourceCurrencyCode Source currency ISO 4217 code (e.g. "USD").
-     * @param string $targetCurrencyCode Target currency ISO 4217 code (e.g. "EUR").
-     * @param float  $ratio              Exchange ratio (e.g. 0.92 means 1 USD = 0.92 EUR).
+     * @param string $sourceCurrency Source currency IRI from list_currencies @id.
+     * @param string $targetCurrency Target currency IRI from list_currencies @id.
+     * @param float  $ratio          Exchange ratio (e.g. 0.92 means 1 source = 0.92 target).
      */
     public function __invoke(
-        string $sourceCurrencyCode,
-        string $targetCurrencyCode,
+        string $sourceCurrency,
+        string $targetCurrency,
         float $ratio,
     ): string {
         return $this->client->post('exchange-rates', [
-            'sourceCurrency' => sprintf('/api/v2/admin/currencies/%s', $sourceCurrencyCode),
-            'targetCurrency' => sprintf('/api/v2/admin/currencies/%s', $targetCurrencyCode),
-            'ratio' => $ratio,
+            'sourceCurrency' => $sourceCurrency,
+            'targetCurrency' => $targetCurrency,
+            'ratio'          => $ratio,
         ]);
     }
 }

@@ -9,7 +9,11 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product_attribute',
-    description: 'update_product_attribute(code, name, localeCode?) → JSON object of the updated Sylius product attribute. Updates the translation name for the given locale.',
+    description: <<<'DESC'
+update_product_attribute(code, body) → JSON of the updated product attribute.
+
+IMPORTANT: First call get_product_attribute to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,21 +22,8 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string $code       Product attribute code to update.
-     * @param string $name       New display name for the given locale.
-     * @param string $localeCode Locale for the translation. Default = "en_US".
-     */
-    public function __invoke(string $code, string $name, string $localeCode = 'en_US'): string
+    public function __invoke(string $code, string $body): string
     {
-        return $this->client->put(sprintf('product-attributes/%s', $code), [
-            'translations' => [
-                $localeCode => [
-                    '@id' => sprintf('/api/v2/admin/product-attributes/%s/translations/%s', $code, $localeCode),
-                    'locale' => $localeCode,
-                    'name' => $name,
-                ],
-            ],
-        ]);
+        return $this->client->put(sprintf('product-attributes/%s', $code), json_decode($body, true) ?? []);
     }
 }

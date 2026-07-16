@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_product_variants',
-    description: 'list_product_variants(page?, itemsPerPage?, productCode?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale).',
+    description: 'list_product_variants(page?, itemsPerPage?, product?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). TIP: Always pass product (IRI from list_products @id) to filter by product — without it, all variants across the entire store are returned (can be hundreds).',
 )]
 final readonly class Index
 {
@@ -21,13 +21,13 @@ final readonly class Index
     /**
      * @param int    $page         Page number (1-based). Default = 1.
      * @param int    $itemsPerPage Items per page. Default = 30.
-     * @param string $productCode  Filter by product code. Default = "" (all variants).
+     * @param string $product      Filter by product IRI from list_products @id. Default = "" (all variants).
      */
-    public function __invoke(int $page = 1, int $itemsPerPage = 30, string $productCode = ''): string
+    public function __invoke(int $page = 1, int $itemsPerPage = 30, string $product = ''): string
     {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
-        if ($productCode !== '') {
-            $params['product.code'] = $productCode;
+        if ($product !== '') {
+            $params['product'] = $product;
         }
 
         return $this->client->get('product-variants', $params);

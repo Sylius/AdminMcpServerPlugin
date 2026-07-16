@@ -9,20 +9,17 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'get_shipment',
-    description: 'get_shipment(id) → Full JSON of a single shipment by its numeric ID. Returns: id, state (ready/shipped/cancelled), method, order, units, tracking, shippedAt, createdAt, updatedAt.',
+    description: 'get_shipment(shipmentId) → Gets full details of a shipment by its numeric ID. Returns: id, state (ready/shipped/cancelled), method (shipping carrier), order (which order), units (items in this shipment), tracking (tracking number), shippedAt, createdAt. Get the ID from list_shipments or list_order_shipments.',
 )]
 final readonly class Show
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param int $id Numeric shipment ID.
+     * @param int $shipmentId Numeric shipment ID (from list_shipments or list_order_shipments).
      */
-    public function __invoke(int $id): string
+    public function __invoke(int $shipmentId): string
     {
-        return $this->client->get(sprintf('shipments/%d', $id));
+        return $this->client->get(sprintf('shipments/%d', $shipmentId));
     }
 }

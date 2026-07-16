@@ -27,8 +27,7 @@ final readonly class Delete
         $country = json_decode($this->client->get(sprintf('countries/%s', $countryCode)), true);
         $provinces = $country['provinces'] ?? [];
 
-        $targetIri = sprintf('/api/v2/admin/countries/%s/provinces/%s', $countryCode, $provinceCode);
-        $provinces = array_values(array_filter($provinces, static fn (string $iri) => $iri !== $targetIri));
+        $provinces = array_values(array_filter($provinces, static fn (string $iri) => basename($iri) !== $provinceCode));
 
         $this->client->put(sprintf('countries/%s', $countryCode), ['provinces' => $provinces]);
 

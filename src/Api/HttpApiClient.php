@@ -26,12 +26,12 @@ final readonly class HttpApiClient implements ApiClientInterface
 
     public function post(string $path, array $body = []): string
     {
-        return $this->request($this->apiClient, 'POST', $path, ['json' => $body]);
+        return $this->request($this->apiClient, 'POST', $path, ['body' => json_encode($body, \JSON_THROW_ON_ERROR)]);
     }
 
     public function put(string $path, array $body = []): string
     {
-        return $this->request($this->apiClient, 'PUT', $path, ['json' => $body]);
+        return $this->request($this->apiClient, 'PUT', $path, ['body' => json_encode($body, \JSON_THROW_ON_ERROR)]);
     }
 
     public function patch(string $path, array $body = []): string
@@ -60,7 +60,14 @@ final readonly class HttpApiClient implements ApiClientInterface
                 return $this->request($client, $method, $path, $options, forceRefresh: true);
             }
 
-            return $response->getContent(false);
+            $content    = $response->getContent(false);
+            $statusCode = $response->getStatusCode();
+
+            if ($statusCode >= 400) {
+                throw new ToolCallException($content);
+            }
+
+            return $content;
         } catch (NotAuthenticatedException | AuthenticationFailedException $e) {
             throw new ToolCallException($e->getMessage(), 0, $e);
         }

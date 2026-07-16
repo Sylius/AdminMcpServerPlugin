@@ -9,41 +9,41 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_shipping_method',
-    description: 'create_shipping_method(code, name, zoneCode, calculator, channelCodes, amount?, percentage?, localeCode?, description?, categoryCode?, taxCategoryCode?, enabled?) → JSON of the newly created Sylius shipping method. calculator: "flat_rate" | "per_unit_rate" | "percentage_discount". For flat_rate/per_unit_rate provide amount in smallest currency unit (e.g. 1000 = 10.00). For percentage_discount provide percentage as decimal (0.1 = 10%). Configuration is automatically built for all channels in the system.',
+    description: <<<'DESC'
+create_shipping_method — Creates a shipping method (delivery option shown to customers at checkout). Prerequisites: run list_zones to get zone IRI; run list_channels to get channel IRIs.
+
+REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zone (zone IRI, e.g. "/api/v2/admin/zones/WORLD"), calculator (pricing type), channels (array of channel IRIs).
+
+calculator types — also specify the matching parameter:
+- "flat_rate" — same price regardless of order size; also pass amount=1000 (1000 = 10.00 EUR/USD, smallest currency unit)
+- "per_unit_rate" — price × number of items; also pass amount=500 (price per item in smallest currency unit)
+- "percentage_discount" — reduces shipping cost by a percentage; also pass percentage=0.1 (0.1 = 10% off, 1.0 = free)
+
+The system automatically applies the amount/percentage to all channels — just provide once.
+NOTE: the price parameter is called "amount" (not "price"). Pass amount=<value>.
+
+Ask user: what should the shipping cost be? Which zones/regions does it apply to?
+DESC,
 )]
 final readonly class Create
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string   $code            Unique shipping method code.
-     * @param string   $name            Display name for the given locale.
-     * @param string   $zoneCode        Zone code (e.g. "WORLD", "EU"). Use list_zones to find available codes.
-     * @param string   $calculator      Calculator name: "flat_rate", "per_unit_rate", "percentage_discount".
-     * @param string[] $channelCodes    Channel codes this method will be available in. Use list_channels to find codes.
-     * @param int      $amount          Amount in smallest currency unit for flat_rate/per_unit_rate (e.g. 1000 = 10.00).
-     * @param float    $percentage      Decimal percentage for percentage_discount (e.g. 0.1 = 10%).
-     * @param string   $localeCode      Locale for the name/description translation. Default = "en_US".
-     * @param string   $description     Optional description. Default = "".
-     * @param string   $categoryCode    Shipping category code. Empty = no category.
-     * @param string   $taxCategoryCode Tax category code. Empty = no tax category.
-     * @param bool     $enabled         Whether the method is enabled. Default = true.
+     * @param string[]  $channels    Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
      */
     public function __invoke(
         string $code,
         string $name,
-        string $zoneCode,
+        string $zone,
         string $calculator,
-        array $channelCodes,
+        array $channels,
         int $amount = 0,
         float $percentage = 0.0,
         string $localeCode = 'en_US',
         string $description = '',
-        string $categoryCode = '',
-        string $taxCategoryCode = '',
+        string $category = '',
+        string $taxCategory = '',
         bool $enabled = true,
     ): string {
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
@@ -58,29 +58,20 @@ final readonly class Create
         }
 
         $translation = ['locale' => $localeCode, 'name' => $name];
-        if ($description !== '') {
-            $translation['description'] = $description;
-        }
+        if ($description !== '') { $translation['description'] = $description; }
 
         $body = [
-            'code' => $code,
-            'enabled' => $enabled,
-            'calculator' => $calculator,
+            'code'          => $code,
+            'enabled'       => $enabled,
+            'calculator'    => $calculator,
             'configuration' => $configuration,
-            'zone' => sprintf('/api/v2/admin/zones/%s', $zoneCode),
-            'channels' => array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channelCodes,
-            ),
-            'translations' => [$localeCode => $translation],
+            'zone'          => $zone,
+            'channels'      => $channels,
+            'translations'  => [$localeCode => $translation],
         ];
 
-        if ($categoryCode !== '') {
-            $body['category'] = sprintf('/api/v2/admin/shipping-categories/%s', $categoryCode);
-        }
-        if ($taxCategoryCode !== '') {
-            $body['taxCategory'] = sprintf('/api/v2/admin/tax-categories/%s', $taxCategoryCode);
-        }
+        if ($category !== '') { $body['category'] = $category; }
+        if ($taxCategory !== '') { $body['taxCategory'] = $taxCategory; }
 
         return $this->client->post('shipping-methods', $body);
     }

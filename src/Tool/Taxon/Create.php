@@ -4,55 +4,43 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Taxon;
 
-use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_taxon',
-    description: 'create_taxon(code, name, localeCode?, slug?, enabled?, parentCode?) → JSON object of the newly created Sylius taxon. slug is auto-generated from name if omitted. parentCode is the code of the parent taxon (e.g. "category"). Leave empty to create a root taxon.',
+    description: <<<'DESC'
+create_taxon — Creates a product category (called "taxon" in Sylius). Categories are used to organize products in the store. They can be nested (subcategories).
+
+REQUIRED: code (unique ID, no spaces, e.g. "T_SHIRTS"), name (display name, e.g. "T-Shirts").
+OPTIONAL: parent (parent category IRI to create a subcategory, e.g. "/api/v2/admin/taxons/CLOTHING" — use list_taxons @id), slug (URL path, auto-generated from name if omitted), description, localeCode (default "en_US").
+
+Example: to create "Men's T-Shirts" under "Men's Clothing": code="MENS_TSHIRTS", name="Men's T-Shirts", parent="/api/v2/admin/taxons/MENS_CLOTHING". Use list_taxons to find existing category IRIs.
+DESC,
 )]
 final readonly class Create
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
-    /**
-     * @param string $code        Unique taxon code (e.g. "my_category").
-     * @param string $name        Taxon name for the given locale.
-     * @param string $localeCode  Locale code for the translation. Default = "en_US".
-     * @param string $slug        URL slug for the given locale (e.g. "my-category"). Auto-generated from name if empty.
-     * @param bool   $enabled     Whether the taxon is enabled. Default = true.
-     * @param string $parentCode  Code of the parent taxon. Leave empty for root taxon.
-     */
     public function __invoke(
         string $code,
         string $name,
         string $localeCode = 'en_US',
         string $slug = '',
-        bool $enabled = true,
-        string $parentCode = '',
+        string $description = '',
+        string $parent = '',
     ): string {
-        $translation = [
-            'name' => $name,
-            'locale' => $localeCode,
-        ];
-
-        if ($slug !== '') {
-            $translation['slug'] = $slug;
-        }
+        $translation = ['name' => $name, 'locale' => $localeCode];
+        if ($slug !== '') { $translation['slug'] = $slug; }
+        if ($description !== '') { $translation['description'] = $description; }
 
         $body = [
-            'code' => $code,
-            'enabled' => $enabled,
-            'translations' => [
-                $localeCode => $translation,
-            ],
+            'code'         => $code,
+            'translations' => [$localeCode => $translation],
         ];
 
-        if ($parentCode !== '') {
-            $body['parent'] = sprintf('/api/v2/admin/taxons/%s', $parentCode);
+        if ($parent !== '') {
+            $body['parent'] = $parent;
         }
 
         return $this->client->post('taxons', $body);

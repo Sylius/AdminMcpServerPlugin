@@ -9,7 +9,15 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_customer',
-    description: 'update_customer(id, email?, firstName?, lastName?, gender?, phoneNumber?, birthday?, subscribedToNewsletter?, groupCode?) → JSON object of the updated Sylius customer. Only provided fields are changed. gender: "m", "f", "u". groupCode: "retail" or "wholesale".',
+    description: <<<'DESC'
+update_customer(id, body) — Updates customer information. Only the fields included in body are changed.
+
+REQUIRED: id (numeric customer id from list_customers).
+body (JSON string) — fields: email, firstName, lastName, gender ("m"/"f"/"u"), phoneNumber, birthday ("YYYY-MM-DD"), subscribedToNewsletter (bool), group (IRI from list_customer_groups @id).
+Example: '{"firstName": "Jan", "lastName": "Kowalski", "subscribedToNewsletter": true}'
+
+NOTE: Does not affect the customer's login account. To block login use delete_customer_user(id).
+DESC,
 )]
 final readonly class Update
 {
@@ -27,46 +35,10 @@ final readonly class Update
      * @param string      $phoneNumber             New phone number.
      * @param string      $birthday                New birthday in "YYYY-MM-DD" format.
      * @param bool|null   $subscribedToNewsletter  New newsletter subscription status.
-     * @param string      $groupCode               New customer group code (e.g. "retail", "wholesale").
+     * @param string      $group                   New customer group IRI from list_customer_groups @id.
      */
-    public function __invoke(
-        int $id,
-        string $email = '',
-        string $firstName = '',
-        string $lastName = '',
-        string $gender = '',
-        string $phoneNumber = '',
-        string $birthday = '',
-        ?bool $subscribedToNewsletter = null,
-        string $groupCode = '',
-    ): string {
-        $body = [];
-
-        if ($email !== '') {
-            $body['email'] = $email;
-        }
-        if ($firstName !== '') {
-            $body['firstName'] = $firstName;
-        }
-        if ($lastName !== '') {
-            $body['lastName'] = $lastName;
-        }
-        if ($gender !== '') {
-            $body['gender'] = $gender;
-        }
-        if ($phoneNumber !== '') {
-            $body['phoneNumber'] = $phoneNumber;
-        }
-        if ($birthday !== '') {
-            $body['birthday'] = $birthday;
-        }
-        if ($subscribedToNewsletter !== null) {
-            $body['subscribedToNewsletter'] = $subscribedToNewsletter;
-        }
-        if ($groupCode !== '') {
-            $body['group'] = sprintf('/api/v2/admin/customer-groups/%s', $groupCode);
-        }
-
-        return $this->client->put(sprintf('customers/%d', $id), $body);
+    public function __invoke(int $id, string $body): string
+    {
+        return $this->client->put(sprintf('customers/%d', $id), json_decode($body, true) ?? []);
     }
 }

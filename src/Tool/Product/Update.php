@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_product',
-    description: 'update_product(code, name?, slug?, localeCode?, description?, shortDescription?, enabled?, channels?) → JSON object of the updated Sylius product. Only provided fields are changed. channels replaces the full channel list.',
+    description: <<<'DESC'
+update_product(code, body) → JSON of the updated Sylius product.
+
+IMPORTANT: First call get_product to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
+
+NOTE: slug does NOT auto-update when you change the name; update it separately if needed.
+NOTE: to assign/remove product categories (taxons) use create_product_taxon / delete_product_taxon instead.
+DESC,
 )]
 final readonly class Update
 {
@@ -18,64 +25,8 @@ final readonly class Update
     ) {
     }
 
-    /**
-     * @param string    $code             Product code to update.
-     * @param string    $name             New product name for the given locale.
-     * @param string    $slug             New URL slug for the given locale.
-     * @param string    $localeCode       Locale code for the translation. Default = "en_US".
-     * @param string    $description      New full description.
-     * @param string    $shortDescription New short description.
-     * @param bool|null $enabled          Set enabled status (null = do not change).
-     * @param string[]  $channels         New list of channel codes (replaces existing).
-     */
-    public function __invoke(
-        string $code,
-        string $name = '',
-        string $slug = '',
-        string $localeCode = 'en_US',
-        string $description = '',
-        string $shortDescription = '',
-        ?bool $enabled = null,
-        array $channels = [],
-    ): string {
-        $body = [];
-
-        if ($enabled !== null) {
-            $body['enabled'] = $enabled;
-        }
-
-        $hasTranslationFields = $name !== '' || $slug !== '' || $description !== '' || $shortDescription !== '';
-        if ($hasTranslationFields) {
-            $existing = json_decode($this->client->get(sprintf('products/%s', $code)), true);
-            $translations = $existing['translations'] ?? [];
-
-            if (!isset($translations[$localeCode])) {
-                $translations[$localeCode] = ['locale' => $localeCode];
-            }
-
-            if ($name !== '') {
-                $translations[$localeCode]['name'] = $name;
-            }
-            if ($slug !== '') {
-                $translations[$localeCode]['slug'] = $slug;
-            }
-            if ($description !== '') {
-                $translations[$localeCode]['description'] = $description;
-            }
-            if ($shortDescription !== '') {
-                $translations[$localeCode]['shortDescription'] = $shortDescription;
-            }
-
-            $body['translations'] = $translations;
-        }
-
-        if ($channels !== []) {
-            $body['channels'] = array_map(
-                static fn (string $c) => sprintf('/api/v2/admin/channels/%s', $c),
-                $channels,
-            );
-        }
-
-        return $this->client->put(sprintf('products/%s', $code), $body);
+    public function __invoke(string $code, string $body): string
+    {
+        return $this->client->put(sprintf('products/%s', $code), json_decode($body, true) ?? []);
     }
 }

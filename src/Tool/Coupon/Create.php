@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_coupon',
-    description: 'create_coupon(promotionCode, code, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. The promotion must have couponBased=true.',
+    description: 'create_coupon(promotionCode, code, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. The promotion must have couponBased=true — check get_promotion(code) first; if couponBased=false the API will return an error.',
 )]
 final readonly class Create
 {
