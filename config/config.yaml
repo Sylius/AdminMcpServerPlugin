@@ -1,11 +1,7 @@
 parameters:
     env(SYLIUS_ADMIN_MCP_SERVER_API_URL): 'https://127.0.0.1:8090/api/v2/admin/'
-    env(SYLIUS_ADMIN_MCP_SERVER_API_EMAIL): 'api@example.com'
-    env(SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD): 'sylius-api'
     env(SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL): 'true'
     sylius_admin_mcp_server.api.base_uri: '%env(SYLIUS_ADMIN_MCP_SERVER_API_URL)%'
-    sylius_admin_mcp_server.api.email: '%env(SYLIUS_ADMIN_MCP_SERVER_API_EMAIL)%'
-    sylius_admin_mcp_server.api.password: '%env(SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD)%'
 
 framework:
     http_client:

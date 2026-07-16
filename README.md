@@ -19,6 +19,52 @@ there you will find the <a href="https://docs.sylius.com/plugins-development-gui
 
 For more information about the **Test Application** included in the skeleton, please refer to the [Sylius documentation](https://docs.sylius.com/plugins-development-guide/test-application).
 
+## MCP Authorization
+
+The MCP server never asks the LLM for credentials. Instead it exposes an OAuth 2.1
+(authorization code + PKCE) authorization server, so MCP clients (Claude Desktop,
+claude.ai, ...) connect through a browser login flow. The administrator signs in with
+their Sylius admin e-mail and password on a dedicated form (`/oauth/authorize`); the
+account must hold `ROLE_API_ACCESS`. The access token handed to the client is a regular
+Sylius Admin API JWT, and a refresh token keeps the connection alive for up to
+`refresh_token_max_lifetime` (default 30 days from the first login, non-sliding) before a
+new browser login is required.
+
+### Required environment variable
+
+```dotenv
+# Encryption key for OAuth authorization codes / refresh tokens (keep secret).
+SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=<a-random-secret-string>
+```
+
+The OAuth server reuses the existing Sylius `JWT_SECRET_KEY` / `JWT_PUBLIC_KEY` /
+`JWT_PASSPHRASE` keys for signing.
+
+### Required `security.yaml`
+
+Symfony does not allow a bundle to inject firewalls, so the host application must add the
+MCP firewalls to `config/packages/security.yaml`. They must be declared **before** the
+`shop` firewall:
+
+```yaml
+security:
+    firewalls:
+        sylius_admin_mcp_server_oauth:
+            pattern: "^/(oauth|\\.well-known)"
+            security: false
+        sylius_admin_mcp_server_mcp:
+            pattern: ^/_mcp
+            provider: sylius_api_admin_user_provider
+            stateless: true
+            jwt: true
+        # ... existing admin / api_admin / shop firewalls ...
+
+    access_control:
+        - { path: "^/(oauth|\\.well-known)", role: PUBLIC_ACCESS }
+        - { path: ^/_mcp, role: ROLE_API_ACCESS }
+        # ... existing access control rules ...
+```
+
 ## Quickstart Installation
 
 Run `composer create-project sylius/plugin-skeleton ProjectName`.

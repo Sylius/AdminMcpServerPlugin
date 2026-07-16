@@ -30,21 +30,20 @@ final class HttpApiClientTest extends TestCase
         self::assertSame('RESPONSE_BODY', $apiClient->get('administrators'));
     }
 
-    public function testRetriesWithFreshTokenOnUnauthorized(): void
+    public function testDoesNotRetryAndReturnsBodyOnUnauthorized(): void
     {
         $client = new MockHttpClient([
-            new MockResponse('', ['http_code' => 401]),
-            new MockResponse('OK_AFTER_REFRESH', ['http_code' => 200]),
+            new MockResponse('UNAUTHORIZED_BODY', ['http_code' => 401]),
         ]);
 
         $provider = $this->createMock(TokenProviderInterface::class);
-        $provider->expects(self::exactly(2))
+        $provider->expects(self::once())
             ->method('getToken')
-            ->willReturnCallback(static fn (bool $forceRefresh): string => $forceRefresh ? 'fresh' : 'stale');
+            ->willReturn('tok-123');
 
         $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider);
 
-        self::assertSame('OK_AFTER_REFRESH', $apiClient->get('administrators'));
+        self::assertSame('UNAUTHORIZED_BODY', $apiClient->get('administrators'));
     }
 
     public function testTranslatesNotAuthenticatedToToolCallException(): void

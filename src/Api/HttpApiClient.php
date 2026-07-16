@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Api;
 
-use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
+use Mcp\Exception\ToolCallException;
 use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
 use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
-use Mcp\Exception\ToolCallException;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 final readonly class HttpApiClient implements ApiClientInterface
@@ -49,19 +48,15 @@ final readonly class HttpApiClient implements ApiClientInterface
     /**
      * @param array<string, mixed> $options
      */
-    private function request(HttpClientInterface $client, string $method, string $path, array $options, bool $forceRefresh = false): string
+    private function request(HttpClientInterface $client, string $method, string $path, array $options): string
     {
         try {
-            $options['headers'] = ['Authorization' => 'Bearer ' . $this->tokenProvider->getToken($forceRefresh)];
+            $options['headers'] = ['Authorization' => 'Bearer ' . $this->tokenProvider->getToken()];
 
             $response = $client->request($method, $path, $options);
 
-            if (401 === $response->getStatusCode() && !$forceRefresh) {
-                return $this->request($client, $method, $path, $options, forceRefresh: true);
-            }
-
             return $response->getContent(false);
-        } catch (NotAuthenticatedException | AuthenticationFailedException $e) {
+        } catch (NotAuthenticatedException $e) {
             throw new ToolCallException($e->getMessage(), 0, $e);
         }
     }
