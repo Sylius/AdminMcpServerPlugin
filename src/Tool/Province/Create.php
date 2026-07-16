@@ -9,7 +9,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_province',
-    description: 'create_province(countryCode, code, name, abbreviation?) → JSON of the newly created province. code must include the country prefix (e.g. "US-CA" for California, "CA-ON" for Ontario). countryCode is the 2-letter ISO code (e.g. "US").',
+    description: 'create_province(countryCode, code, name, abbreviation?) → JSON of the newly created province. code must be exactly XX-XX format: 2 uppercase country letters + dash + 2 uppercase region letters (e.g. "US-CA" for California, "CA-ON" for Ontario, "PL-MZ" for Mazovia). countryCode is the 2-letter ISO code (e.g. "US").',
 )]
 final readonly class Create
 {
