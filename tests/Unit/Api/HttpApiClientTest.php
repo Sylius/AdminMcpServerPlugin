@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Tests\Sylius\AdminMcpServerPlugin\Unit\Api;
 
 use Sylius\AdminMcpServerPlugin\Api\HttpApiClient;
-use Sylius\AdminMcpServerPlugin\Api\IriConverterInterface;
 use Sylius\AdminMcpServerPlugin\Exception\NotAuthenticatedException;
 use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
 use Mcp\Exception\ToolCallException;
@@ -26,7 +25,7 @@ final class HttpApiClientTest extends TestCase
         $provider = $this->createMock(TokenProviderInterface::class);
         $provider->method('getToken')->willReturn('tok-123');
 
-        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider, $this->createMock(IriConverterInterface::class));
+        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider);
 
         self::assertSame('RESPONSE_BODY', $apiClient->get('administrators'));
     }
@@ -43,7 +42,7 @@ final class HttpApiClientTest extends TestCase
             ->method('getToken')
             ->willReturnCallback(static fn (bool $forceRefresh): string => $forceRefresh ? 'fresh' : 'stale');
 
-        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider, $this->createMock(IriConverterInterface::class));
+        $apiClient = new HttpApiClient($client, new MockHttpClient(), $provider);
 
         self::assertSame('OK_AFTER_REFRESH', $apiClient->get('administrators'));
     }
@@ -53,7 +52,7 @@ final class HttpApiClientTest extends TestCase
         $provider = $this->createMock(TokenProviderInterface::class);
         $provider->method('getToken')->willThrowException(new NotAuthenticatedException('login first'));
 
-        $apiClient = new HttpApiClient(new MockHttpClient(), new MockHttpClient(), $provider, $this->createMock(IriConverterInterface::class));
+        $apiClient = new HttpApiClient(new MockHttpClient(), new MockHttpClient(), $provider);
 
         $this->expectException(ToolCallException::class);
         $this->expectExceptionMessage('login first');

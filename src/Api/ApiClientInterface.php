@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Api;
 
-interface ApiClientInterface extends IriConverterInterface
+interface ApiClientInterface
 {
     /**
      * @param array<string, mixed> $query

@@ -25,14 +25,14 @@ final readonly class Update
      */
     public function __invoke(string $code, string $name, string $localeCode = 'en_US'): string
     {
-        return $this->client->put(sprintf('product-options/%s', $code), [
-            'translations' => [
-                $localeCode => [
-                    '@id' => $this->client->iri(sprintf('product-options/%s/translations/%s', $code, $localeCode)),
-                    'locale' => $localeCode,
-                    'name' => $name,
-                ],
-            ],
-        ]);
+        $existing = json_decode($this->client->get(sprintf('product-options/%s', $code)), true);
+        $translations = $existing['translations'] ?? [];
+        if (isset($translations[$localeCode])) {
+            $translations[$localeCode]['name'] = $name;
+        } else {
+            $translations[$localeCode] = ['name' => $name];
+        }
+
+        return $this->client->put(sprintf('product-options/%s', $code), ['translations' => $translations]);
     }
 }

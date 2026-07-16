@@ -9,7 +9,14 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'update_payment_method',
-    description: 'update_payment_method(code, name?, localeCode?, description?, instructions?, enabled?, channels?) → JSON object of the updated Sylius payment method. channels: array of channel IRIs from list_channels @id (replaces existing). Only provided fields are changed; omitted fields keep their current values.',
+    description: <<<'DESC'
+update_payment_method(code, translations?, enabled?, channels?) → JSON object of the updated Sylius payment method. Only provided fields are changed.
+
+translations (JSON string) — map of locale → translation fields (name, description, instructions). Pass multiple locales at once:
+'{"en_US": {"name": "Bank Transfer", "description": "..."}, "pl_PL": {"name": "Przelew bankowy"}}'
+
+channels: array of channel IRIs from list_channels @id (replaces existing). Omit to keep current.
+DESC,
 )]
 final readonly class Update
 {
@@ -20,39 +27,33 @@ final readonly class Update
 
     /**
      * @param string    $code         Payment method code to update.
-     * @param string    $name         Display name for the given locale (omit to keep current).
-     * @param string    $localeCode   Locale for the translation. Default = "en_US".
-     * @param string    $description  Description text.
-     * @param string    $instructions Payment instructions.
+     * @param string    $translations JSON map of locale → {name?, description?, instructions?}.
      * @param bool|null $enabled      Set enabled status. Null = do not change.
-     * @param string[]  $channels Array of channel IRIs (from list_channels @id) — replaces existing. Empty = do not change.
+     * @param string[]  $channels     Array of channel IRIs (from list_channels @id) — replaces existing. Empty = do not change.
      */
     public function __invoke(
         string $code,
-        string $name = '',
-        string $localeCode = 'en_US',
-        string $description = '',
-        string $instructions = '',
+        string $translations = '{}',
         ?bool $enabled = null,
         array $channels = [],
     ): string {
         $existing = json_decode($this->client->get(sprintf('payment-methods/%s', $code)), true);
 
-        $resolvedName = $name !== '' ? $name : ($existing['translations'][$localeCode]['name'] ?? $code);
+        $body = [];
 
-        $translation = [
-            '@id'    => $this->client->iri(sprintf('payment-methods/%s/translations/%s', $code, $localeCode)),
-            'locale' => $localeCode,
-            'name'   => $resolvedName,
-        ];
-        if ($description !== '') {
-            $translation['description'] = $description;
+        $incoming = json_decode($translations, true);
+        if (!empty($incoming)) {
+            $merged = $existing['translations'] ?? [];
+            foreach ($incoming as $locale => $fields) {
+                if (!isset($merged[$locale])) {
+                    $merged[$locale] = [];
+                }
+                foreach ($fields as $key => $value) {
+                    $merged[$locale][$key] = $value;
+                }
+            }
+            $body['translations'] = $merged;
         }
-        if ($instructions !== '') {
-            $translation['instructions'] = $instructions;
-        }
-
-        $body = ['translations' => [$localeCode => $translation]];
 
         if ($enabled !== null) {
             $body['enabled'] = $enabled;

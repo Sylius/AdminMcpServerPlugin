@@ -12,7 +12,11 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 create_catalog_promotion — Creates a catalog promotion (automatic discount applied directly to product prices in the catalog, not at checkout). Prerequisites: run list_channels to get channel IRIs; run list_taxons to get taxon codes for scope.
 
-REQUIRED: code (unique ID, e.g. "SUMMER_SALE"), name (e.g. "Summer Sale"), channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
+REQUIRED: code (unique ID, e.g. "SUMMER_SALE"), name (internal name), channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
+
+translations (JSON string) — customer-facing labels per locale. Provide all languages at once (the LLM can generate good translations):
+'{"en_US": {"label": "Summer Sale", "description": "10% off all summer items"}, "pl_PL": {"label": "Letnia wyprzedaż", "description": "10% taniej na wszystkie letnie produkty"}}'
+If omitted, name is used as label for en_US.
 
 scopes (JSON string) — which products to discount:
 - All products: '[]'
@@ -37,30 +41,28 @@ final readonly class Create
         array $channels,
         string $scopes = '[]',
         string $actions = '[]',
-        string $label = '',
-        string $description = '',
-        string $localeCode = 'en_US',
+        string $translations = '{}',
         bool $enabled = true,
         bool $exclusive = false,
         int $priority = 0,
         string $startDate = '',
         string $endDate = '',
     ): string {
-        $translation = ['locale' => $localeCode, 'label' => $label !== '' ? $label : $name];
-        if ($description !== '') {
-            $translation['description'] = $description;
+        $decodedTranslations = json_decode($translations, true);
+        if (empty($decodedTranslations)) {
+            $decodedTranslations = ['en_US' => ['label' => $name]];
         }
 
         $body = [
-            'code'        => $code,
-            'name'        => $name,
-            'enabled'     => $enabled,
-            'exclusive'   => $exclusive,
-            'priority'    => $priority,
-            'channels'    => $channels,
-            'scopes'      => json_decode($scopes, true) ?? [],
-            'actions'     => json_decode($actions, true) ?? [],
-            'translations' => [$localeCode => $translation],
+            'code'         => $code,
+            'name'         => $name,
+            'enabled'      => $enabled,
+            'exclusive'    => $exclusive,
+            'priority'     => $priority,
+            'channels'     => $channels,
+            'scopes'       => json_decode($scopes, true) ?? [],
+            'actions'      => json_decode($actions, true) ?? [],
+            'translations' => $decodedTranslations,
         ];
 
         if ($startDate !== '') { $body['startDate'] = $startDate; }

@@ -66,11 +66,7 @@ final readonly class Update
             if (isset($existing['translations'][$localeCode])) {
                 $existing['translations'][$localeCode]['name'] = $name;
             } else {
-                $existing['translations'][$localeCode] = [
-                    '@id' => $this->client->iri(sprintf('product-variants/%s/translations/%s', $code, $localeCode)),
-                    'locale' => $localeCode,
-                    'name'   => $name,
-                ];
+                $existing['translations'][$localeCode] = ['name' => $name];
             }
         }
 

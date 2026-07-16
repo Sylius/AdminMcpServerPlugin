@@ -16,16 +16,10 @@ final readonly class HttpApiClient implements ApiClientInterface
         private HttpClientInterface $apiClient,
         private HttpClientInterface $mergePatchClient,
         private TokenProviderInterface $tokenProvider,
-        private IriConverterInterface $iriConverter,
     ) {
     }
 
-    public function iri(string $path): string
-    {
-        return $this->iriConverter->iri($path);
-    }
-
-public function get(string $path, array $query = []): string
+    public function get(string $path, array $query = []): string
     {
         return $this->request($this->apiClient, 'GET', $path, $query !== [] ? ['query' => $query] : []);
     }

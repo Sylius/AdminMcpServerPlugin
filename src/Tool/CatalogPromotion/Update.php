@@ -49,7 +49,7 @@ final readonly class Update
         $translations = $existing['translations'] ?? [];
         if ($name !== '' || $label !== '' || $description !== '') {
             if (!isset($translations[$localeCode])) {
-                $translations[$localeCode] = ['locale' => $localeCode];
+                $translations[$localeCode] = [];
             }
             if ($label !== '') {
                 $translations[$localeCode]['label'] = $label;
