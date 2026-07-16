@@ -20,32 +20,12 @@ final readonly class Index
 
     public function __invoke(int $page = 1, int $itemsPerPage = 30, string $status = '', string $productCode = ''): string
     {
-        // When filtering by product, fetch review IRIs from the product response
-        // (the /product-reviews collection endpoint does not support filtering by product)
-        if ($productCode !== '') {
-            $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
-            $reviewIris = $product['reviews'] ?? [];
-
-            $reviews = [];
-            foreach ($reviewIris as $iri) {
-                $id = basename($iri);
-                $review = json_decode($this->client->get(sprintf('product-reviews/%s', $id)), true);
-                if ($status === '' || ($review['status'] ?? '') === $status) {
-                    $reviews[] = $review;
-                }
-            }
-
-            return (string) json_encode([
-                '@context' => '/api/v2/contexts/ProductReview',
-                '@type' => 'hydra:Collection',
-                'hydra:totalItems' => count($reviews),
-                'hydra:member' => $reviews,
-            ]);
-        }
-
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($status !== '') {
             $params['status'] = $status;
+        }
+        if ($productCode !== '') {
+            $params['reviewSubject'] = sprintf('/api/v2/admin/products/%s', $productCode);
         }
 
         return $this->client->get('product-reviews', $params);

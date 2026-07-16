@@ -26,29 +26,11 @@ final readonly class Index
 
     public function __invoke(int $page = 1, int $itemsPerPage = 30, string $parentCode = ''): string
     {
-        // The Sylius API does not support collection filtering for taxons.
-        // When parentCode is provided, fetch the parent and return its direct children.
+        $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($parentCode !== '') {
-            $parent = json_decode($this->client->get(sprintf('taxons/%s', $parentCode)), true);
-            $childIris = $parent['children'] ?? [];
-
-            $children = [];
-            foreach ($childIris as $iri) {
-                $code = basename($iri);
-                $children[] = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
-            }
-
-            return (string) json_encode([
-                '@context' => '/api/v2/contexts/Taxon',
-                '@type' => 'hydra:Collection',
-                'hydra:totalItems' => count($children),
-                'hydra:member' => $children,
-            ]);
+            $params['parent'] = sprintf('/api/v2/admin/taxons/%s', $parentCode);
         }
 
-        return $this->client->get('taxons', [
-            'page' => $page,
-            'itemsPerPage' => $itemsPerPage,
-        ]);
+        return $this->client->get('taxons', $params);
     }
 }

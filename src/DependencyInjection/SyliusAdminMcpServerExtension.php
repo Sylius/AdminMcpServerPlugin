@@ -76,6 +76,11 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
     public function prepend(ContainerBuilder $container): void
     {
         $this->prependDoctrineMigrations($container);
+        $container->prependExtensionConfig('api_platform', [
+            'mapping' => [
+                'paths' => [__DIR__ . '/../../config/api_platform'],
+            ],
+        ]);
     }
 
     protected function getMigrationsNamespace(): string
