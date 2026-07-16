@@ -13,7 +13,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 update_shipping_method — Updates a shipping method. Only provided fields are changed; omitted fields keep their current values.
 
 REQUIRED: code (the shipping method code to update).
-OPTIONAL: name, zone (IRI e.g. "/api/v2/admin/zones/WORLD"), calculator (flat_rate/per_unit_rate/percentage_discount), channels (array of channel IRIs), amount (smallest unit, e.g. 500=5.00), percentage (decimal, e.g. 0.1=10%), localeCode, description, category (IRI), taxCategory (IRI), enabled.
+OPTIONAL: translations (JSON map of locale → {name?, description?} — pass multiple locales at once, e.g. '{"en_US":{"name":"Express","description":"Next day"},"pl_PL":{"name":"Ekspres"}}'), zone (IRI e.g. "/api/v2/admin/zones/WORLD"), calculator (flat_rate/per_unit_rate/percentage_discount), channels (array of channel IRIs), amount (smallest unit, e.g. 500=5.00), percentage (decimal, e.g. 0.1=10%), category (IRI), taxCategory (IRI), enabled.
 
 Configuration is automatically built for all channels in the system.
 DESC,
@@ -26,18 +26,17 @@ final readonly class Update
     }
 
     /**
-     * @param string[]  $channels    Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
+     * @param string    $translations JSON map of locale → {name?, description?}. Pass multiple locales at once.
+     * @param string[]  $channels     Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
      */
     public function __invoke(
         string $code,
-        string $name = '',
+        string $translations = '{}',
         string $zone = '',
         string $calculator = '',
         array $channels = [],
         int $amount = -1,
         float $percentage = -1.0,
-        string $localeCode = 'en_US',
-        string $description = '',
         string $category = '',
         string $taxCategory = '',
         ?bool $enabled = null,
@@ -62,19 +61,19 @@ final readonly class Update
             }
         }
 
-        $translations = $existing['translations'] ?? [];
-        if ($name !== '') {
-            if (!isset($translations[$localeCode])) {
-                $translations[$localeCode] = ['locale' => $localeCode];
+        $mergedTranslations = $existing['translations'] ?? [];
+        $incoming = json_decode($translations, true);
+        if (!empty($incoming)) {
+            foreach ($incoming as $locale => $fields) {
+                if (!isset($mergedTranslations[$locale])) {
+                    $mergedTranslations[$locale] = [];
+                }
+                foreach ($fields as $key => $value) {
+                    $mergedTranslations[$locale][$key] = $value;
+                }
             }
-            $translations[$localeCode]['name'] = $name;
         }
-        if ($description !== '') {
-            if (!isset($translations[$localeCode])) {
-                $translations[$localeCode] = ['locale' => $localeCode];
-            }
-            $translations[$localeCode]['description'] = $description;
-        }
+        $translations = $mergedTranslations;
 
         $body = [
             'calculator'    => $resolvedCalculator,

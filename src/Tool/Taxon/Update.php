@@ -12,9 +12,11 @@ use Mcp\Capability\Attribute\McpTool;
     description: <<<'DESC'
 update_taxon — Updates a product category. All fields are optional — only provided values change. Existing translations in other locales are always preserved.
 
-FIELDS: name (display name), slug (URL path — NOTE: slug does NOT auto-update when you change the name; update it separately if needed), enabled (true=visible in shop, false=hidden), parent (move to a different parent category — IRI from list_taxons @id, e.g. "/api/v2/admin/taxons/CLOTHING"), localeCode (default "en_US" — use "fr_FR" etc. to add/update translations in another language).
+translations (JSON string) — map of locale → translation fields (name, slug). Pass multiple locales at once:
+'{"en_US": {"name": "T-Shirts", "slug": "t-shirts"}, "pl_PL": {"name": "Koszulki", "slug": "koszulki"}}'
+NOTE: slug does NOT auto-update when you change the name; update it separately if needed.
 
-To rename a category and keep the URL in sync, pass both name and slug in the same call.
+enabled (true=visible in shop, false=hidden), parent (move to a different parent category — IRI from list_taxons @id, e.g. "/api/v2/admin/taxons/CLOTHING").
 DESC,
 )]
 final readonly class Update
@@ -25,49 +27,39 @@ final readonly class Update
     }
 
     /**
-     * @param string    $code        Taxon code to update.
-     * @param string    $name        New taxon name for the given locale.
-     * @param string    $slug        New URL slug for the given locale.
-     * @param string    $localeCode  Locale code for the translation. Default = "en_US".
-     * @param bool|null $enabled     Set enabled status (null = do not change).
-     * @param string    $parent      New parent taxon IRI from list_taxons @id. Leave empty to keep current parent.
+     * @param string    $code         Taxon code to update.
+     * @param string    $translations JSON map of locale → {name?, slug?}.
+     * @param bool|null $enabled      Set enabled status. Null = do not change.
+     * @param string    $parent       New parent taxon IRI from list_taxons @id. Leave empty to keep current parent.
      */
     public function __invoke(
         string $code,
-        string $name = '',
-        string $slug = '',
-        string $localeCode = 'en_US',
+        string $translations = '{}',
         ?bool $enabled = null,
         string $parent = '',
     ): string {
-        $existing = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
-
         $body = [];
+
+        $incoming = json_decode($translations, true);
+        if (!empty($incoming)) {
+            $existing = json_decode($this->client->get(sprintf('taxons/%s', $code)), true);
+            $merged = $existing['translations'] ?? [];
+            foreach ($incoming as $locale => $fields) {
+                if (!isset($merged[$locale])) {
+                    $merged[$locale] = [];
+                }
+                foreach ($fields as $key => $value) {
+                    $merged[$locale][$key] = $value;
+                }
+            }
+            $body['translations'] = $merged;
+        }
 
         if ($enabled !== null) {
             $body['enabled'] = $enabled;
         }
-
         if ($parent !== '') {
             $body['parent'] = $parent;
-        }
-
-        $hasTranslationFields = $name !== '' || $slug !== '';
-        if ($hasTranslationFields) {
-            $translations = $existing['translations'] ?? [];
-
-            if (!isset($translations[$localeCode])) {
-                $translations[$localeCode] = ['locale' => $localeCode];
-            }
-
-            if ($name !== '') {
-                $translations[$localeCode]['name'] = $name;
-            }
-            if ($slug !== '') {
-                $translations[$localeCode]['slug'] = $slug;
-            }
-
-            $body['translations'] = $translations;
         }
 
         return $this->client->put(sprintf('taxons/%s', $code), $body);
