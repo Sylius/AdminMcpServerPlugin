@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+ This file is part of the Sylius AdminMcpServerPlugin package.
+
+ Extends the admin Address resource to add a GetCollection operation with customer.id filter,
+ enabling GET /admin/addresses?customer.id={id} filtering.
+ This operation is missing from Sylius core and will be contributed upstream.
+
+-->
+
+<resources
+    xmlns="https://api-platform.com/schema/metadata/resources-3.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://api-platform.com/schema/metadata/resources-3.0 https://api-platform.com/schema/metadata/resources-3.0.xsd"
+>
+    <resource class="%sylius.model.address.class%">
+        <operations>
+            <operation name="sylius_api_admin_address_get_collection" class="ApiPlatform\Metadata\GetCollection" uriTemplate="/admin/addresses">
+                <normalizationContext>
+                    <values>
+                        <value name="groups">
+                            <values>
+                                <value>sylius:admin:address:show</value>
+                            </values>
+                        </value>
+                    </values>
+                </normalizationContext>
+                <filters>
+                    <filter>sylius_api.search_filter.admin.address</filter>
+                </filters>
+            </operation>
+        </operations>
+    </resource>
+</resources>

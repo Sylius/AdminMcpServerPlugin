@@ -9,27 +9,23 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_zone_members',
-    description: 'list_zone_members(zoneCode) → Lists all members of a zone. Each member has a code (country ISO, province code, or zone code depending on the zone type). Equivalent to calling get_zone and reading the members array.',
+    description: 'list_zone_members(zoneCode, page?, itemsPerPage?) → JSON Hydra collection of members belonging to a zone. Each member has: @id (IRI), code (country ISO, province code, or zone code depending on the zone type). Use zoneCode from list_zones.',
 )]
 final readonly class Index
 {
-    public function __construct(
-        private ApiClientInterface $client,
-    ) {
-    }
+    public function __construct(private ApiClientInterface $client) {}
 
     /**
-     * @param string $zoneCode Zone code whose members to list (e.g. "WORLD").
+     * @param string $zoneCode    Zone code to filter by (e.g. "WORLD").
+     * @param int    $page        Page number. Default = 1.
+     * @param int    $itemsPerPage Items per page. Default = 30.
      */
-    public function __invoke(string $zoneCode): string
+    public function __invoke(string $zoneCode, int $page = 1, int $itemsPerPage = 30): string
     {
-        $zone = json_decode($this->client->get(sprintf('zones/%s', $zoneCode)), true);
-        $members = $zone['members'] ?? [];
-
-        return (string) json_encode([
-            'zoneCode' => $zoneCode,
-            'members'  => array_map(static fn (array $m) => $m['code'] ?? $m, $members),
-            'total'    => count($members),
+        return $this->client->get('zone-members', [
+            'belongsTo.code' => $zoneCode,
+            'page'           => $page,
+            'itemsPerPage'   => $itemsPerPage,
         ]);
     }
 }

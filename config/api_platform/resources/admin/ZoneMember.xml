@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+ This file is part of the Sylius AdminMcpServerPlugin package.
+
+ Adds a GetCollection operation for ZoneMember, missing from Sylius core,
+ enabling GET /admin/zone-members?belongsTo.code={code} filtering.
+ This operation will be contributed upstream.
+
+-->
+
+<resources
+    xmlns="https://api-platform.com/schema/metadata/resources-3.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://api-platform.com/schema/metadata/resources-3.0 https://api-platform.com/schema/metadata/resources-3.0.xsd"
+>
+    <resource class="%sylius.model.zone_member.class%">
+        <operations>
+            <operation name="sylius_api_admin_zone_member_get_collection" class="ApiPlatform\Metadata\GetCollection" uriTemplate="/admin/zone-members">
+                <normalizationContext>
+                    <values>
+                        <value name="groups">
+                            <values>
+                                <value>sylius:admin:zone:show</value>
+                            </values>
+                        </value>
+                    </values>
+                </normalizationContext>
+                <filters>
+                    <filter>sylius_api.search_filter.admin.zone_member</filter>
+                </filters>
+            </operation>
+        </operations>
+    </resource>
+</resources>

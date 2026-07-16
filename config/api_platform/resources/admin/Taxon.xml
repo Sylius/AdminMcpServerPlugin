@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!--
+
+ This file is part of the Sylius AdminMcpServerPlugin package.
+
+ Extends the admin Taxon resource to add the parent filter on the GetCollection operation,
+ enabling GET /admin/taxons?parent=/api/v2/admin/taxons/{code} filtering.
+
+-->
+
+<resources
+    xmlns="https://api-platform.com/schema/metadata/resources-3.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://api-platform.com/schema/metadata/resources-3.0 https://api-platform.com/schema/metadata/resources-3.0.xsd"
+>
+    <resource class="%sylius.model.taxon.class%" urlGenerationStrategy="1">
+        <operations>
+            <operation name="sylius_api_admin_taxon_get_collection" class="ApiPlatform\Metadata\GetCollection" uriTemplate="/admin/taxons">
+                <normalizationContext>
+                    <values>
+                        <value name="groups">
+                            <values>
+                                <value>sylius:admin:taxon:index</value>
+                            </values>
+                        </value>
+                    </values>
+                </normalizationContext>
+                <filters>
+                    <filter>sylius_api.search_filter.admin.taxon</filter>
+                </filters>
+            </operation>
+        </operations>
+    </resource>
+</resources>
