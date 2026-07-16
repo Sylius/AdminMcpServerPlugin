@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'create_product_association',
-    description: 'create_product_association(type, owner, associatedProducts) → JSON object of the newly created Sylius product association. Each owner+type pair must be unique.',
+    description: 'create_product_association(type, owner, associatedProducts) → JSON object of the newly created Sylius product association. The numeric id can be extracted from the @id field (last path segment, e.g. /api/v2/admin/product-associations/42 → 42). Each owner+type pair must be unique.',
 )]
 final readonly class Create
 {
@@ -25,16 +25,10 @@ final readonly class Create
      */
     public function __invoke(string $type, string $owner, array $associatedProducts): string
     {
-        $data = json_decode($this->client->post('product-associations', [
+        return $this->client->post('product-associations', [
             'type' => $type,
             'owner' => $owner,
             'associatedProducts' => $associatedProducts,
-        ]), true);
-
-        if (isset($data['@id']) && preg_match('/\/(\d+)$/', $data['@id'], $m)) {
-            $data['id'] = (int) $m[1];
-        }
-
-        return (string) json_encode($data);
+        ]);
     }
 }

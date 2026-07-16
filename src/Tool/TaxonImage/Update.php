@@ -10,10 +10,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'update_taxon_image',
     description: <<<'DESC'
-update_taxon_image(taxonCode, imageId, body) → JSON of the updated taxon image. Only fields in body are changed.
+update_taxon_image(taxonCode, imageId, body) → JSON of the updated taxon image.
 
-body (JSON string) — fields: type (string label, e.g. "main"/"banner").
-Example: '{"type":"banner"}'
+IMPORTANT: First call get_taxon_image to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
 DESC,
 )]
 final readonly class Update
@@ -25,15 +24,9 @@ final readonly class Update
 
     public function __invoke(string $taxonCode, int $imageId, string $body): string
     {
-        $existing = json_decode(
-            $this->client->get(sprintf('taxons/%s/images/%d', $taxonCode, $imageId)),
-            true,
-        );
-        $b = json_decode($body, true) ?? [];
-
         return $this->client->put(
             sprintf('taxons/%s/images/%d', $taxonCode, $imageId),
-            ['type' => $b['type'] ?? ($existing['type'] ?? null)],
+            json_decode($body, true) ?? [],
         );
     }
 }

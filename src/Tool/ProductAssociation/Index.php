@@ -9,7 +9,7 @@ use Mcp\Capability\Attribute\McpTool;
 
 #[McpTool(
     name: 'list_product_associations',
-    description: 'list_product_associations(page?, itemsPerPage?, ownerCode?, typeCode?) → JSON-LD/Hydra collection of Sylius product associations. Each association has: id (numeric, extracted from @id — use in update_product_association, delete_product_association), type (JSON-LD IRI — last segment is the type code), owner (JSON-LD IRI — last segment is the owner product code), associatedProducts (list of JSON-LD IRIs — last segment of each is the product code).',
+    description: 'list_product_associations(page?, itemsPerPage?, ownerCode?, typeCode?) → JSON-LD/Hydra collection of Sylius product associations. Each association has: @id (IRI — last path segment is the numeric id, e.g. /api/v2/admin/product-associations/42 → 42), type (association type IRI), owner (product IRI), associatedProducts (list of product IRIs). Use the numeric id in get_product_association, update_product_association, delete_product_association.',
 )]
 final readonly class Index
 {
@@ -34,14 +34,6 @@ final readonly class Index
             $params['type.code'] = $typeCode;
         }
 
-        $data = json_decode($this->client->get('product-associations', $params), true);
-
-        foreach (array_keys($data['hydra:member'] ?? []) as $i) {
-            if (isset($data['hydra:member'][$i]['@id']) && preg_match('/\/(\d+)$/', $data['hydra:member'][$i]['@id'], $m)) {
-                $data['hydra:member'][$i]['id'] = (int) $m[1];
-            }
-        }
-
-        return (string) json_encode($data);
+        return $this->client->get('product-associations', $params);
     }
 }

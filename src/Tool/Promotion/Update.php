@@ -10,12 +10,13 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'update_promotion',
     description: <<<'DESC'
-update_promotion(code, body) → JSON of the updated cart promotion. Only fields in body are changed.
+update_promotion(code, body) → JSON of the updated cart promotion.
 
-body (JSON string) — fields: name (string), channels (array of channel IRIs from list_channels @id), description (string), priority (int), exclusive (bool), usageLimit (int), couponBased (bool), startsAt ("YYYY-MM-DDTHH:MM:SS"), endsAt ("YYYY-MM-DDTHH:MM:SS"), rules (array), actions (array).
+IMPORTANT: First call get_promotion to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+
 rules examples: [{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}] — min order 50.00; [{"type":"cart_quantity","configuration":{"count":3}}] — min 3 items
 actions examples: [{"type":"order_percentage_discount","configuration":{"percentage":0.1}}] — 10% off order; [{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] — fixed 10.00 off (ALL channels required)
-Example: '{"name":"Summer Sale","priority":10}'
+Note: fixed-discount rules/actions missing channels are auto-filled with zero amounts.
 DESC,
 )]
 final readonly class Update
@@ -24,24 +25,14 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
-        $existing = json_decode($this->client->get(sprintf('promotions/%s', $code)), true);
         $b = json_decode($body, true) ?? [];
-
-        $merged = [
-            'name'        => $b['name']        ?? ($existing['name'] ?? $code),
-            'priority'    => $b['priority']    ?? ($existing['priority'] ?? 0),
-            'exclusive'   => $b['exclusive']   ?? ($existing['exclusive'] ?? false),
-            'couponBased' => $b['couponBased'] ?? ($existing['couponBased'] ?? false),
-            'channels'    => $b['channels']    ?? ($existing['channels'] ?? []),
-            'rules'       => array_key_exists('rules', $b)   ? $b['rules']   : $this->stripAndFillChannels($existing['rules']   ?? []),
-            'actions'     => array_key_exists('actions', $b) ? $b['actions'] : $this->stripAndFillChannels($existing['actions'] ?? []),
-        ];
-
-        foreach (['description', 'usageLimit', 'startsAt', 'endsAt'] as $key) {
-            $merged[$key] = $b[$key] ?? ($existing[$key] ?? null);
+        if (isset($b['rules'])) {
+            $b['rules'] = $this->stripAndFillChannels($b['rules']);
         }
-
-        return $this->client->put(sprintf('promotions/%s', $code), $merged);
+        if (isset($b['actions'])) {
+            $b['actions'] = $this->stripAndFillChannels($b['actions']);
+        }
+        return $this->client->put(sprintf('promotions/%s', $code), $b);
     }
 
     /**

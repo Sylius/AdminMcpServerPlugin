@@ -10,10 +10,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 #[McpTool(
     name: 'update_coupon',
     description: <<<'DESC'
-update_coupon(promotionCode, couponCode, body) → JSON of the updated coupon. Only fields in body are changed.
+update_coupon(promotionCode, couponCode, body) → JSON of the updated coupon.
 
-body (JSON string) — fields: usageLimit (int), perCustomerUsageLimit (int), expiresAt ("YYYY-MM-DDTHH:MM:SS"), reusableFromCancelledOrders (bool).
-Example: '{"usageLimit":100,"expiresAt":"2024-12-31T23:59:59"}'
+IMPORTANT: First call get_coupon(promotionCode, couponCode) to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
 DESC,
 )]
 final readonly class Update
@@ -25,20 +24,9 @@ final readonly class Update
 
     public function __invoke(string $promotionCode, string $couponCode, string $body): string
     {
-        $existing = json_decode(
-            $this->client->get(sprintf('promotions/%s/coupons/%s', $promotionCode, $couponCode)),
-            true,
-        );
-        $b = json_decode($body, true) ?? [];
-
         return $this->client->put(
             sprintf('promotions/%s/coupons/%s', $promotionCode, $couponCode),
-            [
-                'reusableFromCancelledOrders' => $b['reusableFromCancelledOrders'] ?? ($existing['reusableFromCancelledOrders'] ?? false),
-                'usageLimit'            => $b['usageLimit']            ?? ($existing['usageLimit'] ?? null),
-                'perCustomerUsageLimit' => $b['perCustomerUsageLimit'] ?? ($existing['perCustomerUsageLimit'] ?? null),
-                'expiresAt'             => $b['expiresAt']             ?? ($existing['expiresAt'] ?? null),
-            ],
+            json_decode($body, true) ?? [],
         );
     }
 }

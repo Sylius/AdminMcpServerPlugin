@@ -10,10 +10,9 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_payment_method',
     description: <<<'DESC'
-update_payment_method(code, body) → JSON of the updated payment method. Only fields in body are changed.
+update_payment_method(code, body) → JSON of the updated payment method.
 
-body (JSON string) — fields: enabled (bool), channels (array of channel IRIs from list_channels @id), translations (map of locale → {name?, description?, instructions?}).
-Example: '{"enabled":true,"translations":{"en_US":{"name":"Bank Transfer","description":"Pay via bank transfer"},"pl_PL":{"name":"Przelew bankowy"}}}'
+IMPORTANT: First call get_payment_method to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
 DESC,
 )]
 final readonly class Update
@@ -25,30 +24,6 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
-        $b = json_decode($body, true) ?? [];
-        $result = [];
-
-        if (isset($b['translations'])) {
-            $existing = json_decode($this->client->get(sprintf('payment-methods/%s', $code)), true);
-            $merged = $existing['translations'] ?? [];
-            foreach ($b['translations'] as $locale => $fields) {
-                if (!isset($merged[$locale])) {
-                    $merged[$locale] = [];
-                }
-                foreach ($fields as $key => $value) {
-                    $merged[$locale][$key] = $value;
-                }
-            }
-            $result['translations'] = $merged;
-        }
-
-        if (isset($b['enabled'])) {
-            $result['enabled'] = $b['enabled'];
-        }
-        if (isset($b['channels'])) {
-            $result['channels'] = $b['channels'];
-        }
-
-        return $this->client->put(sprintf('payment-methods/%s', $code), $result);
+        return $this->client->put(sprintf('payment-methods/%s', $code), json_decode($body, true) ?? []);
     }
 }

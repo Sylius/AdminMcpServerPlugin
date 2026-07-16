@@ -10,10 +10,9 @@ use Mcp\Capability\Attribute\McpTool;
 #[McpTool(
     name: 'update_shipping_category',
     description: <<<'DESC'
-update_shipping_category(code, body) → JSON of the updated shipping category. Only fields in body are changed.
+update_shipping_category(code, body) → JSON of the updated shipping category.
 
-body (JSON string) — fields: name (string), description (string).
-Example: '{"name":"Heavy Goods","description":"Items over 20kg"}'
+IMPORTANT: First call get_shipping_category to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
 DESC,
 )]
 final readonly class Update
@@ -25,16 +24,6 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
-        $existing = json_decode($this->client->get(sprintf('shipping-categories/%s', $code)), true);
-        $b = json_decode($body, true) ?? [];
-
-        $merged = ['name' => $b['name'] ?? ($existing['name'] ?? $code)];
-
-        $description = $b['description'] ?? ($existing['description'] ?? null);
-        if ($description !== null) {
-            $merged['description'] = $description;
-        }
-
-        return $this->client->put(sprintf('shipping-categories/%s', $code), $merged);
+        return $this->client->put(sprintf('shipping-categories/%s', $code), json_decode($body, true) ?? []);
     }
 }
