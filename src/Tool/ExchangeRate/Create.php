@@ -1,11 +1,20 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ExchangeRate;
 
-use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_exchange_rate',
@@ -31,7 +40,7 @@ final readonly class Create
         return $this->client->post('exchange-rates', [
             'sourceCurrency' => $sourceCurrency,
             'targetCurrency' => $targetCurrency,
-            'ratio'          => $ratio,
+            'ratio' => $ratio,
         ]);
     }
 }

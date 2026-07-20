@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductOption;
@@ -13,7 +22,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 )]
 final readonly class AddValue
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     /**
      * @param string $optionCode  Product option code (e.g. "t_shirt_size").
@@ -38,8 +49,8 @@ final readonly class AddValue
                 true,
             );
             $values[] = [
-                '@id'          => $valueData['@id'] ?? $valueIri,
-                'code'         => $code,
+                '@id' => $valueData['@id'] ?? $valueIri,
+                'code' => $code,
                 'translations' => $valueData['translations'] ?? [],
             ];
         }
@@ -48,7 +59,7 @@ final readonly class AddValue
         $existing_codes = array_column($values, 'code');
         if (!in_array($valueCode, $existing_codes, true)) {
             $values[] = [
-                'code'         => $valueCode,
+                'code' => $valueCode,
                 'translations' => [
                     $localeCode => ['locale' => $localeCode, 'value' => $valueName],
                 ],
@@ -60,7 +71,7 @@ final readonly class AddValue
 
         return $this->client->put(sprintf('product-options/%s', $optionCode), [
             'translations' => $translations,
-            'values'       => $values,
+            'values' => $values,
         ]);
     }
 }

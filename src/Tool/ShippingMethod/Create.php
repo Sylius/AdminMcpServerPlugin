@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ShippingMethod;
@@ -27,7 +36,9 @@ DESC,
 )]
 final readonly class Create
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     /**
      * @param string[]  $channels    Channel IRIs this method is available in (e.g. ["/api/v2/admin/channels/WEB"]).
@@ -58,20 +69,26 @@ final readonly class Create
         }
 
         $translation = ['locale' => $localeCode, 'name' => $name];
-        if ($description !== '') { $translation['description'] = $description; }
+        if ($description !== '') {
+            $translation['description'] = $description;
+        }
 
         $body = [
-            'code'          => $code,
-            'enabled'       => $enabled,
-            'calculator'    => $calculator,
+            'code' => $code,
+            'enabled' => $enabled,
+            'calculator' => $calculator,
             'configuration' => $configuration,
-            'zone'          => $zone,
-            'channels'      => $channels,
-            'translations'  => [$localeCode => $translation],
+            'zone' => $zone,
+            'channels' => $channels,
+            'translations' => [$localeCode => $translation],
         ];
 
-        if ($category !== '') { $body['category'] = $category; }
-        if ($taxCategory !== '') { $body['taxCategory'] = $taxCategory; }
+        if ($category !== '') {
+            $body['category'] = $category;
+        }
+        if ($taxCategory !== '') {
+            $body['taxCategory'] = $taxCategory;
+        }
 
         return $this->client->post('shipping-methods', $body);
     }

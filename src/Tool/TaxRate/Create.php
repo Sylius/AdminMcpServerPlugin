@@ -1,11 +1,20 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\TaxRate;
 
-use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_tax_rate',
@@ -37,13 +46,13 @@ final readonly class Create
         string $calculator = 'default',
     ): string {
         return $this->client->post('tax-rates', [
-            'code'            => $code,
-            'name'            => $name,
-            'amount'          => $amount,
+            'code' => $code,
+            'name' => $name,
+            'amount' => $amount,
             'includedInPrice' => $includedInPrice,
-            'calculator'      => $calculator,
-            'category'        => $category,
-            'zone'            => $zone,
+            'calculator' => $calculator,
+            'category' => $category,
+            'zone' => $zone,
         ]);
     }
 }

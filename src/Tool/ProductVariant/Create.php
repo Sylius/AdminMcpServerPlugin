@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductVariant;
@@ -22,7 +31,9 @@ DESC,
 )]
 final readonly class Create
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(
         string $code,
@@ -56,11 +67,11 @@ final readonly class Create
         }
 
         $body = [
-            'code'            => $code,
-            'product'         => $product,
-            'enabled'         => $enabled,
-            'tracked'         => $tracked,
-            'onHand'          => $onHand,
+            'code' => $code,
+            'product' => $product,
+            'enabled' => $enabled,
+            'tracked' => $tracked,
+            'onHand' => $onHand,
             'channelPricings' => $pricings,
         ];
 

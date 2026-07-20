@@ -1,16 +1,25 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Index;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Show;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Create;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Update;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Delete;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Archive;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Create;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Delete;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Index;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Restore;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Show;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingMethod\Update;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();

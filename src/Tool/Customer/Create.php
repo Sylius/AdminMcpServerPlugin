@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Customer;
@@ -20,7 +29,9 @@ DESC,
 )]
 final readonly class Create
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     /**
      * @param string $email                  Customer email address (must be unique).
@@ -43,15 +54,19 @@ final readonly class Create
         string $group = '',
     ): string {
         $body = [
-            'email'                   => $email,
-            'firstName'               => $firstName,
-            'lastName'                => $lastName,
-            'gender'                  => $gender,
-            'subscribedToNewsletter'  => $subscribedToNewsletter,
+            'email' => $email,
+            'firstName' => $firstName,
+            'lastName' => $lastName,
+            'gender' => $gender,
+            'subscribedToNewsletter' => $subscribedToNewsletter,
         ];
 
-        if ($phoneNumber !== '') { $body['phoneNumber'] = $phoneNumber; }
-        if ($birthday !== '') { $body['birthday'] = $birthday; }
+        if ($phoneNumber !== '') {
+            $body['phoneNumber'] = $phoneNumber;
+        }
+        if ($birthday !== '') {
+            $body['birthday'] = $birthday;
+        }
         if ($group !== '') {
             $body['group'] = $group;
         }

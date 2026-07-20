@@ -1,11 +1,20 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductTaxon;
 
-use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_product_taxon',
@@ -26,8 +35,8 @@ final readonly class Create
     public function __invoke(string $product, string $taxon, int $position = 0): string
     {
         return $this->client->post('product-taxons', [
-            'product'  => $product,
-            'taxon'    => $taxon,
+            'product' => $product,
+            'taxon' => $taxon,
             'position' => $position,
         ]);
     }
