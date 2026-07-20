@@ -1,14 +1,23 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Create;
+use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Delete;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Index;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Show;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Create;
 use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Update;
-use Sylius\AdminMcpServerPlugin\Tool\ShippingCategory\Delete;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();

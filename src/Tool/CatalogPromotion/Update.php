@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion;
@@ -21,7 +30,9 @@ DESC,
 )]
 final readonly class Update
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(string $code, string $body): string
     {
@@ -32,6 +43,7 @@ final readonly class Update
         if (isset($b['actions'])) {
             $b['actions'] = $this->stripMeta($b['actions']);
         }
+
         return $this->client->put(sprintf('catalog-promotions/%s', $code), $b);
     }
 
@@ -40,6 +52,7 @@ final readonly class Update
     {
         return array_map(static function (array $item): array {
             unset($item['@id'], $item['@type'], $item['id']);
+
             return $item;
         }, $items);
     }

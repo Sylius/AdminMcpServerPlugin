@@ -1,14 +1,23 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Auth;
 
+use Mcp\Capability\Attribute\McpTool;
+use Mcp\Exception\ToolCallException;
 use Sylius\AdminMcpServerPlugin\Api\AuthenticatorInterface;
 use Sylius\AdminMcpServerPlugin\Exception\AuthenticationFailedException;
 use Sylius\AdminMcpServerPlugin\Session\TokenStorageInterface;
-use Mcp\Capability\Attribute\McpTool;
-use Mcp\Exception\ToolCallException;
 
 #[McpTool(
     name: 'login',

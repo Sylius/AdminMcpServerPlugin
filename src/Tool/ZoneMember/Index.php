@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ZoneMember;
@@ -13,7 +22,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 )]
 final readonly class Index
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     /**
      * @param string $zoneCode    Zone code to filter by (e.g. "WORLD").
@@ -24,8 +35,8 @@ final readonly class Index
     {
         return $this->client->get('zone-members', [
             'belongsTo.code' => $zoneCode,
-            'page'           => $page,
-            'itemsPerPage'   => $itemsPerPage,
+            'page' => $page,
+            'itemsPerPage' => $itemsPerPage,
         ]);
     }
 }

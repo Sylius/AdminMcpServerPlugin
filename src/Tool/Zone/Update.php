@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Zone;
@@ -32,6 +41,7 @@ final readonly class Update
             $b['members'] = array_map(static fn (string $c) => ['code' => $c], $b['memberCodes']);
             unset($b['memberCodes']);
         }
+
         return $this->client->put(sprintf('zones/%s', $code), $b);
     }
 }

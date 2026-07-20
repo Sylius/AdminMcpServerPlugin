@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Promotion;
@@ -21,7 +30,9 @@ DESC,
 )]
 final readonly class Update
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(string $code, string $body): string
     {
@@ -32,15 +43,17 @@ final readonly class Update
         if (isset($b['actions'])) {
             $b['actions'] = $this->stripAndFillChannels($b['actions']);
         }
+
         return $this->client->put(sprintf('promotions/%s', $code), $b);
     }
 
     /**
-     * Strips JSON-LD meta (@id, @type, id) from each item, and for items with
+     * Strips JSON-LD meta (@id, @var, id) from each item, and for items with
      * per-channel configuration (keys that look like channel codes) auto-fills
      * any channels currently in the system that are missing from the stored config.
      *
      * @param array<int, array<string, mixed>> $items
+     *
      * @return array<int, array<string, mixed>>
      */
     private function stripAndFillChannels(array $items): array
@@ -84,6 +97,7 @@ final readonly class Update
 
     /**
      * Returns true if the config array has uppercase string keys (channel codes).
+     *
      * @param array<string, mixed> $config
      */
     private function hasChannelKeys(array $config): bool
@@ -93,6 +107,7 @@ final readonly class Update
                 return true;
             }
         }
+
         return false;
     }
 }

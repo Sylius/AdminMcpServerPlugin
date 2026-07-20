@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\CatalogPromotion;
@@ -33,7 +42,9 @@ DESC,
 )]
 final readonly class Create
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(
         string $code,
@@ -54,19 +65,23 @@ final readonly class Create
         }
 
         $body = [
-            'code'         => $code,
-            'name'         => $name,
-            'enabled'      => $enabled,
-            'exclusive'    => $exclusive,
-            'priority'     => $priority,
-            'channels'     => $channels,
-            'scopes'       => json_decode($scopes, true) ?? [],
-            'actions'      => json_decode($actions, true) ?? [],
+            'code' => $code,
+            'name' => $name,
+            'enabled' => $enabled,
+            'exclusive' => $exclusive,
+            'priority' => $priority,
+            'channels' => $channels,
+            'scopes' => json_decode($scopes, true) ?? [],
+            'actions' => json_decode($actions, true) ?? [],
             'translations' => $decodedTranslations,
         ];
 
-        if ($startDate !== '') { $body['startDate'] = $startDate; }
-        if ($endDate !== '') { $body['endDate'] = $endDate; }
+        if ($startDate !== '') {
+            $body['startDate'] = $startDate;
+        }
+        if ($endDate !== '') {
+            $body['endDate'] = $endDate;
+        }
 
         return $this->client->post('catalog-promotions', $body);
     }

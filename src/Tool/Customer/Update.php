@@ -1,11 +1,20 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Customer;
 
-use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 use Mcp\Capability\Attribute\McpTool;
+use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'update_customer',
@@ -28,14 +37,6 @@ final readonly class Update
 
     /**
      * @param int         $id                      Customer ID.
-     * @param string      $email                   New email address.
-     * @param string      $firstName               New first name.
-     * @param string      $lastName                New last name.
-     * @param string      $gender                  New gender: "m", "f", or "u".
-     * @param string      $phoneNumber             New phone number.
-     * @param string      $birthday                New birthday in "YYYY-MM-DD" format.
-     * @param bool|null   $subscribedToNewsletter  New newsletter subscription status.
-     * @param string      $group                   New customer group IRI from list_customer_groups @id.
      */
     public function __invoke(int $id, string $body): string
     {

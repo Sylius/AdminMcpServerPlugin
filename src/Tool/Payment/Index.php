@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Payment;
@@ -13,7 +22,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 )]
 final readonly class Index
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(
         int $page = 1,
@@ -21,7 +32,10 @@ final readonly class Index
         string $state = '',
     ): string {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
-        if ($state !== '') { $params['state'] = $state; }
+        if ($state !== '') {
+            $params['state'] = $state;
+        }
+
         return $this->client->get('payments', $params);
     }
 }

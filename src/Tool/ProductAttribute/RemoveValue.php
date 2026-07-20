@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductAttribute;
@@ -20,7 +29,9 @@ DESC,
 )]
 final readonly class RemoveValue
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     /**
      * @param string $attribute  Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
@@ -37,8 +48,8 @@ final readonly class RemoveValue
 
         $updated = [];
         foreach ($existingAttrs as $attr) {
-            $isTarget = ($attr['attribute'] ?? '') === $attribute
-                && ($removeAll || ($attr['localeCode'] ?? '') === $localeCode);
+            $isTarget = ($attr['attribute'] ?? '') === $attribute &&
+                ($removeAll || ($attr['localeCode'] ?? '') === $localeCode);
 
             if (!$isTarget) {
                 $entry = ['attribute' => $attr['attribute'], 'localeCode' => $attr['localeCode'], 'value' => $attr['value']];

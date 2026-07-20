@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\Taxon;
@@ -20,7 +29,9 @@ DESC,
 )]
 final readonly class Create
 {
-    public function __construct(private ApiClientInterface $client) {}
+    public function __construct(private ApiClientInterface $client)
+    {
+    }
 
     public function __invoke(
         string $code,
@@ -31,11 +42,15 @@ final readonly class Create
         string $parent = '',
     ): string {
         $translation = ['name' => $name, 'locale' => $localeCode];
-        if ($slug !== '') { $translation['slug'] = $slug; }
-        if ($description !== '') { $translation['description'] = $description; }
+        if ($slug !== '') {
+            $translation['slug'] = $slug;
+        }
+        if ($description !== '') {
+            $translation['description'] = $description;
+        }
 
         $body = [
-            'code'         => $code,
+            'code' => $code,
             'translations' => [$localeCode => $translation],
         ];
 

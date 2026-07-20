@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ShippingMethod;
@@ -40,6 +49,7 @@ final readonly class Update
             );
             unset($b['amount'], $b['percentage']);
         }
+
         return $this->client->put(sprintf('shipping-methods/%s', $code), $b);
     }
 }

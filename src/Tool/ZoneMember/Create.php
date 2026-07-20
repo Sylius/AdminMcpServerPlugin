@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of the Sylius package.
+ *
+ * (c) Sylius Sp. z o.o.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Tool\ZoneMember;
@@ -30,9 +39,9 @@ final readonly class Create
         $members[] = ['code' => $memberCode];
 
         $this->client->put(sprintf('zones/%s', $zoneCode), [
-            'name'    => $zone['name'],
-            'type'    => $zone['type'],
-            'scope'   => $zone['scope'] ?? 'all',
+            'name' => $zone['name'],
+            'type' => $zone['type'],
+            'scope' => $zone['scope'] ?? 'all',
             'members' => $members,
         ]);
 
