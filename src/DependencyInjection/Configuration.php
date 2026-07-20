@@ -28,7 +28,6 @@ final class Configuration implements ConfigurationInterface
                     ->addDefaultsIfNotSet()
                     ->info('Enable or disable individual tool groups. All groups are enabled by default.')
                     ->children()
-                        ->booleanNode('auth')->defaultTrue()->info('Login / Logout tools.')->end()
                         ->booleanNode('administrators')->defaultTrue()->info('Administrator CRUD tools.')->end()
                         ->booleanNode('products')->defaultTrue()->info('Product CRUD tools.')->end()
                         ->booleanNode('product_variants')->defaultTrue()->info('Product variant CRUD tools.')->end()

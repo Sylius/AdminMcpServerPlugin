@@ -1,0 +1,23 @@
+sylius_admin_mcp_server:
+    oauth:
+        authorize:
+            title: 'Authorization Request'
+            requesting_access: '%client_name% is requesting access to manage your Sylius store via MCP.'
+            scope_label: 'Scope'
+            signed_in_as: 'Signed in as'
+            allow: 'Allow'
+            deny: 'Deny'
+        success:
+            title: 'Authorization Successful'
+            heading: 'You are connected'
+            description: 'Claude Desktop has been granted access to your Sylius store. You can now return to Claude and start managing your store with AI.'
+            redirect_notice: 'Completing connection, please wait…'
+            close_notice: 'You may close this window.'
+        error:
+            title: 'Authorization Failed'
+            heading: 'Access denied'
+            denied_by_user: 'You cancelled the authorization request. No access was granted to Claude Desktop.'
+            no_api_access: 'Your account does not have API access. Ask your administrator to grant you the <strong>API Access</strong> role.'
+            generic: 'An unexpected error occurred during authorization.'
+            redirect_notice: 'Returning to Claude Desktop…'
+            try_again: 'Try again'

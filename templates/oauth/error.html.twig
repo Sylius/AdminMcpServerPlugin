@@ -1,0 +1,49 @@
+{% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'sylius_admin_mcp_server.oauth.error.title'|trans({}, 'SyliusAdminMcpServer') }}{% endblock %}
+
+{% block body %}
+    {% if redirect_url is defined %}
+        <script>
+            window.addEventListener('DOMContentLoaded', function () {
+                setTimeout(function () {
+                    window.location.href = {{ redirect_url|json_encode|raw }};
+                }, 4000);
+            });
+        </script>
+    {% endif %}
+
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-sm border-0" style="max-width: 480px; width: 100%;">
+            <div class="card-body text-center p-5">
+
+                <div class="d-flex align-items-center justify-content-center rounded-circle mx-auto mb-4"
+                     style="width:80px;height:80px;background:#e74c3c;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="white" viewBox="0 0 16 16">
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                </div>
+
+                <h4 class="fw-bold mb-2">
+                    {{ 'sylius_admin_mcp_server.oauth.error.heading'|trans({}, 'SyliusAdminMcpServer') }}
+                </h4>
+
+                <p class="text-muted mb-4">
+                    {{ message|trans({}, 'SyliusAdminMcpServer')|raw }}
+                </p>
+
+                {% if redirect_url is defined %}
+                    <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
+                        <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
+                        <span>{{ 'sylius_admin_mcp_server.oauth.error.redirect_notice'|trans({}, 'SyliusAdminMcpServer') }}</span>
+                    </div>
+                {% else %}
+                    <p class="text-muted small">
+                        {{ 'sylius_admin_mcp_server.oauth.error.try_again'|trans({}, 'SyliusAdminMcpServer') }}
+                    </p>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

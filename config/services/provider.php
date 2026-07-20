@@ -11,18 +11,14 @@
 
 declare(strict_types=1);
 
+namespace Symfony\Component\DependencyInjection\Loader\Configurator;
+
 use Sylius\AdminMcpServerPlugin\Provider\CredentialsTokenProvider;
-use Sylius\AdminMcpServerPlugin\Provider\SessionTokenProvider;
+use Sylius\AdminMcpServerPlugin\Provider\OAuthJwtTokenProvider;
 use Sylius\AdminMcpServerPlugin\Provider\TokenProviderInterface;
-use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\param;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\service;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
-
-    $services->set('sylius_admin_mcp_server.provider.token.session', SessionTokenProvider::class)
-        ->args([service('sylius_admin_mcp_server.token_storage')]);
 
     $services->set('sylius_admin_mcp_server.provider.token.credentials', CredentialsTokenProvider::class)
         ->args([
@@ -32,6 +28,13 @@ return static function (ContainerConfigurator $container): void {
             param('sylius_admin_mcp_server.api.password'),
         ]);
 
-    $services->alias('sylius_admin_mcp_server.provider.token', 'sylius_admin_mcp_server.provider.token.session');
+    $services->set('sylius_admin_mcp_server.provider.token.oauth', OAuthJwtTokenProvider::class)
+        ->args([
+            service('lexik_jwt_authentication.jwt_manager'),
+            service('request_stack'),
+            service('sylius_admin_mcp_server.token_storage'),
+        ]);
+
+    $services->alias('sylius_admin_mcp_server.provider.token', 'sylius_admin_mcp_server.provider.token.oauth');
     $services->alias(TokenProviderInterface::class, 'sylius_admin_mcp_server.provider.token');
 };

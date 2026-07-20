@@ -1,0 +1,41 @@
+{% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
+
+{% block title %}{{ 'sylius_admin_mcp_server.oauth.success.title'|trans({}, 'SyliusAdminMcpServer') }}{% endblock %}
+
+{% block body %}
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            setTimeout(function () {
+                window.location.href = {{ redirect_url|json_encode|raw }};
+            }, 2000);
+        });
+    </script>
+
+    <div class="container d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card shadow-sm border-0" style="max-width: 480px; width: 100%;">
+            <div class="card-body text-center p-5">
+
+                <div class="d-flex align-items-center justify-content-center rounded-circle mx-auto mb-4"
+                     style="width:80px;height:80px;background:#27ae60;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="white" viewBox="0 0 16 16">
+                        <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                    </svg>
+                </div>
+
+                <h4 class="fw-bold mb-2">
+                    {{ 'sylius_admin_mcp_server.oauth.success.heading'|trans({}, 'SyliusAdminMcpServer') }}
+                </h4>
+
+                <p class="text-muted mb-4">
+                    {{ 'sylius_admin_mcp_server.oauth.success.description'|trans({}, 'SyliusAdminMcpServer') }}
+                </p>
+
+                <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
+                    <div class="spinner-border spinner-border-sm text-success" role="status" aria-hidden="true"></div>
+                    <span>{{ 'sylius_admin_mcp_server.oauth.success.redirect_notice'|trans({}, 'SyliusAdminMcpServer') }}</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock %}

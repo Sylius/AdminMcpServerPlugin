@@ -1,3 +1,7 @@
+sylius_admin_mcp_server_oauth:
+    resource: '@SyliusAdminMcpServerPlugin/config/routes/oauth.yaml'
+    type: yaml
+
 sylius_admin_mcp_server_mcp:
     resource: .
     type: mcp

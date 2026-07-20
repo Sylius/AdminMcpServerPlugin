@@ -24,11 +24,8 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
 {
     use PrependDoctrineMigrationsTrait;
 
-    /**
-     * Maps config key (under `tools`) to the corresponding file in config/tools/.
-     */
+    /** @var array<string, string> Maps tool config key to the corresponding file in config/tools/. */
     private const TOOL_FILE_MAP = [
-        'auth' => 'auth',
         'administrators' => 'administrator',
         'products' => 'product',
         'product_variants' => 'product_variant',
@@ -73,6 +70,9 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
         $loader->load('services.php');
 
+        $servicesLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config/services'));
+        $servicesLoader->load('oauth.php');
+
         $toolsLoader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config/tools'));
 
         foreach (self::TOOL_FILE_MAP as $configKey => $fileName) {
@@ -85,6 +85,16 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
     public function prepend(ContainerBuilder $container): void
     {
         $this->prependDoctrineMigrations($container);
+
+        $container->prependExtensionConfig('twig', [
+            'paths' => [__DIR__ . '/../../templates' => 'SyliusAdminMcpServer'],
+        ]);
+
+        $container->prependExtensionConfig('framework', [
+            'translator' => [
+                'paths' => [__DIR__ . '/../../translations'],
+            ],
+        ]);
     }
 
     protected function getMigrationsNamespace(): string
