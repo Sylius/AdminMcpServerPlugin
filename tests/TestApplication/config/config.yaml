@@ -7,7 +7,6 @@ twig:
     paths:
         '%kernel.project_dir%/../../../tests/TestApplication/templates': ~
 
-# Remove if you do not need to extend entities
 doctrine:
     orm:
         entity_managers:
