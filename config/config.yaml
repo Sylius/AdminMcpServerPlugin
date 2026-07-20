@@ -1,7 +1,3 @@
-imports:
-    - { resource: 'integrations/sylius_api/config.yaml' }
-    - { resource: 'integrations/http_client.yaml' }
-
 parameters:
     env(SYLIUS_ADMIN_MCP_SERVER_API_URL): 'https://127.0.0.1:8090/api/v2/admin/'
     env(SYLIUS_ADMIN_MCP_SERVER_API_EMAIL): 'api@example.com'
@@ -10,6 +6,29 @@ parameters:
     sylius_admin_mcp_server.api.base_uri: '%env(SYLIUS_ADMIN_MCP_SERVER_API_URL)%'
     sylius_admin_mcp_server.api.email: '%env(SYLIUS_ADMIN_MCP_SERVER_API_EMAIL)%'
     sylius_admin_mcp_server.api.password: '%env(SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD)%'
+
+framework:
+    http_client:
+        scoped_clients:
+            sylius_admin_mcp_server.http_client.api:
+                base_uri: '%sylius_admin_mcp_server.api.base_uri%'
+                verify_peer: '%env(bool:SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL)%'
+                verify_host: '%env(bool:SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL)%'
+                headers:
+                    Accept: 'application/ld+json'
+                    Content-Type: 'application/ld+json'
+            sylius_admin_mcp_server.http_client.api_merge_patch:
+                base_uri: '%sylius_admin_mcp_server.api.base_uri%'
+                verify_peer: '%env(bool:SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL)%'
+                verify_host: '%env(bool:SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL)%'
+                headers:
+                    Accept: 'application/ld+json'
+                    Content-Type: 'application/merge-patch+json'
+
+api_platform:
+    mapping:
+        paths:
+            - '%sylius_admin_mcp_server_api_resources_path%'
 
 mcp:
     app: 'Sylius Admin MCP Server'

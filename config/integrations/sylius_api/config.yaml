@@ -1,7 +1,0 @@
-parameters:
-    sylius_admin_mcp_server_api_resources_path: '%kernel.project_dir%/vendor/sylius/plugin-skeleton/config/api_platform/'
-
-api_platform:
-    mapping:
-        paths:
-            - '%sylius_admin_mcp_server_api_resources_path%'
