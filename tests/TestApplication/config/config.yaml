@@ -3,9 +3,6 @@ imports:
     - { resource: "services.php" }
     - { resource: "services_test.php" }
 
-parameters:
-    sylius_admin_mcp_server_api_resources_path: '%kernel.project_dir%/../../../config/api_platform/'
-
 twig:
     paths:
         '%kernel.project_dir%/../../../tests/TestApplication/templates': ~
