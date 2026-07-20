@@ -65,10 +65,6 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
 
     public function load(array $configs, ContainerBuilder $container): void
     {
-        if (!$container->hasParameter('sylius_admin_mcp_server_api_resources_path')) {
-            $container->setParameter('sylius_admin_mcp_server_api_resources_path', __DIR__ . '/../../config/api_platform');
-        }
-
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));
@@ -88,6 +84,10 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
 
     public function prepend(ContainerBuilder $container): void
     {
+        if (!$container->hasParameter('sylius_admin_mcp_server_api_resources_path')) {
+            $container->setParameter('sylius_admin_mcp_server_api_resources_path', __DIR__ . '/../../config/api_platform');
+        }
+
         $this->prependDoctrineMigrations($container);
 
         $container->prependExtensionConfig('twig', [
