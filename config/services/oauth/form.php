@@ -13,6 +13,11 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use Sylius\AdminMcpServerPlugin\Form\Extension\AdminUserTypeExtension;
+
 return static function (ContainerConfigurator $container): void {
-    $container->import('oauth/**');
+    $services = $container->services();
+
+    $services->set(AdminUserTypeExtension::class)
+        ->tag('form.type_extension');
 };
