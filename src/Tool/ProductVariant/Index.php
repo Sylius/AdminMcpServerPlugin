@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_product_variants',
-    description: 'list_product_variants(page?, itemsPerPage?, product?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). TIP: Always pass product (IRI from list_products @id) to filter by product — without it, all variants across the entire store are returned (can be hundreds).',
+    description: 'list_product_variants(page?, itemsPerPage?, product?, orderBy?, orderDir?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). TIP: Always pass product (IRI from list_products @id) to filter by product — without it, all variants across the entire store are returned (can be hundreds). Use orderBy/orderDir to sort (e.g. orderBy=createdAt orderDir=desc).',
 )]
 final readonly class Index
 {
@@ -27,16 +27,19 @@ final readonly class Index
     ) {
     }
 
-    /**
-     * @param int    $page         Page number (1-based). Default = 1.
-     * @param int    $itemsPerPage Items per page. Default = 30.
-     * @param string $product      Filter by product IRI from list_products @id. Default = "" (all variants).
-     */
-    public function __invoke(int $page = 1, int $itemsPerPage = 30, string $product = ''): string
-    {
+    public function __invoke(
+        int $page = 1,
+        int $itemsPerPage = 30,
+        string $product = '',
+        string $orderBy = '',
+        string $orderDir = 'asc',
+    ): string {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($product !== '') {
             $params['product'] = $product;
+        }
+        if ($orderBy !== '') {
+            $params['order[' . $orderBy . ']'] = $orderDir;
         }
 
         return $this->client->get('product-variants', $params);
