@@ -30,7 +30,7 @@ final readonly class OAuthServerMetadataProvider
             'authorization_endpoint' => $this->urlGenerator->generate('sylius_admin_mcp_server_oauth_authorize', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'token_endpoint' => $this->urlGenerator->generate('sylius_admin_mcp_server_oauth_token', [], UrlGeneratorInterface::ABSOLUTE_URL),
             'registration_endpoint' => $this->urlGenerator->generate('sylius_admin_mcp_server_oauth_register', [], UrlGeneratorInterface::ABSOLUTE_URL),
-            'scopes_supported' => ['mcp'],
+            'scopes_supported' => ['admin_api'],
             'response_types_supported' => ['code'],
             'grant_types_supported' => ['authorization_code', 'refresh_token'],
             'token_endpoint_auth_methods_supported' => ['client_secret_post', 'none'],
@@ -44,7 +44,7 @@ final readonly class OAuthServerMetadataProvider
         return [
             'resource' => $baseUrl . '/_mcp',
             'authorization_servers' => [$baseUrl],
-            'scopes_supported' => ['mcp'],
+            'scopes_supported' => ['admin_api'],
             'bearer_methods_supported' => ['header'],
         ];
     }

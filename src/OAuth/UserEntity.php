@@ -13,13 +13,16 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\OAuth;
 
-final readonly class IssuedTokenPair
+use League\OAuth2\Server\Entities\UserEntityInterface;
+
+final readonly class UserEntity implements UserEntityInterface
 {
-    public function __construct(
-        public string $accessToken,
-        public string $refreshToken,
-        public int $expiresIn,
-        public string $scope,
-    ) {
+    public function __construct(private string $email)
+    {
+    }
+
+    public function getIdentifier(): string
+    {
+        return $this->email;
     }
 }

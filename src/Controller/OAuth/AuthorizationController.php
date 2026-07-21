@@ -13,9 +13,13 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Controller\OAuth;
 
-use Sylius\AdminMcpServerPlugin\OAuth\Authorization\AuthorizationConsentProcessor;
-use Sylius\AdminMcpServerPlugin\OAuth\Exception\OAuthException;
+use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Nyholm\Psr7\Response as Psr7Response;
+use Nyholm\Psr7\ServerRequest;
+use Sylius\AdminMcpServerPlugin\OAuth\UserEntity;
 use Sylius\Component\Core\Model\AdminUserInterface;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,10 +30,11 @@ use Twig\Environment;
 final readonly class AuthorizationController
 {
     public function __construct(
-        private AuthorizationConsentProcessor $processor,
+        private AuthorizationServer $authorizationServer,
         private Security $security,
         private Environment $twig,
         private UrlGeneratorInterface $urlGenerator,
+        private PsrHttpFactory $psrHttpFactory,
     ) {
     }
 
@@ -40,27 +45,12 @@ final readonly class AuthorizationController
 
     private function showConsent(Request $request): Response
     {
-        $clientId = $request->query->getString('client_id');
-        $redirectUri = $request->query->getString('redirect_uri');
-        $state = $request->query->getString('state');
-        $codeChallenge = $request->query->getString('code_challenge');
-        $codeChallengeMethod = $request->query->getString('code_challenge_method');
-        $scope = $request->query->getString('scope', 'mcp');
-        $responseType = $request->query->getString('response_type');
+        $psrRequest = $this->psrHttpFactory->createRequest($request);
 
         try {
-            $client = $this->processor->resolveClient($responseType, $clientId, $redirectUri);
-        } catch (OAuthException $e) {
-            return new Response($e->getDescription(), Response::HTTP_BAD_REQUEST);
-        }
-
-        try {
-            $this->processor->validatePkce($codeChallenge, $codeChallengeMethod);
-        } catch (OAuthException $e) {
-            return $this->renderError(
-                'sylius_admin_mcp_server.oauth.error.generic',
-                $this->processor->buildErrorUrl($redirectUri, $state, $e->getError(), $e->getDescription()),
-            );
+            $authRequest = $this->authorizationServer->validateAuthorizationRequest($psrRequest);
+        } catch (OAuthServerException $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
         $user = $this->security->getUser();
@@ -70,23 +60,28 @@ final readonly class AuthorizationController
             );
         }
 
-        if (!$this->processor->hasApiAccess($user)) {
+        if (!\in_array('ROLE_API_ACCESS', $user->getRoles(), true)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
-                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
+                $authRequest->getRedirectUri() . '?error=access_denied&error_description=User+does+not+have+API+access',
             );
         }
 
+        $scopeIdentifiers = implode(' ', array_map(
+            static fn ($s): string => $s->getIdentifier(),
+            $authRequest->getScopes(),
+        ));
+
         return new Response(
             $this->twig->render('@SyliusAdminMcpServer/oauth/authorize.html.twig', [
-                'client_name' => $client->getClientName(),
-                'scope' => $scope,
-                'client_id' => $clientId,
-                'redirect_uri' => $redirectUri,
-                'state' => $state,
-                'code_challenge' => $codeChallenge,
-                'code_challenge_method' => $codeChallengeMethod,
-                'response_type' => $responseType,
+                'client_name' => $authRequest->getClient()->getName(),
+                'scope' => $scopeIdentifiers,
+                'client_id' => $request->query->getString('client_id'),
+                'redirect_uri' => $request->query->getString('redirect_uri'),
+                'state' => $request->query->getString('state'),
+                'code_challenge' => $request->query->getString('code_challenge'),
+                'code_challenge_method' => $request->query->getString('code_challenge_method'),
+                'response_type' => $request->query->getString('response_type', 'code'),
             ]),
         );
     }
@@ -94,24 +89,23 @@ final readonly class AuthorizationController
     private function handleConsent(Request $request): Response
     {
         $approve = $request->request->getString('approve');
-        $clientId = $request->request->getString('client_id');
-        $redirectUri = $request->request->getString('redirect_uri');
-        $state = $request->request->getString('state');
-        $codeChallenge = $request->request->getString('code_challenge');
-        $codeChallengeMethod = $request->request->getString('code_challenge_method');
-        $scope = $request->request->getString('scope', 'mcp');
 
-        if ($approve !== '1') {
-            return $this->renderError(
-                'sylius_admin_mcp_server.oauth.error.denied_by_user',
-                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User denied the request'),
-            );
-        }
+        $queryParams = array_filter([
+            'response_type' => $request->request->getString('response_type', 'code'),
+            'client_id' => $request->request->getString('client_id'),
+            'redirect_uri' => $request->request->getString('redirect_uri'),
+            'scope' => $request->request->getString('scope', 'admin_api'),
+            'state' => $request->request->getString('state'),
+            'code_challenge' => $request->request->getString('code_challenge'),
+            'code_challenge_method' => $request->request->getString('code_challenge_method'),
+        ], static fn (string $v): bool => $v !== '');
+
+        $psrRequest = (new ServerRequest('GET', '/_mcp/oauth/authorize'))->withQueryParams($queryParams);
 
         try {
-            $client = $this->processor->resolveClient('code', $clientId, $redirectUri);
-        } catch (OAuthException $e) {
-            return new Response('Invalid request', Response::HTTP_BAD_REQUEST);
+            $authRequest = $this->authorizationServer->validateAuthorizationRequest($psrRequest);
+        } catch (OAuthServerException $e) {
+            return new Response($e->getMessage(), Response::HTTP_BAD_REQUEST);
         }
 
         $user = $this->security->getUser();
@@ -119,24 +113,27 @@ final readonly class AuthorizationController
             return new RedirectResponse($this->urlGenerator->generate('sylius_admin_security_login'));
         }
 
-        if (!$this->processor->hasApiAccess($user)) {
+        if (!\in_array('ROLE_API_ACCESS', $user->getRoles(), true)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
-                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
+                $authRequest->getRedirectUri() . '?error=access_denied&error_description=User+does+not+have+API+access',
             );
         }
 
-        $successUrl = $this->processor->grantConsent(
-            $client,
-            $user,
-            $redirectUri,
-            $scope,
-            $state,
-            $codeChallenge,
-            $codeChallengeMethod,
-        );
+        $authRequest->setUser(new UserEntity($user->getEmail() ?? ''));
+        $authRequest->setAuthorizationApproved($approve === '1');
 
-        return $this->renderSuccess($successUrl);
+        try {
+            $psrResponse = $this->authorizationServer->completeAuthorizationRequest($authRequest, new Psr7Response());
+        } catch (OAuthServerException $e) {
+            $redirectUrl = $e->generateHttpResponse(new Psr7Response())->getHeaderLine('Location');
+
+            return $this->renderError('sylius_admin_mcp_server.oauth.error.denied_by_user', $redirectUrl);
+        }
+
+        $redirectUrl = $psrResponse->getHeaderLine('Location');
+
+        return $this->renderSuccess($redirectUrl);
     }
 
     private function renderSuccess(string $redirectUrl): Response

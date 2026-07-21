@@ -13,35 +13,75 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Repository\OAuth;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
+use League\Bundle\OAuth2ServerBundle\Entity\AccessToken as AccessTokenEntity;
+use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
+use League\OAuth2\Server\Entities\ScopeEntityInterface;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
+use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthAccessToken;
 
-/** @extends ServiceEntityRepository<OAuthAccessToken> */
-class OAuthAccessTokenRepository extends ServiceEntityRepository
+class OAuthAccessTokenRepository implements AccessTokenRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        parent::__construct($registry, OAuthAccessToken::class);
     }
 
-    public function findActiveByTokenHash(string $hash): ?OAuthAccessToken
+    /**
+     * @param ScopeEntityInterface[] $scopes
+     */
+    public function getNewToken(ClientEntityInterface $clientEntity, array $scopes, ?string $userIdentifier = null): AccessTokenEntityInterface
     {
-        /** @var OAuthAccessToken|null $token */
-        $token = $this->createQueryBuilder('t')
-            ->where('t.tokenHash = :hash')
-            ->andWhere('t.revokedAt IS NULL')
-            ->andWhere('t.expiresAt > :now')
-            ->setParameter('hash', $hash)
-            ->setParameter('now', new \DateTimeImmutable())
-            ->getQuery()
-            ->getOneOrNullResult();
+        $token = new AccessTokenEntity();
+        $token->setClient($clientEntity);
+
+        if ($userIdentifier !== null && $userIdentifier !== '') {
+            $token->setUserIdentifier($userIdentifier);
+        }
+
+        foreach ($scopes as $scope) {
+            $token->addScope($scope);
+        }
 
         return $token;
     }
 
-    public function save(OAuthAccessToken $token): void
+    public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
-        $this->getEntityManager()->persist($token);
+        if ($this->entityManager->find(OAuthAccessToken::class, $accessTokenEntity->getIdentifier()) !== null) {
+            throw UniqueTokenIdentifierConstraintViolationException::create();
+        }
+
+        $entity = new OAuthAccessToken(
+            $accessTokenEntity->getIdentifier(),
+            $accessTokenEntity->getExpiryDateTime(),
+        );
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+    }
+
+    public function revokeAccessToken(string $tokenId): void
+    {
+        $entity = $this->entityManager->find(OAuthAccessToken::class, $tokenId);
+
+        if ($entity === null) {
+            return;
+        }
+
+        $entity->revoke();
+        $this->entityManager->flush();
+    }
+
+    public function isAccessTokenRevoked(string $tokenId): bool
+    {
+        $entity = $this->entityManager->find(OAuthAccessToken::class, $tokenId);
+
+        if ($entity === null) {
+            return true;
+        }
+
+        return $entity->isRevoked();
     }
 }

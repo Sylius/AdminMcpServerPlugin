@@ -13,64 +13,34 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Controller\OAuth;
 
-use Sylius\AdminMcpServerPlugin\OAuth\Exception\OAuthException;
-use Sylius\AdminMcpServerPlugin\OAuth\Grant\AuthorizationCodeGrantHandler;
-use Sylius\AdminMcpServerPlugin\OAuth\Grant\RefreshTokenGrantHandler;
-use Sylius\AdminMcpServerPlugin\OAuth\IssuedTokenPair;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use League\OAuth2\Server\AuthorizationServer;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use Nyholm\Psr7\Response as Psr7Response;
+use Symfony\Bridge\PsrHttpMessage\Factory\HttpFoundationFactory;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 final readonly class TokenController
 {
     public function __construct(
-        private AuthorizationCodeGrantHandler $authCodeHandler,
-        private RefreshTokenGrantHandler $refreshTokenHandler,
+        private AuthorizationServer $authorizationServer,
+        private PsrHttpFactory $psrHttpFactory,
+        private HttpFoundationFactory $httpFoundationFactory,
     ) {
     }
 
-    public function __invoke(Request $request): JsonResponse
+    public function __invoke(Request $request): Response
     {
-        $grantType = $request->request->getString('grant_type');
+        $psrRequest = $this->psrHttpFactory->createRequest($request);
+        $psrResponse = new Psr7Response();
 
         try {
-            $pair = match ($grantType) {
-                'authorization_code' => $this->authCodeHandler->handle(
-                    $request->request->getString('client_id'),
-                    $request->request->getString('code'),
-                    $request->request->getString('redirect_uri'),
-                    $request->request->getString('code_verifier'),
-                ),
-                'refresh_token' => $this->refreshTokenHandler->handle(
-                    $request->request->getString('client_id'),
-                    $request->request->getString('refresh_token'),
-                ),
-                default => throw new OAuthException('unsupported_grant_type', 'Grant type not supported'),
-            };
-        } catch (OAuthException $e) {
-            return $this->errorResponse($e->getError(), $e->getDescription());
+            $psrResponse = $this->authorizationServer->respondToAccessTokenRequest($psrRequest, $psrResponse);
+        } catch (OAuthServerException $exception) {
+            $psrResponse = $exception->generateHttpResponse($psrResponse);
         }
 
-        $response = $this->tokenResponse($pair);
-        $response->headers->set('Cache-Control', 'no-store');
-        $response->headers->set('Pragma', 'no-cache');
-
-        return $response;
-    }
-
-    private function tokenResponse(IssuedTokenPair $pair): JsonResponse
-    {
-        return new JsonResponse([
-            'access_token' => $pair->accessToken,
-            'token_type' => 'Bearer',
-            'expires_in' => $pair->expiresIn,
-            'refresh_token' => $pair->refreshToken,
-            'scope' => $pair->scope,
-        ]);
-    }
-
-    private function errorResponse(string $error, string $description): JsonResponse
-    {
-        return new JsonResponse(['error' => $error, 'error_description' => $description], Response::HTTP_BAD_REQUEST);
+        return $this->httpFoundationFactory->createResponse($psrResponse);
     }
 }

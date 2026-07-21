@@ -16,13 +16,11 @@ namespace Sylius\AdminMcpServerPlugin\OAuth\Registration;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthClient;
 use Sylius\AdminMcpServerPlugin\OAuth\Exception\OAuthException;
 use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
-use Sylius\AdminMcpServerPlugin\Security\OAuth\RedirectUriValidator;
 
 final readonly class ClientRegistrar
 {
     public function __construct(
         private OAuthClientRepository $clientRepository,
-        private RedirectUriValidator $redirectUriValidator,
     ) {
     }
 
@@ -36,12 +34,6 @@ final readonly class ClientRegistrar
         $redirectUris = $data['redirect_uris'] ?? null;
         if (!\is_array($redirectUris) || $redirectUris === []) {
             throw new OAuthException('invalid_client_metadata', 'redirect_uris is required');
-        }
-
-        foreach ($redirectUris as $uri) {
-            if (!$this->redirectUriValidator->isValid($uri)) {
-                throw new OAuthException('invalid_redirect_uri', 'All redirect_uris must use HTTPS (or localhost for development)');
-            }
         }
 
         $clientName = \is_string($data['client_name'] ?? null) ? $data['client_name'] : 'MCP Client';

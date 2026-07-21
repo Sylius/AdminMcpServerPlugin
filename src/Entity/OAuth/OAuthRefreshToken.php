@@ -14,75 +14,40 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Entity\OAuth;
 
 use Doctrine\ORM\Mapping as ORM;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthRefreshTokenRepository;
-use Symfony\Component\Uid\Uuid;
 
-#[ORM\Entity(repositoryClass: OAuthRefreshTokenRepository::class)]
+#[ORM\Entity]
 #[ORM\Table(name: 'sylius_admin_mcp_oauth_refresh_tokens')]
 class OAuthRefreshToken
 {
-    private const int TTL_SECONDS = 2_592_000; // 30 days
+    #[ORM\Column(options: ['default' => false])]
+    private bool $revoked = false;
 
-    #[ORM\Id]
-    #[ORM\Column(type: 'uuid')]
-    private Uuid $id;
-
-    #[ORM\Column(length: 64, unique: true)]
-    private string $tokenHash;
-
-    #[ORM\ManyToOne(targetEntity: OAuthAccessToken::class)]
-    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
-    private OAuthAccessToken $accessToken;
-
-    #[ORM\Column]
-    private \DateTimeImmutable $expiresAt;
-
-    #[ORM\Column(nullable: true)]
-    private ?\DateTimeImmutable $revokedAt = null;
-
-    private function __construct(string $tokenHash, OAuthAccessToken $accessToken)
-    {
-        $this->id = Uuid::v7();
-        $this->tokenHash = $tokenHash;
-        $this->accessToken = $accessToken;
-        $this->expiresAt = new \DateTimeImmutable('+' . self::TTL_SECONDS . ' seconds');
+    public function __construct(
+        #[ORM\Id]
+        #[ORM\Column]
+        private readonly string $identifier,
+        #[ORM\Column]
+        private readonly \DateTimeImmutable $expiry,
+    ) {
     }
 
-    public static function issue(
-        OAuthAccessToken $accessToken,
-        #[\SensitiveParameter]
-        string $plainToken,
-    ): self {
-        return new self(hash('sha256', $plainToken), $accessToken);
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
     }
 
-    public function getId(): Uuid
+    public function getExpiry(): \DateTimeImmutable
     {
-        return $this->id;
-    }
-
-    public function getTokenHash(): string
-    {
-        return $this->tokenHash;
-    }
-
-    public function getAccessToken(): OAuthAccessToken
-    {
-        return $this->accessToken;
-    }
-
-    public function isExpired(): bool
-    {
-        return new \DateTimeImmutable() > $this->expiresAt;
+        return $this->expiry;
     }
 
     public function isRevoked(): bool
     {
-        return $this->revokedAt !== null;
+        return $this->revoked;
     }
 
     public function revoke(): void
     {
-        $this->revokedAt = new \DateTimeImmutable();
+        $this->revoked = true;
     }
 }

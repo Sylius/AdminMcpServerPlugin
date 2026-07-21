@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use League\OAuth2\Server\AuthorizationServer;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\AuthorizationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\RegistrationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\TokenController;
@@ -35,10 +36,11 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('sylius_admin_mcp_server.controller.oauth.authorization', AuthorizationController::class)
         ->args([
-            service('sylius_admin_mcp_server.oauth.consent_processor'),
+            service(AuthorizationServer::class),
             service('security.helper'),
             service('twig'),
             service('router'),
+            service('league.oauth2_server.factory.psr_http'),
         ])
         ->tag('controller.service_arguments');
     $services->alias(AuthorizationController::class, 'sylius_admin_mcp_server.controller.oauth.authorization')
@@ -46,8 +48,9 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('sylius_admin_mcp_server.controller.oauth.token', TokenController::class)
         ->args([
-            service('sylius_admin_mcp_server.oauth.grant.authorization_code_handler'),
-            service('sylius_admin_mcp_server.oauth.grant.refresh_token_handler'),
+            service(AuthorizationServer::class),
+            service('league.oauth2_server.factory.psr_http'),
+            service('league.oauth2_server.factory.http_foundation'),
         ])
         ->tag('controller.service_arguments');
     $services->alias(TokenController::class, 'sylius_admin_mcp_server.controller.oauth.token')

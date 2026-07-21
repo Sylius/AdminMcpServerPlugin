@@ -99,6 +99,29 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
                 'paths' => [__DIR__ . '/../../translations'],
             ],
         ]);
+
+        $container->prependExtensionConfig('league_oauth2_server', [
+            'authorization_server' => [
+                'private_key' => '%env(resolve:JWT_SECRET_KEY)%',
+                'private_key_passphrase' => '%env(JWT_PASSPHRASE)%',
+                'encryption_key' => '%env(SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY)%',
+                'encryption_key_type' => 'plain',
+                'access_token_ttl' => 'PT1H',
+                'refresh_token_ttl' => 'P30D',
+                'auth_code_ttl' => 'PT10M',
+                'enable_client_credentials_grant' => false,
+                'enable_password_grant' => false,
+                'enable_refresh_token_grant' => true,
+                'enable_auth_code_grant' => true,
+                'enable_implicit_grant' => false,
+                'require_code_challenge_for_public_clients' => true,
+            ],
+            'resource_server' => [
+                'public_key' => '%env(resolve:JWT_PUBLIC_KEY)%',
+            ],
+            'scopes' => ['available' => ['admin_api'], 'default' => ['admin_api']],
+            'persistence' => ['in_memory' => null],
+        ]);
     }
 
     protected function getMigrationsNamespace(): string

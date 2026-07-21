@@ -13,36 +13,59 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Repository\OAuth;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
+use League\Bundle\OAuth2ServerBundle\Entity\AuthCode as AuthCodeEntity;
+use League\OAuth2\Server\Entities\AuthCodeEntityInterface;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
+use League\OAuth2\Server\Repositories\AuthCodeRepositoryInterface;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthAuthorizationCode;
 
-/** @extends ServiceEntityRepository<OAuthAuthorizationCode> */
-class OAuthAuthorizationCodeRepository extends ServiceEntityRepository
+class OAuthAuthorizationCodeRepository implements AuthCodeRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        parent::__construct($registry, OAuthAuthorizationCode::class);
     }
 
-    public function findActiveByCodeHash(string $hash): ?OAuthAuthorizationCode
+    public function getNewAuthCode(): AuthCodeEntityInterface
     {
-        /** @var OAuthAuthorizationCode|null $code */
-        $code = $this->createQueryBuilder('c')
-            ->where('c.codeHash = :hash')
-            ->andWhere('c.usedAt IS NULL')
-            ->andWhere('c.expiresAt > :now')
-            ->setParameter('hash', $hash)
-            ->setParameter('now', new \DateTimeImmutable())
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        return $code;
+        return new AuthCodeEntity();
     }
 
-    public function save(OAuthAuthorizationCode $code): void
+    public function persistNewAuthCode(AuthCodeEntityInterface $authCodeEntity): void
     {
-        $this->getEntityManager()->persist($code);
-        $this->getEntityManager()->flush();
+        if ($this->entityManager->find(OAuthAuthorizationCode::class, $authCodeEntity->getIdentifier()) !== null) {
+            throw UniqueTokenIdentifierConstraintViolationException::create();
+        }
+
+        $entity = new OAuthAuthorizationCode(
+            $authCodeEntity->getIdentifier(),
+            $authCodeEntity->getExpiryDateTime(),
+        );
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+    }
+
+    public function revokeAuthCode(string $codeId): void
+    {
+        $entity = $this->entityManager->find(OAuthAuthorizationCode::class, $codeId);
+
+        if ($entity === null) {
+            return;
+        }
+
+        $entity->revoke();
+        $this->entityManager->flush();
+    }
+
+    public function isAuthCodeRevoked(string $codeId): bool
+    {
+        $entity = $this->entityManager->find(OAuthAuthorizationCode::class, $codeId);
+
+        if ($entity === null) {
+            return true;
+        }
+
+        return $entity->isRevoked();
     }
 }
