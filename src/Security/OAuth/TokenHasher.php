@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace Sylius\AdminMcpServerPlugin\Security;
+namespace Sylius\AdminMcpServerPlugin\Security\OAuth;
 
 final readonly class TokenHasher
 {

@@ -17,49 +17,39 @@ use Sylius\AdminMcpServerPlugin\Controller\OAuth\AuthorizationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\RegistrationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\TokenController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\WellKnownController;
-use Sylius\AdminMcpServerPlugin\OAuth\AuthorizationCodeIssuer;
-use Sylius\AdminMcpServerPlugin\OAuth\OAuthCallbackUrlBuilder;
-use Sylius\AdminMcpServerPlugin\OAuth\TokenIssuer;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAuthorizationCodeRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthRefreshTokenRepository;
-use Sylius\AdminMcpServerPlugin\Security\PkceVerifier;
-use Sylius\AdminMcpServerPlugin\Security\RedirectUriValidator;
-use Sylius\AdminMcpServerPlugin\Security\TokenHasher;
-use Symfony\Bundle\SecurityBundle\Security;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(WellKnownController::class)
-        ->args([service('router')])
+    $services->set('sylius_admin_mcp_server.controller.oauth.well_known', WellKnownController::class)
+        ->args([service('sylius_admin_mcp_server.oauth.metadata_provider')])
         ->tag('controller.service_arguments');
+    $services->alias(WellKnownController::class, 'sylius_admin_mcp_server.controller.oauth.well_known')
+        ->public();
 
-    $services->set(RegistrationController::class)
-        ->args([
-            service(OAuthClientRepository::class),
-            service(RedirectUriValidator::class),
-        ])
+    $services->set('sylius_admin_mcp_server.controller.oauth.registration', RegistrationController::class)
+        ->args([service('sylius_admin_mcp_server.oauth.client_registrar')])
         ->tag('controller.service_arguments');
+    $services->alias(RegistrationController::class, 'sylius_admin_mcp_server.controller.oauth.registration')
+        ->public();
 
-    $services->set(AuthorizationController::class)
+    $services->set('sylius_admin_mcp_server.controller.oauth.authorization', AuthorizationController::class)
         ->args([
-            service(OAuthClientRepository::class),
-            service(AuthorizationCodeIssuer::class),
-            service(OAuthCallbackUrlBuilder::class),
-            service(Security::class),
+            service('sylius_admin_mcp_server.oauth.consent_processor'),
+            service('security.helper'),
             service('twig'),
+            service('router'),
         ])
         ->tag('controller.service_arguments');
+    $services->alias(AuthorizationController::class, 'sylius_admin_mcp_server.controller.oauth.authorization')
+        ->public();
 
-    $services->set(TokenController::class)
+    $services->set('sylius_admin_mcp_server.controller.oauth.token', TokenController::class)
         ->args([
-            service(OAuthClientRepository::class),
-            service(OAuthAuthorizationCodeRepository::class),
-            service(OAuthRefreshTokenRepository::class),
-            service(PkceVerifier::class),
-            service(TokenIssuer::class),
-            service(TokenHasher::class),
+            service('sylius_admin_mcp_server.oauth.grant.authorization_code_handler'),
+            service('sylius_admin_mcp_server.oauth.grant.refresh_token_handler'),
         ])
         ->tag('controller.service_arguments');
+    $services->alias(TokenController::class, 'sylius_admin_mcp_server.controller.oauth.token')
+        ->public();
 };

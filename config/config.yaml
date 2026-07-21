@@ -28,7 +28,7 @@ framework:
 api_platform:
     mapping:
         paths:
-            - '%sylius_admin_mcp_server_api_resources_path%'
+            - '%sylius_admin_mcp_server.api_resources_path%'
 
 mcp:
     app: 'Sylius Admin MCP Server'

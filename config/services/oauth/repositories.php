@@ -21,15 +21,19 @@ use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthRefreshTokenRepository;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(OAuthClientRepository::class)
+    $services->set('sylius_admin_mcp_server.repository.oauth.client', OAuthClientRepository::class)
         ->args([service('doctrine')]);
+    $services->alias(OAuthClientRepository::class, 'sylius_admin_mcp_server.repository.oauth.client');
 
-    $services->set(OAuthAccessTokenRepository::class)
+    $services->set('sylius_admin_mcp_server.repository.oauth.access_token', OAuthAccessTokenRepository::class)
         ->args([service('doctrine')]);
+    $services->alias(OAuthAccessTokenRepository::class, 'sylius_admin_mcp_server.repository.oauth.access_token');
 
-    $services->set(OAuthAuthorizationCodeRepository::class)
+    $services->set('sylius_admin_mcp_server.repository.oauth.authorization_code', OAuthAuthorizationCodeRepository::class)
         ->args([service('doctrine')]);
+    $services->alias(OAuthAuthorizationCodeRepository::class, 'sylius_admin_mcp_server.repository.oauth.authorization_code');
 
-    $services->set(OAuthRefreshTokenRepository::class)
+    $services->set('sylius_admin_mcp_server.repository.oauth.refresh_token', OAuthRefreshTokenRepository::class)
         ->args([service('doctrine')]);
+    $services->alias(OAuthRefreshTokenRepository::class, 'sylius_admin_mcp_server.repository.oauth.refresh_token');
 };

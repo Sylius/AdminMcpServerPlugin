@@ -13,24 +13,23 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Controller\OAuth;
 
-use Sylius\AdminMcpServerPlugin\OAuth\AuthorizationCodeIssuer;
-use Sylius\AdminMcpServerPlugin\OAuth\OAuthCallbackUrlBuilder;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
+use Sylius\AdminMcpServerPlugin\OAuth\Authorization\AuthorizationConsentProcessor;
+use Sylius\AdminMcpServerPlugin\OAuth\Exception\OAuthException;
 use Sylius\Component\Core\Model\AdminUserInterface;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Twig\Environment;
 
 final readonly class AuthorizationController
 {
     public function __construct(
-        private OAuthClientRepository $clientRepository,
-        private AuthorizationCodeIssuer $codeIssuer,
-        private OAuthCallbackUrlBuilder $urlBuilder,
+        private AuthorizationConsentProcessor $processor,
         private Security $security,
         private Environment $twig,
+        private UrlGeneratorInterface $urlGenerator,
     ) {
     }
 
@@ -49,35 +48,32 @@ final readonly class AuthorizationController
         $scope = $request->query->getString('scope', 'mcp');
         $responseType = $request->query->getString('response_type');
 
-        if ($responseType !== 'code') {
-            return new Response('Unsupported response_type', Response::HTTP_BAD_REQUEST);
+        try {
+            $client = $this->processor->resolveClient($responseType, $clientId, $redirectUri);
+        } catch (OAuthException $e) {
+            return new Response($e->getDescription(), Response::HTTP_BAD_REQUEST);
         }
 
-        $client = $this->clientRepository->findByClientId($clientId);
-        if ($client === null) {
-            return new Response('Invalid client_id', Response::HTTP_BAD_REQUEST);
-        }
-
-        if (!$client->matchesRedirectUri($redirectUri)) {
-            return new Response('Invalid redirect_uri', Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($codeChallenge === '' || $codeChallengeMethod !== 'S256') {
+        try {
+            $this->processor->validatePkce($codeChallenge, $codeChallengeMethod);
+        } catch (OAuthException $e) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.generic',
-                $this->urlBuilder->buildErrorUrl($redirectUri, $state, 'invalid_request', 'PKCE with S256 is required'),
+                $this->processor->buildErrorUrl($redirectUri, $state, $e->getError(), $e->getDescription()),
             );
         }
 
         $user = $this->security->getUser();
         if (!$user instanceof AdminUserInterface) {
-            return new RedirectResponse('/admin/login?_target_path=' . urlencode($request->getUri()));
+            return new RedirectResponse(
+                $this->urlGenerator->generate('sylius_admin_security_login', ['_target_path' => $request->getUri()]),
+            );
         }
 
-        if (!$this->hasApiAccess($user)) {
+        if (!$this->processor->hasApiAccess($user)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
-                $this->urlBuilder->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
+                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
             );
         }
 
@@ -108,42 +104,39 @@ final readonly class AuthorizationController
         if ($approve !== '1') {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.denied_by_user',
-                $this->urlBuilder->buildErrorUrl($redirectUri, $state, 'access_denied', 'User denied the request'),
+                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User denied the request'),
             );
         }
 
-        $client = $this->clientRepository->findByClientId($clientId);
-        if ($client === null || !$client->matchesRedirectUri($redirectUri)) {
+        try {
+            $client = $this->processor->resolveClient('code', $clientId, $redirectUri);
+        } catch (OAuthException $e) {
             return new Response('Invalid request', Response::HTTP_BAD_REQUEST);
         }
 
-        $adminUser = $this->security->getUser();
-        if (!$adminUser instanceof AdminUserInterface) {
-            return new RedirectResponse('/admin/login');
+        $user = $this->security->getUser();
+        if (!$user instanceof AdminUserInterface) {
+            return new RedirectResponse($this->urlGenerator->generate('sylius_admin_security_login'));
         }
 
-        if (!$this->hasApiAccess($adminUser)) {
+        if (!$this->processor->hasApiAccess($user)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
-                $this->urlBuilder->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
+                $this->processor->buildErrorUrl($redirectUri, $state, 'access_denied', 'User does not have API access'),
             );
         }
 
-        $plainCode = $this->codeIssuer->issue(
+        $successUrl = $this->processor->grantConsent(
             $client,
-            $adminUser,
+            $user,
             $redirectUri,
             $scope,
+            $state,
             $codeChallenge,
             $codeChallengeMethod,
         );
 
-        return $this->renderSuccess($this->urlBuilder->buildSuccessUrl($redirectUri, $plainCode, $state));
-    }
-
-    private function hasApiAccess(AdminUserInterface $user): bool
-    {
-        return \in_array('ROLE_API_ACCESS', $user->getRoles(), true);
+        return $this->renderSuccess($successUrl);
     }
 
     private function renderSuccess(string $redirectUrl): Response

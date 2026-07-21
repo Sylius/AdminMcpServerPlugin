@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Sylius\AdminMcpServerPlugin\Security;
+namespace Sylius\AdminMcpServerPlugin\Security\Mcp;
 
 use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAccessTokenRepository;
+use Sylius\AdminMcpServerPlugin\Security\OAuth\TokenHasher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;

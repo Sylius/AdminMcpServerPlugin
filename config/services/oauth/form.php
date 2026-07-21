@@ -18,6 +18,6 @@ use Sylius\AdminMcpServerPlugin\Form\Extension\AdminUserTypeExtension;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(AdminUserTypeExtension::class)
+    $services->set('sylius_admin_mcp_server.form.type_extension.admin_user', AdminUserTypeExtension::class)
         ->tag('form.type_extension');
 };

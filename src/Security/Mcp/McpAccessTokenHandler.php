@@ -11,9 +11,10 @@
 
 declare(strict_types=1);
 
-namespace Sylius\AdminMcpServerPlugin\Security;
+namespace Sylius\AdminMcpServerPlugin\Security\Mcp;
 
 use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAccessTokenRepository;
+use Sylius\AdminMcpServerPlugin\Security\OAuth\TokenHasher;
 use Symfony\Component\Security\Core\Exception\BadCredentialsException;
 use Symfony\Component\Security\Http\AccessToken\AccessTokenHandlerInterface;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
