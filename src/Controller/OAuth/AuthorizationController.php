@@ -41,7 +41,7 @@ final readonly class AuthorizationController
     ) {
     }
 
-    public function __invoke(Request $request): Response
+    public function authorize(Request $request): Response
     {
         return $request->isMethod('POST') ? $this->handleConsent($request) : $this->showConsent($request);
     }

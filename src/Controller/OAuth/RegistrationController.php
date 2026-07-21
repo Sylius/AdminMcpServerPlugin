@@ -51,7 +51,7 @@ final readonly class RegistrationController
         $response = [
             'client_id' => $client->getClientId(),
             'client_id_issued_at' => $client->getCreatedAt()->getTimestamp(),
-            'redirect_uris' => $client->getRedirectUris(),
+            'redirect_uris' => $client->getRedirectUri(),
             'grant_types' => $client->getGrantTypes(),
             'token_endpoint_auth_method' => $client->getTokenEndpointAuthMethod(),
             'client_name' => $client->getClientName(),

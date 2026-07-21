@@ -22,19 +22,17 @@ use Sylius\AdminMcpServerPlugin\Controller\OAuth\WellKnownController;
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set('sylius_admin_mcp_server.controller.oauth.well_known', WellKnownController::class)
-        ->args([service('sylius_admin_mcp_server.oauth.metadata_provider')])
+    $services->defaults()
+        ->public()
         ->tag('controller.service_arguments');
-    $services->alias(WellKnownController::class, 'sylius_admin_mcp_server.controller.oauth.well_known')
-        ->public();
 
-    $services->set('sylius_admin_mcp_server.controller.oauth.registration', RegistrationController::class)
-        ->args([service('sylius_admin_mcp_server.oauth.client_registrar')])
-        ->tag('controller.service_arguments');
-    $services->alias(RegistrationController::class, 'sylius_admin_mcp_server.controller.oauth.registration')
-        ->public();
+    $services->set(WellKnownController::class)
+        ->args([service('sylius_admin_mcp_server.oauth.metadata_provider')]);
 
-    $services->set('sylius_admin_mcp_server.controller.oauth.authorization', AuthorizationController::class)
+    $services->set(RegistrationController::class)
+        ->args([service('sylius_admin_mcp_server.oauth.client_registrar')]);
+
+    $services->set(AuthorizationController::class)
         ->args([
             service(AuthorizationServer::class),
             service('security.helper'),
@@ -42,18 +40,12 @@ return static function (ContainerConfigurator $container): void {
             service('router'),
             service('league.oauth2_server.factory.psr_http'),
             service('security.csrf.token_manager'),
-        ])
-        ->tag('controller.service_arguments');
-    $services->alias(AuthorizationController::class, 'sylius_admin_mcp_server.controller.oauth.authorization')
-        ->public();
+        ]);
 
-    $services->set('sylius_admin_mcp_server.controller.oauth.token', TokenController::class)
+    $services->set(TokenController::class)
         ->args([
             service(AuthorizationServer::class),
             service('league.oauth2_server.factory.psr_http'),
             service('league.oauth2_server.factory.http_foundation'),
-        ])
-        ->tag('controller.service_arguments');
-    $services->alias(TokenController::class, 'sylius_admin_mcp_server.controller.oauth.token')
-        ->public();
+        ]);
 };

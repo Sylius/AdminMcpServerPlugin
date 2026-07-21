@@ -15,7 +15,7 @@ sylius_admin_mcp_server_oauth_register:
 
 sylius_admin_mcp_server_oauth_authorize:
     path: /admin/mcp/oauth/authorize
-    controller: Sylius\AdminMcpServerPlugin\Controller\OAuth\AuthorizationController
+    controller: Sylius\AdminMcpServerPlugin\Controller\OAuth\AuthorizationController::authorize
     methods: [GET, POST]
 
 sylius_admin_mcp_server_oauth_token:

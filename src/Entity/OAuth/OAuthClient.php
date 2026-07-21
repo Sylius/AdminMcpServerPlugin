@@ -14,13 +14,14 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Entity\OAuth;
 
 use Doctrine\ORM\Mapping as ORM;
+use League\Bundle\OAuth2ServerBundle\Model\AbstractClient;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: OAuthClientRepository::class)]
 #[ORM\Table(name: 'sylius_admin_mcp_oauth_clients')]
-final class OAuthClient implements ClientEntityInterface
+final class OAuthClient extends AbstractClient implements ClientEntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
@@ -57,6 +58,8 @@ final class OAuthClient implements ClientEntityInterface
         string $tokenEndpointAuthMethod,
         array $grantTypes,
     ) {
+        \assert($clientId !== '');
+        parent::__construct($clientName, $clientId, $clientSecretHash);
         $this->id = Uuid::v7();
         $this->clientId = $clientId;
         $this->clientSecretHash = $clientSecretHash;
@@ -114,12 +117,6 @@ final class OAuthClient implements ClientEntityInterface
     public function isConfidential(): bool
     {
         return $this->tokenEndpointAuthMethod !== 'none';
-    }
-
-    /** @return list<string> */
-    public function getRedirectUris(): array
-    {
-        return $this->redirectUris;
     }
 
     /** @return list<string> */

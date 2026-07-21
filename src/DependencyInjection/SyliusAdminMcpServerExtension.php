@@ -19,6 +19,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
+use Symfony\Component\Yaml\Yaml;
 
 final class SyliusAdminMcpServerExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
@@ -100,22 +101,9 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
             ],
         ]);
 
-        $container->prependExtensionConfig('league_oauth2_server', [
-            'authorization_server' => [
-                'private_key' => '%env(resolve:JWT_SECRET_KEY)%',
-                'private_key_passphrase' => '%env(JWT_PASSPHRASE)%',
-                'encryption_key' => '%env(SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY)%',
-                'encryption_key_type' => 'plain',
-                'enable_client_credentials_grant' => false,
-                'enable_password_grant' => false,
-                'enable_implicit_grant' => false,
-            ],
-            'resource_server' => [
-                'public_key' => '%env(resolve:JWT_PUBLIC_KEY)%',
-            ],
-            'scopes' => ['available' => ['admin_api'], 'default' => ['admin_api']],
-            'persistence' => ['in_memory' => null],
-        ]);
+        /** @var array<string, mixed> $leagueConfig */
+        $leagueConfig = Yaml::parseFile(__DIR__ . '/../../config/packages/league_oauth2_server.yaml');
+        $container->prependExtensionConfig('league_oauth2_server', $leagueConfig);
     }
 
     protected function getMigrationsNamespace(): string
