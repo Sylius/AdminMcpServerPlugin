@@ -13,21 +13,14 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Repository\OAuth;
 
-use Doctrine\ORM\EntityManagerInterface;
 use League\Bundle\OAuth2ServerBundle\Entity\AccessToken as AccessTokenEntity;
 use League\OAuth2\Server\Entities\AccessTokenEntityInterface;
 use League\OAuth2\Server\Entities\ClientEntityInterface;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
-use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
 use League\OAuth2\Server\Repositories\AccessTokenRepositoryInterface;
-use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthAccessToken;
 
 class OAuthAccessTokenRepository implements AccessTokenRepositoryInterface
 {
-    public function __construct(private readonly EntityManagerInterface $entityManager)
-    {
-    }
-
     /**
      * @param ScopeEntityInterface[] $scopes
      */
@@ -49,39 +42,16 @@ class OAuthAccessTokenRepository implements AccessTokenRepositoryInterface
 
     public function persistNewAccessToken(AccessTokenEntityInterface $accessTokenEntity): void
     {
-        if ($this->entityManager->find(OAuthAccessToken::class, $accessTokenEntity->getIdentifier()) !== null) {
-            throw UniqueTokenIdentifierConstraintViolationException::create();
-        }
-
-        $entity = new OAuthAccessToken(
-            $accessTokenEntity->getIdentifier(),
-            $accessTokenEntity->getExpiryDateTime(),
-        );
-
-        $this->entityManager->persist($entity);
-        $this->entityManager->flush();
+        // JWT access tokens are self-validating — no DB storage needed
     }
 
     public function revokeAccessToken(string $tokenId): void
     {
-        $entity = $this->entityManager->find(OAuthAccessToken::class, $tokenId);
-
-        if ($entity === null) {
-            return;
-        }
-
-        $entity->revoke();
-        $this->entityManager->flush();
+        // JWT access tokens cannot be revoked server-side within their TTL
     }
 
     public function isAccessTokenRevoked(string $tokenId): bool
     {
-        $entity = $this->entityManager->find(OAuthAccessToken::class, $tokenId);
-
-        if ($entity === null) {
-            return true;
-        }
-
-        return $entity->isRevoked();
+        return false;
     }
 }

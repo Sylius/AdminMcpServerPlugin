@@ -32,8 +32,7 @@ return static function (ContainerConfigurator $container): void {
     $services->alias(OAuthClientRepository::class, 'sylius_admin_mcp_server.repository.oauth.client');
     $services->alias(ClientRepositoryInterface::class, 'sylius_admin_mcp_server.repository.oauth.client');
 
-    $services->set('sylius_admin_mcp_server.repository.oauth.access_token', OAuthAccessTokenRepository::class)
-        ->args([service('doctrine.orm.entity_manager')]);
+    $services->set('sylius_admin_mcp_server.repository.oauth.access_token', OAuthAccessTokenRepository::class);
     $services->alias(OAuthAccessTokenRepository::class, 'sylius_admin_mcp_server.repository.oauth.access_token');
     $services->alias(AccessTokenRepositoryInterface::class, 'sylius_admin_mcp_server.repository.oauth.access_token');
 
