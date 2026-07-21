@@ -15,6 +15,7 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use League\OAuth2\Server\ResourceServer;
 use Sylius\AdminMcpServerPlugin\Security\Mcp\McpBearerAuthListener;
+use Sylius\AdminMcpServerPlugin\Security\OAuth\OAuthAuthorizeVoter;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 return static function (ContainerConfigurator $container): void {
@@ -27,4 +28,7 @@ return static function (ContainerConfigurator $container): void {
             service('sylius.repository.admin_user'),
         ])
         ->tag('kernel.event_listener', ['event' => KernelEvents::REQUEST, 'method' => '__invoke', 'priority' => 10]);
+
+    $services->set('sylius_admin_mcp_server.security.oauth.authorize_voter', OAuthAuthorizeVoter::class)
+        ->tag('security.voter');
 };
