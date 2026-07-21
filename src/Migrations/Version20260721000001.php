@@ -25,44 +25,35 @@ final class Version20260721000001 extends AbstractMigration
 
     public function up(Schema $schema): void
     {
-        $this->addSql(<<<'SQL'
-            CREATE TABLE sylius_admin_mcp_oauth_clients (
-                id BINARY(16) NOT NULL COMMENT '(DC2Type:uuid)',
-                clientId VARCHAR(80) NOT NULL,
-                clientSecretHash VARCHAR(64) DEFAULT NULL,
-                redirectUris JSON NOT NULL,
-                grantTypes JSON NOT NULL,
-                tokenEndpointAuthMethod VARCHAR(20) NOT NULL,
-                clientName VARCHAR(255) NOT NULL,
-                createdAt DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)',
-                PRIMARY KEY (id),
-                UNIQUE INDEX UNIQ_2D062973EA1CE9BE (clientId)
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
-            SQL);
+        $clients = $schema->createTable('sylius_admin_mcp_oauth_clients');
+        $clients->addColumn('id', 'uuid');
+        $clients->addColumn('clientId', 'string', ['length' => 80]);
+        $clients->addColumn('clientSecretHash', 'string', ['length' => 64, 'notnull' => false]);
+        $clients->addColumn('redirectUris', 'json');
+        $clients->addColumn('grantTypes', 'json');
+        $clients->addColumn('tokenEndpointAuthMethod', 'string', ['length' => 20]);
+        $clients->addColumn('clientName', 'string', ['length' => 255]);
+        $clients->addColumn('createdAt', 'datetime_immutable');
+        $clients->setPrimaryKey(['id']);
+        $clients->addUniqueIndex(['clientId'], 'UNIQ_2D062973EA1CE9BE');
 
-        $this->addSql(<<<'SQL'
-            CREATE TABLE sylius_admin_mcp_oauth_authorization_codes (
-                identifier VARCHAR(255) NOT NULL,
-                expiry DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)',
-                revoked TINYINT(1) DEFAULT 0 NOT NULL,
-                PRIMARY KEY (identifier)
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
-            SQL);
+        $authCodes = $schema->createTable('sylius_admin_mcp_oauth_authorization_codes');
+        $authCodes->addColumn('identifier', 'string', ['length' => 255]);
+        $authCodes->addColumn('expiry', 'datetime_immutable');
+        $authCodes->addColumn('revoked', 'boolean', ['default' => false]);
+        $authCodes->setPrimaryKey(['identifier']);
 
-        $this->addSql(<<<'SQL'
-            CREATE TABLE sylius_admin_mcp_oauth_refresh_tokens (
-                identifier VARCHAR(255) NOT NULL,
-                expiry DATETIME NOT NULL COMMENT '(DC2Type:datetime_immutable)',
-                revoked TINYINT(1) DEFAULT 0 NOT NULL,
-                PRIMARY KEY (identifier)
-            ) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB
-            SQL);
+        $refreshTokens = $schema->createTable('sylius_admin_mcp_oauth_refresh_tokens');
+        $refreshTokens->addColumn('identifier', 'string', ['length' => 255]);
+        $refreshTokens->addColumn('expiry', 'datetime_immutable');
+        $refreshTokens->addColumn('revoked', 'boolean', ['default' => false]);
+        $refreshTokens->setPrimaryKey(['identifier']);
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('DROP TABLE IF EXISTS sylius_admin_mcp_oauth_refresh_tokens');
-        $this->addSql('DROP TABLE IF EXISTS sylius_admin_mcp_oauth_authorization_codes');
-        $this->addSql('DROP TABLE IF EXISTS sylius_admin_mcp_oauth_clients');
+        $schema->dropTable('sylius_admin_mcp_oauth_refresh_tokens');
+        $schema->dropTable('sylius_admin_mcp_oauth_authorization_codes');
+        $schema->dropTable('sylius_admin_mcp_oauth_clients');
     }
 }
