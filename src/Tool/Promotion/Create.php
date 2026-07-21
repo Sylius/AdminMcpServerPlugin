@@ -85,6 +85,13 @@ final readonly class Create
             $body['endsAt'] = $endsAt;
         }
 
-        return $this->client->post('promotions', $body);
+        /** @var array<string, mixed> $result */
+        $result = json_decode($this->client->post('promotions', $body), true) ?? [];
+
+        if (empty($body['actions'])) {
+            $result['_warning'] = 'Promotion created with no actions — it will not apply any discount. Call update_promotion to add at least one action (e.g. order_percentage_discount or order_fixed_discount).';
+        }
+
+        return (string) json_encode($result, \JSON_THROW_ON_ERROR);
     }
 }

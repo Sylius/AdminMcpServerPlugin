@@ -33,8 +33,8 @@ final readonly class Index
         string $code = '',
         string $name = '',
         ?bool $enabled = null,
-        string $orderBy = '',
-        string $orderDir = 'asc',
+        string $orderBy = 'createdAt',
+        string $orderDir = 'desc',
     ): string {
         $params = [
             'page' => $page,

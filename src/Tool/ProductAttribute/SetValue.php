@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 set_product_attribute_value — Assigns (or updates) an attribute value on a product. If the attribute is already set for that locale it will be overwritten.
 
-REQUIRED: productCode (product to update), attribute (attribute definition IRI, e.g. "/api/v2/admin/product-attributes/cap_brand" — get IRIs from list_product_attributes), value (the value to store, as a string — e.g. "100% cotton" for text type, "10.5" for float, "true"/"false" for checkbox).
+REQUIRED: productCode (product to update), attribute (attribute definition IRI, e.g. "/api/v2/admin/product-attributes/cap_brand" — get IRIs from list_product_attributes), value (the value to store — pass native types: "100% cotton" for text, 8 for integer, 10.5 for float, true/false for checkbox — the tool auto-converts to the correct API type based on the attribute definition).
 OPTIONAL: localeCode (default "en_US").
 
 NOTE: Product attributes are metadata about the product (material, brand, etc.) — not related to pricing or stock. Use list_product_attributes to see what attribute types exist before assigning values.
@@ -34,32 +34,36 @@ final readonly class SetValue
     }
 
     /**
-     * @param string $attribute  Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
+     * @param string $attribute Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
      */
     public function __invoke(
         string $productCode,
         string $attribute,
-        string $value,
+        string|int|float|bool $value,
         string $localeCode = 'en_US',
     ): string {
+        $attributeCode = basename($attribute);
+        /** @var array<string, mixed> $attrDef */
+        $attrDef = json_decode($this->client->get(sprintf('product-attributes/%s', $attributeCode)), true);
+        $castValue = $this->castValue($value, \is_string($attrDef['type'] ?? null) ? $attrDef['type'] : 'text');
+
+        /** @var array<string, mixed> $product */
         $product = json_decode($this->client->get(sprintf('products/%s', $productCode)), true);
+        /** @var array<int, array<string, mixed>> $existingAttrs */
         $existingAttrs = $product['attributes'] ?? [];
 
-        // Build the updated list: keep all existing, replace or append the target attribute+locale
         $updated = [];
         $found = false;
 
         foreach ($existingAttrs as $attr) {
             if (($attr['attribute'] ?? '') === $attribute && ($attr['localeCode'] ?? '') === $localeCode) {
-                // Replace existing value
-                $entry = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $value];
+                $entry = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $castValue];
                 if (isset($attr['@id'])) {
                     $entry['@id'] = $attr['@id'];
                 }
                 $updated[] = $entry;
                 $found = true;
             } else {
-                // Keep existing attribute as-is
                 $entry = ['attribute' => $attr['attribute'], 'localeCode' => $attr['localeCode'], 'value' => $attr['value']];
                 if (isset($attr['@id'])) {
                     $entry['@id'] = $attr['@id'];
@@ -69,7 +73,7 @@ final readonly class SetValue
         }
 
         if (!$found) {
-            $updated[] = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $value];
+            $updated[] = ['attribute' => $attribute, 'localeCode' => $localeCode, 'value' => $castValue];
         }
 
         $this->client->put(sprintf('products/%s', $productCode), ['attributes' => $updated]);
@@ -78,8 +82,18 @@ final readonly class SetValue
             'productCode' => $productCode,
             'attribute' => $attribute,
             'localeCode' => $localeCode,
-            'value' => $value,
+            'value' => $castValue,
             'updated' => true,
         ]);
+    }
+
+    private function castValue(string|int|float|bool $value, string $type): int|float|bool|string
+    {
+        return match ($type) {
+            'integer' => (int) $value,
+            'float' => (float) $value,
+            'checkbox' => (bool) $value,
+            default => (string) $value,
+        };
     }
 }
