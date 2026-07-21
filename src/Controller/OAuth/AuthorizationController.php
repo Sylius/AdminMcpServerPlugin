@@ -25,6 +25,8 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+use Symfony\Component\Security\Csrf\CsrfToken;
+use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Twig\Environment;
 
 final readonly class AuthorizationController
@@ -35,6 +37,7 @@ final readonly class AuthorizationController
         private Environment $twig,
         private UrlGeneratorInterface $urlGenerator,
         private PsrHttpFactory $psrHttpFactory,
+        private CsrfTokenManagerInterface $csrfTokenManager,
     ) {
     }
 
@@ -60,10 +63,13 @@ final readonly class AuthorizationController
             );
         }
 
+        $clientName = $authRequest->getClient()->getName();
+
         if (!\in_array('ROLE_API_ACCESS', $user->getRoles(), true)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
                 $authRequest->getRedirectUri() . '?error=access_denied&error_description=User+does+not+have+API+access',
+                $clientName,
             );
         }
 
@@ -74,7 +80,7 @@ final readonly class AuthorizationController
 
         return new Response(
             $this->twig->render('@SyliusAdminMcpServer/oauth/authorize.html.twig', [
-                'client_name' => $authRequest->getClient()->getName(),
+                'client_name' => $clientName,
                 'scope' => $scopeIdentifiers,
                 'client_id' => $request->query->getString('client_id'),
                 'redirect_uri' => $request->query->getString('redirect_uri'),
@@ -88,6 +94,10 @@ final readonly class AuthorizationController
 
     private function handleConsent(Request $request): Response
     {
+        if (!$this->csrfTokenManager->isTokenValid(new CsrfToken('oauth_authorize', $request->request->getString('_csrf_token')))) {
+            return new Response('Invalid CSRF token.', Response::HTTP_FORBIDDEN);
+        }
+
         $approve = $request->request->getString('approve');
 
         $queryParams = array_filter([
@@ -113,10 +123,13 @@ final readonly class AuthorizationController
             return new RedirectResponse($this->urlGenerator->generate('sylius_admin_security_login'));
         }
 
+        $clientName = $authRequest->getClient()->getName();
+
         if (!\in_array('ROLE_API_ACCESS', $user->getRoles(), true)) {
             return $this->renderError(
                 'sylius_admin_mcp_server.oauth.error.no_api_access',
                 $authRequest->getRedirectUri() . '?error=access_denied&error_description=User+does+not+have+API+access',
+                $clientName,
             );
         }
 
@@ -128,29 +141,31 @@ final readonly class AuthorizationController
         } catch (OAuthServerException $e) {
             $redirectUrl = $e->generateHttpResponse(new Psr7Response())->getHeaderLine('Location');
 
-            return $this->renderError('sylius_admin_mcp_server.oauth.error.denied_by_user', $redirectUrl);
+            return $this->renderError('sylius_admin_mcp_server.oauth.error.denied_by_user', $redirectUrl, $clientName);
         }
 
         $redirectUrl = $psrResponse->getHeaderLine('Location');
 
-        return $this->renderSuccess($redirectUrl);
+        return $this->renderSuccess($redirectUrl, $clientName);
     }
 
-    private function renderSuccess(string $redirectUrl): Response
+    private function renderSuccess(string $redirectUrl, string $clientName = ''): Response
     {
         return new Response(
             $this->twig->render('@SyliusAdminMcpServer/oauth/success.html.twig', [
                 'redirect_url' => $redirectUrl,
+                'client_name' => $clientName,
             ]),
         );
     }
 
-    private function renderError(string $messageKey, string $redirectUrl): Response
+    private function renderError(string $messageKey, string $redirectUrl, string $clientName = ''): Response
     {
         return new Response(
             $this->twig->render('@SyliusAdminMcpServer/oauth/error.html.twig', [
                 'message' => $messageKey,
                 'redirect_url' => $redirectUrl,
+                'client_name' => $clientName,
             ]),
         );
     }

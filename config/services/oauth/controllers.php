@@ -41,6 +41,7 @@ return static function (ContainerConfigurator $container): void {
             service('twig'),
             service('router'),
             service('league.oauth2_server.factory.psr_http'),
+            service('security.csrf.token_manager'),
         ])
         ->tag('controller.service_arguments');
     $services->alias(AuthorizationController::class, 'sylius_admin_mcp_server.controller.oauth.authorization')

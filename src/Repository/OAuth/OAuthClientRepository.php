@@ -20,7 +20,7 @@ use League\OAuth2\Server\Repositories\ClientRepositoryInterface;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthClient;
 
 /** @extends ServiceEntityRepository<OAuthClient> */
-class OAuthClientRepository extends ServiceEntityRepository implements ClientRepositoryInterface
+final class OAuthClientRepository extends ServiceEntityRepository implements ClientRepositoryInterface
 {
     public function __construct(ManagerRegistry $registry)
     {

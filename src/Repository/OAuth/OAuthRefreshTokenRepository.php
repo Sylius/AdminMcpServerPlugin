@@ -20,7 +20,7 @@ use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationExcep
 use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthRefreshToken;
 
-class OAuthRefreshTokenRepository implements RefreshTokenRepositoryInterface
+final class OAuthRefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
     public function __construct(private readonly EntityManagerInterface $entityManager)
     {
