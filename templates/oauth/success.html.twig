@@ -27,7 +27,7 @@
                 </h4>
 
                 <p class="text-muted mb-4">
-                    {{ 'sylius_admin_mcp_server.oauth.success.description'|trans({}, 'SyliusAdminMcpServer') }}
+                    {{ 'sylius_admin_mcp_server.oauth.success.description'|trans({'%client_name%': client_name|default('')}, 'SyliusAdminMcpServer') }}
                 </p>
 
                 <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">

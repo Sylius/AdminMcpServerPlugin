@@ -13,53 +13,39 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use League\OAuth2\Server\AuthorizationServer;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\AuthorizationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\RegistrationController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\TokenController;
 use Sylius\AdminMcpServerPlugin\Controller\OAuth\WellKnownController;
-use Sylius\AdminMcpServerPlugin\OAuth\AuthorizationCodeIssuer;
-use Sylius\AdminMcpServerPlugin\OAuth\OAuthCallbackUrlBuilder;
-use Sylius\AdminMcpServerPlugin\OAuth\TokenIssuer;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAuthorizationCodeRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthRefreshTokenRepository;
-use Sylius\AdminMcpServerPlugin\Security\PkceVerifier;
-use Sylius\AdminMcpServerPlugin\Security\RedirectUriValidator;
-use Sylius\AdminMcpServerPlugin\Security\TokenHasher;
-use Symfony\Bundle\SecurityBundle\Security;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(WellKnownController::class)
-        ->args([service('router')])
+    $services->defaults()
+        ->public()
         ->tag('controller.service_arguments');
 
+    $services->set(WellKnownController::class)
+        ->args([service('sylius_admin_mcp_server.oauth.metadata_provider')]);
+
     $services->set(RegistrationController::class)
-        ->args([
-            service(OAuthClientRepository::class),
-            service(RedirectUriValidator::class),
-        ])
-        ->tag('controller.service_arguments');
+        ->args([service('sylius_admin_mcp_server.oauth.client_registrar')]);
 
     $services->set(AuthorizationController::class)
         ->args([
-            service(OAuthClientRepository::class),
-            service(AuthorizationCodeIssuer::class),
-            service(OAuthCallbackUrlBuilder::class),
-            service(Security::class),
+            service(AuthorizationServer::class),
+            service('security.helper'),
             service('twig'),
-        ])
-        ->tag('controller.service_arguments');
+            service('router'),
+            service('league.oauth2_server.factory.psr_http'),
+            service('security.csrf.token_manager'),
+        ]);
 
     $services->set(TokenController::class)
         ->args([
-            service(OAuthClientRepository::class),
-            service(OAuthAuthorizationCodeRepository::class),
-            service(OAuthRefreshTokenRepository::class),
-            service(PkceVerifier::class),
-            service(TokenIssuer::class),
-            service(TokenHasher::class),
-        ])
-        ->tag('controller.service_arguments');
+            service(AuthorizationServer::class),
+            service('league.oauth2_server.factory.psr_http'),
+            service('league.oauth2_server.factory.http_foundation'),
+        ]);
 };

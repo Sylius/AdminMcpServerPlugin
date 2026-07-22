@@ -11,23 +11,31 @@
 
 declare(strict_types=1);
 
-namespace Sylius\AdminMcpServerPlugin\Security;
+namespace Sylius\AdminMcpServerPlugin\Security\Mcp;
 
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAccessTokenRepository;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\ResourceServer;
+use Sylius\Component\Core\Model\AdminUserInterface;
+use Sylius\Component\User\Repository\UserRepositoryInterface;
+use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 final readonly class McpBearerAuthListener
 {
-    private const PUBLIC_PATHS = [
+    private const array PUBLIC_PATHS = [
         '/_mcp/oauth/register',
         '/_mcp/oauth/token',
     ];
 
+    /**
+     * @param UserRepositoryInterface<AdminUserInterface> $adminUserRepository
+     */
     public function __construct(
-        private OAuthAccessTokenRepository $accessTokenRepository,
-        private TokenHasher $tokenHasher,
+        private ResourceServer $resourceServer,
+        private PsrHttpFactory $psrHttpFactory,
+        private UserRepositoryInterface $adminUserRepository,
     ) {
     }
 
@@ -52,23 +60,26 @@ final readonly class McpBearerAuthListener
             return;
         }
 
-        $plainToken = substr($authHeader, 7);
+        $psrRequest = $this->psrHttpFactory->createRequest($request);
 
-        if ($plainToken === '') {
-            $event->setResponse($this->tokenErrorResponse('Empty bearer token'));
-
-            return;
-        }
-
-        $accessToken = $this->accessTokenRepository->findActiveByTokenHash($this->tokenHasher->hash($plainToken));
-
-        if ($accessToken === null) {
-            $event->setResponse($this->tokenErrorResponse('Invalid or expired access token'));
+        try {
+            $validatedRequest = $this->resourceServer->validateAuthenticatedRequest($psrRequest);
+        } catch (OAuthServerException $e) {
+            $event->setResponse($this->tokenErrorResponse($e->getMessage()));
 
             return;
         }
 
-        $request->attributes->set('_mcp_oauth_admin_user', $accessToken->getAdminUser());
+        $userIdentifier = (string) $validatedRequest->getAttribute('oauth_user_id', '');
+        $adminUser = $this->adminUserRepository->findOneByEmail($userIdentifier);
+
+        if ($adminUser === null) {
+            $event->setResponse($this->tokenErrorResponse('Invalid token user'));
+
+            return;
+        }
+
+        $request->attributes->set('_mcp_oauth_admin_user', $adminUser);
     }
 
     private function isPublicPath(string $path): bool

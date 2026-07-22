@@ -10,14 +10,14 @@ sylius_admin_mcp_server:
         success:
             title: 'Authorization Successful'
             heading: 'You are connected'
-            description: 'Claude Desktop has been granted access to your Sylius store. You can now return to Claude and start managing your store with AI.'
+            description: '%client_name% has been granted access to your Sylius store. You can now return to the application and start managing your store with AI.'
             redirect_notice: 'Completing connection, please wait…'
             close_notice: 'You may close this window.'
         error:
             title: 'Authorization Failed'
             heading: 'Access denied'
-            denied_by_user: 'You cancelled the authorization request. No access was granted to Claude Desktop.'
+            denied_by_user: 'You cancelled the authorization request. No access was granted to %client_name%.'
             no_api_access: 'Your account does not have API access. Ask your administrator to grant you the <strong>API Access</strong> role.'
             generic: 'An unexpected error occurred during authorization.'
-            redirect_notice: 'Returning to Claude Desktop…'
+            redirect_notice: 'Returning to %client_name%…'
             try_again: 'Try again'

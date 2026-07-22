@@ -13,27 +13,17 @@ declare(strict_types=1);
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-use Sylius\AdminMcpServerPlugin\OAuth\AuthorizationCodeIssuer;
-use Sylius\AdminMcpServerPlugin\OAuth\OAuthCallbackUrlBuilder;
-use Sylius\AdminMcpServerPlugin\OAuth\TokenIssuer;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAccessTokenRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthAuthorizationCodeRepository;
-use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthRefreshTokenRepository;
+use Sylius\AdminMcpServerPlugin\OAuth\Metadata\OAuthServerMetadataProvider;
+use Sylius\AdminMcpServerPlugin\OAuth\Registration\ClientRegistrar;
 
 return static function (ContainerConfigurator $container): void {
     $services = $container->services();
 
-    $services->set(OAuthCallbackUrlBuilder::class);
-
-    $services->set(AuthorizationCodeIssuer::class)
+    $services->set('sylius_admin_mcp_server.oauth.client_registrar', ClientRegistrar::class)
         ->args([
-            service(OAuthAuthorizationCodeRepository::class),
+            service('sylius_admin_mcp_server.repository.oauth.client'),
         ]);
 
-    $services->set(TokenIssuer::class)
-        ->args([
-            service(OAuthAccessTokenRepository::class),
-            service(OAuthRefreshTokenRepository::class),
-            service('doctrine.orm.entity_manager'),
-        ]);
+    $services->set('sylius_admin_mcp_server.oauth.metadata_provider', OAuthServerMetadataProvider::class)
+        ->args([service('router')]);
 };
