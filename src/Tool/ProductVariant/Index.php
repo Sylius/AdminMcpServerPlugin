@@ -36,6 +36,9 @@ final readonly class Index
     ): string {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($product !== '') {
+            if (!str_contains($product, '/')) {
+                $product = sprintf('/api/v2/admin/products/%s', $product);
+            }
             $params['product'] = $product;
         }
         if ($orderBy !== '') {

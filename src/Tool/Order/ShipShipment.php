@@ -28,6 +28,20 @@ final readonly class ShipShipment
 
     public function __invoke(int $shipmentId, string $trackingCode = ''): string
     {
+        /** @var array<string, mixed> $shipment */
+        $shipment = json_decode($this->client->get(sprintf('shipments/%d', $shipmentId)), true);
+        $state = (string) ($shipment['state'] ?? '');
+
+        if ($state !== 'ready') {
+            return (string) json_encode([
+                'error' => sprintf(
+                    'Shipment %d cannot be shipped: current state is "%s", must be "ready".',
+                    $shipmentId,
+                    $state,
+                ),
+            ]);
+        }
+
         $body = [];
         if ($trackingCode !== '') {
             $body['trackingCode'] = $trackingCode;
