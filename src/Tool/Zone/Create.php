@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_zone',
-    description: 'create_zone(code, name, type, scope?, memberCodes) → JSON of the newly created Sylius zone. type: "country" | "zone" | "province". scope: "shipping" | "tax" | "all" (default "all"). memberCodes: array of country/zone/province codes — REQUIRED by Sylius (at least 1 member). Example: memberCodes=["US"] for a country zone.',
+    description: 'create_zone(code, name, type, scope?, memberCodes) → JSON of the newly created Sylius zone. type: "country" | "zone" | "province". scope: "shipping" | "tax" | "all" (default "all"). memberCodes: array of country/zone/province codes — REQUIRED by Sylius (at least 1 member). Example: memberCodes=["US"] for a country zone. IMPORTANT: All country codes in memberCodes must already exist in the system — check list_countries first and use create_country to add any missing ones.',
 )]
 final readonly class Create
 {

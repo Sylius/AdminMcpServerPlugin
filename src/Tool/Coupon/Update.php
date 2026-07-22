@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 update_coupon(promotionCode, couponCode, body) → JSON of the updated coupon.
 
-IMPORTANT: First call get_coupon(promotionCode, couponCode) to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+You can pass a partial body with only the fields you want to change — e.g. {"usageLimit":100} works without fetching the full JSON first. Available fields: usageLimit, perCustomerUsageLimit, reusableFromCancelledOrders, expiresAt.
 DESC,
 )]
 final readonly class Update

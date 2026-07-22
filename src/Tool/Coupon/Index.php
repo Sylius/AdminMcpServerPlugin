@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_coupons',
-    description: 'list_coupons(promotionCode, page?, itemsPerPage?) → JSON Hydra collection of coupons for a given Sylius promotion. Each coupon has: id, code, usageLimit, perCustomerUsageLimit, used, reusableFromCancelledOrders, expiresAt.',
+    description: 'list_coupons(promotionCode, page?, itemsPerPage?) → JSON Hydra collection of coupons for a given Sylius promotion. Each coupon has: id, code, usageLimit, perCustomerUsageLimit, used, reusableFromCancelledOrders, expiresAt. Note: if promotionCode does not exist, an empty collection is returned (not a 404 error) — verify the code with get_promotion first if in doubt.',
 )]
 final readonly class Index
 {

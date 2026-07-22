@@ -37,14 +37,18 @@ final readonly class Update
     {
         $b = json_decode($body, true) ?? [];
         if (isset($b['amount']) || isset($b['percentage'])) {
+            /** @var array<string, mixed> $channelsData */
             $channelsData = json_decode($this->client->get('channels', ['pagination' => false]), true);
-            $allChannelCodes = array_column($channelsData['hydra:member'] ?? [], 'code');
+            $allChannelCodes = array_column(
+                array_filter((array) ($channelsData['hydra:member'] ?? []), static fn (mixed $ch): bool => is_array($ch) && (bool) ($ch['enabled'] ?? false)),
+                'code',
+            );
             $calculator = $b['calculator'] ?? 'flat_rate';
             $usePercentage = str_contains($calculator, 'percentage');
             $b['configuration'] = array_fill_keys(
                 $allChannelCodes,
                 $usePercentage
-                    ? ['amount' => (int) round(($b['percentage'] ?? 0) * 10000)]
+                    ? ['percentage' => (float) ($b['percentage'] ?? 0.0)]
                     : ['amount' => (int) ($b['amount'] ?? 0)],
             );
             unset($b['amount'], $b['percentage']);

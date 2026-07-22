@@ -57,10 +57,15 @@ final readonly class Create
         string $taxCategory = '',
         bool $enabled = true,
     ): string {
+        /** @var array<string, mixed> $allChannels */
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
         $configuration = [];
-        foreach ($allChannels['hydra:member'] ?? [] as $channel) {
-            $channelCode = $channel['code'];
+        foreach ((array) ($allChannels['hydra:member'] ?? []) as $channel) {
+            /** @var array<string, mixed> $channel */
+            if (!($channel['enabled'] ?? false)) {
+                continue;
+            }
+            $channelCode = (string) ($channel['code'] ?? '');
             if ($calculator === 'percentage_discount') {
                 $configuration[$channelCode] = ['percentage' => $percentage];
             } else {

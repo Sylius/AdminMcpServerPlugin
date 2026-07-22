@@ -21,11 +21,14 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 update_promotion(code, body) → JSON of the updated cart promotion.
 
-IMPORTANT: First call get_promotion to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body.
+You can pass a partial body with only the fields you want to change — e.g. {"name":"New Name"} works without fetching the full JSON first. For simple changes (name, description, dates, usageLimit) a partial body is sufficient.
+
+To ADD or MODIFY rules/actions: call get_promotion first, copy the existing rules/actions array, append or modify entries, then call update_promotion with the new array.
 
 rules examples: [{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}] — min order 50.00; [{"type":"cart_quantity","configuration":{"count":3}}] — min 3 items
 actions examples: [{"type":"order_percentage_discount","configuration":{"percentage":0.1}}] — 10% off order; [{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] — fixed 10.00 off (ALL channels required)
 Note: fixed-discount rules/actions missing channels are auto-filled with zero amounts.
+Note: if description is no longer needed pass null (not empty string "") — Sylius requires description to be null or at least 2 characters.
 DESC,
 )]
 final readonly class Update
@@ -37,6 +40,10 @@ final readonly class Update
     public function __invoke(string $code, string $body): string
     {
         $b = json_decode($body, true) ?? [];
+        // Sylius requires description to be null or ≥2 chars; convert "" to null
+        if (isset($b['description']) && $b['description'] === '') {
+            $b['description'] = null;
+        }
         if (isset($b['rules'])) {
             $b['rules'] = $this->stripAndFillChannels($b['rules']);
         }
