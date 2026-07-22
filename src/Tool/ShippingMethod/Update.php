@@ -35,6 +35,7 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
+        /** @var array<string, mixed> $b */
         $b = json_decode($body, true) ?? [];
         if (isset($b['amount']) || isset($b['percentage'])) {
             /** @var array<string, mixed> $channelsData */
@@ -43,13 +44,13 @@ final readonly class Update
                 array_filter((array) ($channelsData['hydra:member'] ?? []), static fn (mixed $ch): bool => is_array($ch) && (bool) ($ch['enabled'] ?? false)),
                 'code',
             );
-            $calculator = $b['calculator'] ?? 'flat_rate';
+            $calculator = \is_string($b['calculator'] ?? null) ? $b['calculator'] : 'flat_rate';
             $usePercentage = str_contains($calculator, 'percentage');
             $b['configuration'] = array_fill_keys(
                 $allChannelCodes,
                 $usePercentage
-                    ? ['percentage' => (float) ($b['percentage'] ?? 0.0)]
-                    : ['amount' => (int) ($b['amount'] ?? 0)],
+                    ? ['percentage' => \is_float($b['percentage'] ?? null) || \is_int($b['percentage'] ?? null) ? (float) $b['percentage'] : 0.0]
+                    : ['amount' => \is_int($b['amount'] ?? null) ? $b['amount'] : 0],
             );
             unset($b['amount'], $b['percentage']);
         }

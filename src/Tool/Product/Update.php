@@ -38,6 +38,9 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
-        return $this->client->put(sprintf('products/%s', $code), json_decode($body, true) ?? []);
+        /** @var array<string, mixed> $decoded */
+        $decoded = json_decode($body, true) ?? [];
+
+        return $this->client->put(sprintf('products/%s', $code), $decoded);
     }
 }

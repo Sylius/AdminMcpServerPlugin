@@ -33,9 +33,12 @@ final readonly class Update
 
     public function __invoke(string $promotionCode, string $couponCode, string $body): string
     {
+        /** @var array<string, mixed> $decoded */
+        $decoded = json_decode($body, true) ?? [];
+
         return $this->client->put(
             sprintf('promotions/%s/coupons/%s', $promotionCode, $couponCode),
-            json_decode($body, true) ?? [],
+            $decoded,
         );
     }
 }

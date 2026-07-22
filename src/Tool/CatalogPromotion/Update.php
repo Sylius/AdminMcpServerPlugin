@@ -36,11 +36,12 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
+        /** @var array<string, mixed> $b */
         $b = json_decode($body, true) ?? [];
-        if (isset($b['scopes'])) {
+        if (isset($b['scopes']) && \is_array($b['scopes'])) {
             $b['scopes'] = $this->stripMeta($b['scopes']);
         }
-        if (isset($b['actions'])) {
+        if (isset($b['actions']) && \is_array($b['actions'])) {
             $b['actions'] = $this->stripMeta($b['actions']);
         }
 

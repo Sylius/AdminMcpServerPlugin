@@ -39,15 +39,16 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
+        /** @var array<string, mixed> $b */
         $b = json_decode($body, true) ?? [];
         // Sylius requires description to be null or ≥2 chars; convert "" to null
         if (isset($b['description']) && $b['description'] === '') {
             $b['description'] = null;
         }
-        if (isset($b['rules'])) {
+        if (isset($b['rules']) && \is_array($b['rules'])) {
             $b['rules'] = $this->stripAndFillChannels($b['rules']);
         }
-        if (isset($b['actions'])) {
+        if (isset($b['actions']) && \is_array($b['actions'])) {
             $b['actions'] = $this->stripAndFillChannels($b['actions']);
         }
 
@@ -74,15 +75,17 @@ final readonly class Update
         return array_map(function (array $item) use (&$allChannelCodes): array {
             unset($item['@id'], $item['@type'], $item['id']);
 
-            $config = $item['configuration'] ?? [];
+            /** @var array<string, mixed> $config */
+            $config = \is_array($item['configuration'] ?? null) ? $item['configuration'] : [];
             if (!$this->hasChannelKeys($config)) {
                 return $item;
             }
 
             // Lazy-fetch all channel codes once
             if ($allChannelCodes === null) {
+                /** @var array<string, mixed> $channelsData */
                 $channelsData = json_decode($this->client->get('channels', ['pagination' => false]), true);
-                $allChannelCodes = array_column($channelsData['hydra:member'] ?? [], 'code');
+                $allChannelCodes = array_column((array) ($channelsData['hydra:member'] ?? []), 'code');
             }
 
             // Determine a template from the first existing entry
