@@ -10,7 +10,6 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "cweagans/composer-patches": "^2.0",
         "league/oauth2-server-bundle": "^1.1",
         "sylius/sylius": "^2.1",
         "symfony/mcp-bundle": "^0.11"
@@ -53,8 +52,7 @@
             "php-http/discovery": false,
             "phpstan/extension-installer": true,
             "symfony/flex": true,
-            "symfony/runtime": true,
-            "cweagans/composer-patches": true
+            "symfony/runtime": true
         }
     },
     "extra": {
@@ -64,12 +62,7 @@
         "symfony": {
             "require": "^7.4"
         },
-        "public-dir": "vendor/sylius/test-application/public",
-        "patches": {
-            "symfony/type-info": {
-                "Fix: Cannot create union with both object and class type (api-platform/core#8312)": "patches/symfony-type-info-union-fix.patch"
-            }
-        }
+        "public-dir": "vendor/sylius/test-application/public"
     },
     "autoload": {
         "psr-4": {
