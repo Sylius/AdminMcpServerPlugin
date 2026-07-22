@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_product_variants',
-    description: 'list_product_variants(page?, itemsPerPage?, product?, orderBy?, orderDir?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). TIP: Always pass product (IRI from list_products @id) to filter by product — without it, all variants across the entire store are returned (can be hundreds). Use orderBy/orderDir to sort (e.g. orderBy=createdAt orderDir=desc).',
+    description: 'list_product_variants(page?, itemsPerPage?, product?, orderBy?, orderDir?) → JSON Hydra collection of Sylius product variants. Each variant has: code, product, enabled, onHand, onHold, tracked, channelPricings, optionValues, translations (name per locale). WARNING: Without the product parameter this returns ALL variants across the entire store (can be 500+). Always pass product as the product IRI to filter — construct it as "/api/v2/admin/products/PRODUCT_CODE" or use the @id from create_product/get_product response. Use orderBy/orderDir to sort (e.g. orderBy=createdAt orderDir=desc).',
 )]
 final readonly class Index
 {
@@ -36,6 +36,9 @@ final readonly class Index
     ): string {
         $params = ['page' => $page, 'itemsPerPage' => $itemsPerPage];
         if ($product !== '') {
+            if (!str_contains($product, '/')) {
+                $product = sprintf('/api/v2/admin/products/%s', $product);
+            }
             $params['product'] = $product;
         }
         if ($orderBy !== '') {

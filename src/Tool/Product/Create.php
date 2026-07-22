@@ -21,9 +21,9 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 create_product — Creates a new product in the store catalog. IMPORTANT: run list_channels first to get channel IRIs — a product without channels won't appear in any shop.
 
-REQUIRED: code (unique product identifier, no spaces, e.g. "BLUE_MUG_001"), name (default display name for en_US fallback).
+REQUIRED: code (unique product identifier, no spaces, e.g. "BLUE_MUG_001"), name (always required — used as fallback when translations are empty or don't include en_US).
 RECOMMENDED: channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
-OPTIONAL: translations (JSON map of locale → {name, slug?, description?, shortDescription?} — provide all languages at once, e.g. '{"en_US":{"name":"Blue Mug","slug":"blue-mug"},"pl_PL":{"name":"Niebieski kubek","slug":"niebieski-kubek"}}'), enabled (default true). Slug is auto-generated if omitted.
+OPTIONAL: translations (JSON map of locale → {name, slug?, description?, shortDescription?} — provide all languages at once, e.g. '{"en_US":{"name":"Blue Mug","slug":"blue-mug"},"pl_PL":{"name":"Niebieski kubek","slug":"niebieski-kubek"}}'), enabled (default true). Slug is auto-generated if omitted. NOTE: name and translations are independent — always pass name even when providing translations.
 
 After creating a product:
 1. Call create_product_variant with a price (the product needs at least one variant to be purchasable).

@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_currency',
-    description: 'create_currency(code) → JSON object of the newly created Sylius currency. code must be a valid ISO 4217 currency code (e.g. "USD", "EUR", "PLN", "GBP").',
+    description: 'create_currency(code) → JSON object of the newly created Sylius currency. code must be a valid ISO 4217 currency code (e.g. "USD", "EUR", "PLN", "GBP"). NOTE: Sylius does not support deleting currencies via API — currencies can only be added, not removed.',
 )]
 final readonly class Create
 {

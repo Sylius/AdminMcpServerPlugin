@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 create_shipping_method — Creates a shipping method (delivery option shown to customers at checkout). Prerequisites: run list_zones to get zone IRI; run list_channels to get channel IRIs.
 
-REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zone (zone IRI, e.g. "/api/v2/admin/zones/WORLD"), calculator (pricing type), channels (array of channel IRIs).
+REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zone (zone code e.g. "WORLD" OR full IRI "/api/v2/admin/zones/WORLD" — both accepted), calculator (pricing type), channels (array of channel IRIs).
 
 calculator types — also specify the matching parameter:
 - "flat_rate" — same price regardless of order size; also pass amount=1000 (1000 = 10.00 EUR/USD, smallest currency unit)
@@ -57,10 +57,19 @@ final readonly class Create
         string $taxCategory = '',
         bool $enabled = true,
     ): string {
+        if (!str_contains($zone, '/')) {
+            $zone = sprintf('/api/v2/admin/zones/%s', $zone);
+        }
+
+        /** @var array<string, mixed> $allChannels */
         $allChannels = json_decode($this->client->get('channels', ['pagination' => false]), true);
         $configuration = [];
-        foreach ($allChannels['hydra:member'] ?? [] as $channel) {
-            $channelCode = $channel['code'];
+        foreach ((array) ($allChannels['hydra:member'] ?? []) as $channel) {
+            /** @var array<string, mixed> $channel */
+            if (!($channel['enabled'] ?? false)) {
+                continue;
+            }
+            $channelCode = \is_string($channel['code'] ?? null) ? $channel['code'] : '';
             if ($calculator === 'percentage_discount') {
                 $configuration[$channelCode] = ['percentage' => $percentage];
             } else {

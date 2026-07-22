@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 update_catalog_promotion(code, body) → JSON of the updated catalog promotion.
 
-IMPORTANT: First call get_catalog_promotion to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
+You can pass a partial body with only the fields you want to change — e.g. {"name":"New Name"} or {"enabled":false} works without fetching the full JSON first. To change scopes or actions, include only those arrays and the tool will merge/strip meta automatically. For translations with @id, fetch first to preserve the @id of existing locales.
 
 scopes examples: [{"type":"for_taxons","configuration":{"taxons":["TAXON_CODE"]}}] or [{"type":"for_variants","configuration":{"variants":["VARIANT_CODE"]}}]
 actions examples: [{"type":"percentage_discount","configuration":{"amount":0.2}}] (20% off) or [{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] (ALL channels required)
@@ -36,11 +36,12 @@ final readonly class Update
 
     public function __invoke(string $code, string $body): string
     {
+        /** @var array<string, mixed> $b */
         $b = json_decode($body, true) ?? [];
-        if (isset($b['scopes'])) {
+        if (isset($b['scopes']) && \is_array($b['scopes'])) {
             $b['scopes'] = $this->stripMeta($b['scopes']);
         }
-        if (isset($b['actions'])) {
+        if (isset($b['actions']) && \is_array($b['actions'])) {
             $b['actions'] = $this->stripMeta($b['actions']);
         }
 
