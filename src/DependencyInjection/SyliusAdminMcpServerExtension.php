@@ -19,7 +19,7 @@ use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 use Symfony\Component\DependencyInjection\Loader\PhpFileLoader;
-use Symfony\Component\Yaml\Yaml;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 
 final class SyliusAdminMcpServerExtension extends AbstractResourceExtension implements PrependExtensionInterface
 {
@@ -101,9 +101,8 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
             ],
         ]);
 
-        /** @var array<string, mixed> $leagueConfig */
-        $leagueConfig = Yaml::parseFile(__DIR__ . '/../../config/packages/league_oauth2_server.yaml');
-        $container->prependExtensionConfig('league_oauth2_server', $leagueConfig);
+        $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../../config/packages'));
+        $loader->load('league_oauth2_server.yaml');
     }
 
     protected function getMigrationsNamespace(): string
