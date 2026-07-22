@@ -41,19 +41,20 @@ final readonly class Create
         string $scope = 'all',
         array $memberCodes = [],
     ): string {
+        if ($memberCodes === []) {
+            return (string) json_encode(['error' => 'memberCodes is required — Sylius requires at least 1 zone member. Pass e.g. memberCodes=["US"] for a country zone.']);
+        }
+
         $body = [
             'code' => $code,
             'name' => $name,
             'type' => $type,
             'scope' => $scope,
-        ];
-
-        if ($memberCodes !== []) {
-            $body['members'] = array_map(
+            'members' => array_map(
                 static fn (string $memberCode) => ['code' => $memberCode],
                 $memberCodes,
-            );
-        }
+            ),
+        ];
 
         return $this->client->post('zones', $body);
     }
