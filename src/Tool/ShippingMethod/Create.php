@@ -69,7 +69,7 @@ final readonly class Create
             if (!($channel['enabled'] ?? false)) {
                 continue;
             }
-            $channelCode = (string) ($channel['code'] ?? '');
+            $channelCode = \is_string($channel['code'] ?? null) ? $channel['code'] : '';
             if ($calculator === 'percentage_discount') {
                 $configuration[$channelCode] = ['percentage' => $percentage];
             } else {

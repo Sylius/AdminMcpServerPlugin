@@ -30,7 +30,7 @@ final readonly class ShipShipment
     {
         /** @var array<string, mixed> $shipment */
         $shipment = json_decode($this->client->get(sprintf('shipments/%d', $shipmentId)), true);
-        $state = (string) ($shipment['state'] ?? '');
+        $state = \is_string($shipment['state'] ?? null) ? $shipment['state'] : '';
 
         if ($state !== 'ready') {
             return (string) json_encode([
