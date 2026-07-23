@@ -128,7 +128,10 @@ Add to your `.env` (or `.env.local`):
 ###> sylius/admin-mcp-server-plugin ###
 # URL of this application's Admin API (used by MCP tools to call the API)
 SYLIUS_ADMIN_MCP_SERVER_API_URL=https://your-domain.com/api/v2/admin/
-# Admin API user credentials (must have ROLE_API_ACCESS)
+# Admin API user credentials — only required if you use the credentials-based token provider.
+# By default the plugin reuses the OAuth Bearer token of the logged-in admin user.
+# To switch to credential-based login, alias the service in your config/services.php:
+#   ->alias('sylius_admin_mcp_server.provider.token', 'sylius_admin_mcp_server.provider.token.credentials');
 SYLIUS_ADMIN_MCP_SERVER_API_EMAIL=api@example.com
 SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 # Set to false to disable SSL verification (useful for local HTTPS)
