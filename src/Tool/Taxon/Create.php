@@ -22,7 +22,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 create_taxon — Creates a product category (called "taxon" in Sylius). Categories are used to organize products in the store. They can be nested (subcategories).
 
 REQUIRED: code (unique ID, no spaces, e.g. "T_SHIRTS"), name (display name, e.g. "T-Shirts").
-OPTIONAL: parent (parent category IRI to create a subcategory, e.g. "/api/v2/admin/taxons/CLOTHING" — use list_taxons @id), slug (URL path, auto-generated from name if omitted), description, localeCode (default "en_US").
+OPTIONAL: parent (parent category IRI to create a subcategory — the format is always "/api/v2/admin/taxons/{CODE}", so if you know the parent code you can construct it directly without calling list_taxons, e.g. "/api/v2/admin/taxons/CLOTHING"), slug (URL path, auto-generated from name if omitted), description, localeCode (default "en_US").
 
 Example: to create "Men's T-Shirts" under "Men's Clothing": code="MENS_TSHIRTS", name="Men's T-Shirts", parent="/api/v2/admin/taxons/MENS_CLOTHING". Use list_taxons to find existing category IRIs.
 DESC,

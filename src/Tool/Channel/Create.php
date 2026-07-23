@@ -72,7 +72,7 @@ final readonly class Create
             $body['color'] = $color;
         }
         if ($taxZone !== '') {
-            $body['taxZone'] = $taxZone;
+            $body['defaultTaxZone'] = $taxZone;
         }
         if ($contactEmail !== '') {
             $body['contactEmail'] = $contactEmail;

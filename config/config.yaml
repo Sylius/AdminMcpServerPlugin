@@ -1,4 +1,5 @@
 imports:
+    - { resource: 'packages/league_oauth2_server.yaml' }
     - { resource: 'twig_hooks.yaml' }
 
 parameters:

@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Entity\OAuth;
 
 use Doctrine\ORM\Mapping as ORM;
+use League\Bundle\OAuth2ServerBundle\Model\AbstractClient;
+use League\OAuth2\Server\Entities\ClientEntityInterface;
 use Sylius\AdminMcpServerPlugin\Repository\OAuth\OAuthClientRepository;
 use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: OAuthClientRepository::class)]
 #[ORM\Table(name: 'sylius_admin_mcp_oauth_clients')]
-class OAuthClient
+final class OAuthClient extends AbstractClient implements ClientEntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
@@ -56,6 +58,8 @@ class OAuthClient
         string $tokenEndpointAuthMethod,
         array $grantTypes,
     ) {
+        \assert($clientId !== '');
+        parent::__construct($clientName, $clientId, $clientSecretHash);
         $this->id = Uuid::v7();
         $this->clientId = $clientId;
         $this->clientSecretHash = $clientSecretHash;
@@ -75,7 +79,7 @@ class OAuthClient
     ): self {
         return new self(
             clientId: bin2hex(random_bytes(20)),
-            clientSecretHash: $plainSecret !== null ? hash('sha256', $plainSecret) : null,
+            clientSecretHash: $plainSecret !== null ? password_hash($plainSecret, \PASSWORD_BCRYPT) : null,
             redirectUris: $redirectUris,
             clientName: $clientName,
             tokenEndpointAuthMethod: $tokenEndpointAuthMethod,
@@ -93,10 +97,26 @@ class OAuthClient
         return $this->clientId;
     }
 
+    /** ClientEntityInterface */
+    public function getIdentifier(): string
+    {
+        return $this->clientId;
+    }
+
+    public function getName(): string
+    {
+        return $this->clientName;
+    }
+
     /** @return list<string> */
-    public function getRedirectUris(): array
+    public function getRedirectUri(): array
     {
         return $this->redirectUris;
+    }
+
+    public function isConfidential(): bool
+    {
+        return $this->tokenEndpointAuthMethod !== 'none';
     }
 
     /** @return list<string> */
@@ -126,7 +146,7 @@ class OAuthClient
             return false;
         }
 
-        return hash_equals($this->clientSecretHash, hash('sha256', $plainSecret));
+        return password_verify($plainSecret, $this->clientSecretHash);
     }
 
     public function matchesRedirectUri(string $uri): bool

@@ -13,35 +13,59 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Repository\OAuth;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\ORM\EntityManagerInterface;
+use League\Bundle\OAuth2ServerBundle\Entity\RefreshToken as RefreshTokenEntity;
+use League\OAuth2\Server\Entities\RefreshTokenEntityInterface;
+use League\OAuth2\Server\Exception\UniqueTokenIdentifierConstraintViolationException;
+use League\OAuth2\Server\Repositories\RefreshTokenRepositoryInterface;
 use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthRefreshToken;
 
-/** @extends ServiceEntityRepository<OAuthRefreshToken> */
-class OAuthRefreshTokenRepository extends ServiceEntityRepository
+final class OAuthRefreshTokenRepository implements RefreshTokenRepositoryInterface
 {
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(private readonly EntityManagerInterface $entityManager)
     {
-        parent::__construct($registry, OAuthRefreshToken::class);
     }
 
-    public function findActiveByTokenHash(string $hash): ?OAuthRefreshToken
+    public function getNewRefreshToken(): ?RefreshTokenEntityInterface
     {
-        /** @var OAuthRefreshToken|null $token */
-        $token = $this->createQueryBuilder('t')
-            ->where('t.tokenHash = :hash')
-            ->andWhere('t.revokedAt IS NULL')
-            ->andWhere('t.expiresAt > :now')
-            ->setParameter('hash', $hash)
-            ->setParameter('now', new \DateTimeImmutable())
-            ->getQuery()
-            ->getOneOrNullResult();
-
-        return $token;
+        return new RefreshTokenEntity();
     }
 
-    public function save(OAuthRefreshToken $token): void
+    public function persistNewRefreshToken(RefreshTokenEntityInterface $refreshTokenEntity): void
     {
-        $this->getEntityManager()->persist($token);
+        if ($this->entityManager->find(OAuthRefreshToken::class, $refreshTokenEntity->getIdentifier()) !== null) {
+            throw UniqueTokenIdentifierConstraintViolationException::create();
+        }
+
+        $entity = new OAuthRefreshToken(
+            $refreshTokenEntity->getIdentifier(),
+            $refreshTokenEntity->getExpiryDateTime(),
+        );
+
+        $this->entityManager->persist($entity);
+        $this->entityManager->flush();
+    }
+
+    public function revokeRefreshToken(string $tokenId): void
+    {
+        $entity = $this->entityManager->find(OAuthRefreshToken::class, $tokenId);
+
+        if ($entity === null) {
+            return;
+        }
+
+        $entity->revoke();
+        $this->entityManager->flush();
+    }
+
+    public function isRefreshTokenRevoked(string $tokenId): bool
+    {
+        $entity = $this->entityManager->find(OAuthRefreshToken::class, $tokenId);
+
+        if ($entity === null) {
+            return true;
+        }
+
+        return $entity->isRevoked();
     }
 }

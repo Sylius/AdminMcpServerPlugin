@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_coupon',
-    description: 'create_coupon(promotionCode, code, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. The promotion must have couponBased=true — check get_promotion(code) first; if couponBased=false the API will return an error.',
+    description: 'create_coupon(promotionCode, code, usageLimit?, perCustomerUsageLimit?, expiresAt?, reusableFromCancelledOrders?) → JSON of the newly created coupon. Automatically enables couponBased on the promotion if it is not already set.',
 )]
 final readonly class Create
 {
@@ -43,6 +43,46 @@ final readonly class Create
         string $expiresAt = '',
         bool $reusableFromCancelledOrders = false,
     ): string {
+        /** @var array<string, mixed> $promotion */
+        $promotion = json_decode($this->client->get(sprintf('promotions/%s', $promotionCode)), true);
+        if (!($promotion['couponBased'] ?? false)) {
+            /** @var array<int, array<string, mixed>> $rawRules */
+            $rawRules = \is_array($promotion['rules'] ?? null) ? $promotion['rules'] : [];
+            $rules = array_map(
+                fn (array $item): array => array_diff_key($item, ['@id' => null, '@type' => null, 'id' => null]),
+                $rawRules,
+            );
+            /** @var array<int, array<string, mixed>> $rawActions */
+            $rawActions = \is_array($promotion['actions'] ?? null) ? $promotion['actions'] : [];
+            $actions = array_map(
+                fn (array $item): array => array_diff_key($item, ['@id' => null, '@type' => null, 'id' => null]),
+                $rawActions,
+            );
+            $putBody = [
+                'code' => $promotion['code'],
+                'name' => $promotion['name'],
+                'priority' => $promotion['priority'] ?? 0,
+                'exclusive' => $promotion['exclusive'] ?? false,
+                'couponBased' => true,
+                'channels' => $promotion['channels'] ?? [],
+                'rules' => $rules,
+                'actions' => $actions,
+            ];
+            if (isset($promotion['description'])) {
+                $putBody['description'] = $promotion['description'];
+            }
+            if (isset($promotion['usageLimit'])) {
+                $putBody['usageLimit'] = $promotion['usageLimit'];
+            }
+            if (isset($promotion['startsAt'])) {
+                $putBody['startsAt'] = $promotion['startsAt'];
+            }
+            if (isset($promotion['endsAt'])) {
+                $putBody['endsAt'] = $promotion['endsAt'];
+            }
+            $this->client->put(sprintf('promotions/%s', $promotionCode), $putBody);
+        }
+
         $body = [
             'code' => $code,
             'reusableFromCancelledOrders' => $reusableFromCancelledOrders,

@@ -28,6 +28,7 @@
                 </p>
 
                 <form method="post" action="{{ path('sylius_admin_mcp_server_oauth_authorize') }}">
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('oauth_authorize') }}">
                     <input type="hidden" name="client_id" value="{{ client_id }}">
                     <input type="hidden" name="redirect_uri" value="{{ redirect_uri }}">
                     <input type="hidden" name="state" value="{{ state }}">

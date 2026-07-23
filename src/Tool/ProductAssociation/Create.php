@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_product_association',
-    description: 'create_product_association(type, owner, associatedProducts) → JSON object of the newly created Sylius product association. The numeric id can be extracted from the @id field (last path segment, e.g. /api/v2/admin/product-associations/42 → 42). Each owner+type pair must be unique.',
+    description: 'create_product_association(type, owner, associatedProducts) → JSON object of the newly created Sylius product association. The numeric id can be extracted from the @id field (last path segment, e.g. /api/v2/admin/product-associations/42 → 42). Each owner+type pair must be unique. REQUIRED IRIs: type="/api/v2/admin/product-association-types/CODE", owner="/api/v2/admin/products/CODE", associatedProducts=["/api/v2/admin/products/CODE1",...] — use list_product_association_types and list_products/@id to find codes first.',
 )]
 final readonly class Create
 {

@@ -29,13 +29,13 @@
                 </h4>
 
                 <p class="text-muted mb-4">
-                    {{ message|trans({}, 'SyliusAdminMcpServer')|raw }}
+                    {{ message|trans({'%client_name%': client_name|default('')}, 'SyliusAdminMcpServer')|raw }}
                 </p>
 
                 {% if redirect_url is defined %}
                     <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
                         <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                        <span>{{ 'sylius_admin_mcp_server.oauth.error.redirect_notice'|trans({}, 'SyliusAdminMcpServer') }}</span>
+                        <span>{{ 'sylius_admin_mcp_server.oauth.error.redirect_notice'|trans({'%client_name%': client_name|default('')}, 'SyliusAdminMcpServer') }}</span>
                     </div>
                 {% else %}
                     <p class="text-muted small">
