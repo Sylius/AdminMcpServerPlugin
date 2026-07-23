@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 set_product_attribute_value — Assigns (or updates) an attribute value on a product. If the attribute is already set for that locale it will be overwritten.
 
-REQUIRED: productCode (product to update), attribute (attribute definition IRI, e.g. "/api/v2/admin/product-attributes/cap_brand" — get IRIs from list_product_attributes), value (the value to store — pass native types: "100% cotton" for text, 8 for integer, 10.5 for float, true/false for checkbox — the tool auto-converts to the correct API type based on the attribute definition).
+REQUIRED: productCode (product to update), attribute (attribute code e.g. "cap_brand" OR full IRI "/api/v2/admin/product-attributes/cap_brand" — both formats are accepted), value (the value to store — pass native types: "100% cotton" for text, 8 for integer, 10.5 for float, true/false for checkbox — the tool auto-converts to the correct API type based on the attribute definition).
 OPTIONAL: localeCode (default "en_US").
 
 NOTE: Product attributes are metadata about the product (material, brand, etc.) — not related to pricing or stock. Use list_product_attributes to see what attribute types exist before assigning values.
@@ -34,7 +34,7 @@ final readonly class SetValue
     }
 
     /**
-     * @param string $attribute Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand").
+     * @param string $attribute Product attribute IRI (e.g. "/api/v2/admin/product-attributes/cap_brand") or bare code (e.g. "cap_brand").
      */
     public function __invoke(
         string $productCode,
@@ -42,6 +42,11 @@ final readonly class SetValue
         string|int|float|bool $value,
         string $localeCode = 'en_US',
     ): string {
+        // Accept bare attribute code (e.g. "cap_brand") or full IRI
+        if (!str_contains($attribute, '/')) {
+            $attribute = sprintf('/api/v2/admin/product-attributes/%s', $attribute);
+        }
+
         $attributeCode = basename($attribute);
         /** @var array<string, mixed> $attrDef */
         $attrDef = json_decode($this->client->get(sprintf('product-attributes/%s', $attributeCode)), true);

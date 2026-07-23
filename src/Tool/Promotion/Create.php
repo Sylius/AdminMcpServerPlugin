@@ -37,7 +37,7 @@ actions (JSON string) — WHAT discount to give (required):
 - Fixed amount off order: '[{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]'
 - Fixed amount off each item: '[{"type":"unit_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":200}}}]'
 
-NOTE for amount-based rules/actions: configuration must include ALL channel codes in the system. Use list_channels to get them all.
+NOTE for amount-based rules/actions: configuration must include ALL channel codes in the system. Use list_channels to get them all. Unlike update_promotion, create_promotion does NOT auto-fill missing channels — you must list all channels explicitly.
 Ask user: what is the discount (% or amount)? Any minimum order condition? Which channels?
 DESC,
 )]
