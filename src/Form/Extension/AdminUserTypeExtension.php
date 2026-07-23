@@ -28,17 +28,19 @@ final class AdminUserTypeExtension extends AbstractTypeExtension
         $builder
             ->add('administrationAccess', CheckboxType::class, [
                 'label' => 'sylius_admin_mcp_server.form.admin_user.administration_access',
+                'translation_domain' => 'SyliusAdminMcpServer',
                 'required' => false,
                 'mapped' => false,
             ])
             ->add('apiAccess', CheckboxType::class, [
                 'label' => 'sylius_admin_mcp_server.form.admin_user.api_access',
+                'translation_domain' => 'SyliusAdminMcpServer',
                 'required' => false,
                 'mapped' => false,
             ])
         ;
 
-        $builder->addEventListener(FormEvents::PRE_SET_DATA, function (FormEvent $event): void {
+        $builder->addEventListener(FormEvents::POST_SET_DATA, function (FormEvent $event): void {
             $adminUser = $event->getData();
             if (!$adminUser instanceof AdminUserInterface) {
                 return;

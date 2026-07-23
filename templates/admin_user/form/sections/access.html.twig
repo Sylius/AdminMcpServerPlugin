@@ -1,0 +1,11 @@
+<div class="card mb-3">
+    <div class="card-header">
+        <div class="card-title">
+            {{ 'sylius_admin_mcp_server.form.admin_user.access.title'|trans({}, 'SyliusAdminMcpServer') }}
+        </div>
+    </div>
+    <div class="card-body">
+        {{ form_row(hookable_metadata.context.form.administrationAccess) }}
+        {{ form_row(hookable_metadata.context.form.apiAccess) }}
+    </div>
+</div>
