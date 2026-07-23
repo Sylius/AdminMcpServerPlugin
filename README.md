@@ -60,7 +60,19 @@ When Symfony Flex is active, `composer require sylius/admin-mcp-server-plugin` a
 composer require sylius/admin-mcp-server-plugin
 ```
 
-#### Step 2 - Configure environment variables
+#### Step 2 - Generate OAuth keypair
+
+The plugin uses a dedicated RSA keypair (separate from Lexik JWT) for signing OAuth tokens:
+
+```bash
+mkdir -p config/jwt
+openssl genrsa -out config/jwt/mcp_private.pem 4096
+openssl rsa -in config/jwt/mcp_private.pem -pubout -out config/jwt/mcp_public.pem
+```
+
+The keys default to `config/jwt/mcp_private.pem` and `config/jwt/mcp_public.pem`. Override via env vars if you want a different location.
+
+#### Step 3 - Configure environment variables
 
 Add to your `.env` (or `.env.local`):
 
@@ -78,10 +90,6 @@ SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL=true
 # Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
-# OAuth RSA keypair - defaults point to the Lexik JWT key location
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY=/path/to/config/jwt/private.pem
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY=/path/to/config/jwt/public.pem
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE=your-jwt-passphrase
 ###< sylius/admin-mcp-server-plugin ###
 ```
 
@@ -90,16 +98,6 @@ Generate the encryption key:
 ```bash
 openssl rand -hex 32
 ```
-
-#### Step 3 - Configure OAuth keypair
-
-The plugin needs an RSA keypair for signing OAuth tokens. If you already have Lexik JWT keys, point the env vars above to those files. If not, generate a new keypair:
-
-```bash
-php bin/console lexik:jwt:generate-keypair
-```
-
-Then set `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY` and `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY` to the generated file paths, and `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE` to the passphrase used.
 
 #### Step 4 - Run database migrations
 
@@ -182,7 +180,17 @@ sylius_admin_mcp_server:
     type: yaml
 ```
 
-#### Step 5 - Configure environment variables
+#### Step 5 - Generate OAuth keypair
+
+The plugin uses a dedicated RSA keypair (separate from Lexik JWT) for signing OAuth tokens:
+
+```bash
+mkdir -p config/jwt
+openssl genrsa -out config/jwt/mcp_private.pem 4096
+openssl rsa -in config/jwt/mcp_private.pem -pubout -out config/jwt/mcp_public.pem
+```
+
+#### Step 6 - Configure environment variables
 
 Add to your `.env` (or `.env.local`):
 
@@ -200,10 +208,6 @@ SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL=true
 # Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
-# OAuth RSA keypair - defaults point to the Lexik JWT key location
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY=/path/to/config/jwt/private.pem
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY=/path/to/config/jwt/public.pem
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE=your-jwt-passphrase
 ###< sylius/admin-mcp-server-plugin ###
 ```
 
@@ -212,16 +216,6 @@ Generate the encryption key:
 ```bash
 openssl rand -hex 32
 ```
-
-#### Step 6 - Configure OAuth keypair
-
-The plugin needs an RSA keypair for signing OAuth tokens. If you already have Lexik JWT keys, point the env vars above to those files. If not, generate a new keypair:
-
-```bash
-php bin/console lexik:jwt:generate-keypair
-```
-
-Then set `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY` and `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY` to the generated file paths, and `SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE` to the passphrase used.
 
 #### Step 7 - Run database migrations
 
