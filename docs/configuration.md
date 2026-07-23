@@ -48,3 +48,24 @@ sylius_admin_mcp_server:
 ```
 
 Set any group to `false` to exclude its tools from the MCP server.
+
+## Allowed hosts
+
+`symfony/mcp-bundle` validates the `Host` header of every incoming HTTP request against a configurable allowlist. By default only `localhost` and `127.0.0.1` are permitted. Any other hostname - a custom domain, a staging URL, or a public tunnel - must be explicitly added.
+
+Add `mcp.http.allowed_hosts` to your `config/packages/sylius_admin_mcp_server.yaml`:
+
+```yaml
+# config/packages/sylius_admin_mcp_server.yaml
+imports:
+    - { resource: "@SyliusAdminMcpServerPlugin/config/config.yaml" }
+
+mcp:
+    http:
+        allowed_hosts:
+            - 'your-domain.com'
+            - 'localhost'
+            - '127.0.0.1'
+```
+
+Without this, MCP clients will complete the OAuth flow successfully but fail on the first request and report "Got new credentials, but sylius rejected them on reconnect."
