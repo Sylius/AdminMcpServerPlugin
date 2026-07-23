@@ -103,7 +103,7 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
 
     protected function getMigrationsNamespace(): string
     {
-        return 'DoctrineMigrations';
+        return 'Sylius\AdminMcpServerPlugin\Migrations';
     }
 
     protected function getMigrationsDirectory(): string
