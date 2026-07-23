@@ -33,7 +33,7 @@ php bin/console debug:config doctrine_migrations | grep -A5 "migrations_paths"
 php bin/console doctrine:migrations:list | grep AdminMcpServer
 ```
 
-## "Authorization Failed" — "User does not have API access"
+## "Authorization Failed" - "User does not have API access"
 
 The logged-in admin user lacks `ROLE_API_ACCESS`. Grant it:
 
