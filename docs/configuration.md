@@ -49,9 +49,11 @@ sylius_admin_mcp_server:
 
 Set any group to `false` to exclude its tools from the MCP server.
 
-## Allowed hosts (ngrok / reverse proxy)
+## Allowed hosts
 
-`symfony/mcp-bundle` validates the `Host` header of every HTTP request against an allowlist. When using a tunnel (ngrok, Cloudflare Tunnel, LocalCan) or a custom domain, add the public hostname to the `mcp.http.allowed_hosts` list:
+`symfony/mcp-bundle` validates the `Host` header of every incoming HTTP request against a configurable allowlist. By default only `localhost` and `127.0.0.1` are permitted. Any other hostname — a custom domain, a staging URL, or a public tunnel — must be explicitly added.
+
+Add `mcp.http.allowed_hosts` to your `config/packages/sylius_admin_mcp_server.yaml`:
 
 ```yaml
 # config/packages/sylius_admin_mcp_server.yaml
@@ -61,10 +63,9 @@ imports:
 mcp:
     http:
         allowed_hosts:
-            - 'your-tunnel.ngrok-free.dev'
             - 'your-domain.com'
             - 'localhost'
             - '127.0.0.1'
 ```
 
-Without this, Claude Code (and other MCP clients) will complete the OAuth flow successfully but fail on the first `initialize` request and report "Got new credentials, but sylius rejected them on reconnect."
+Without this, MCP clients will complete the OAuth flow successfully but fail on the first request and report "Got new credentials, but sylius rejected them on reconnect."
