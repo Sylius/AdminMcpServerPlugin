@@ -90,12 +90,12 @@ SYLIUS_ADMIN_MCP_SERVER_API_EMAIL=api@example.com
 SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 # Set to false to disable SSL verification (useful for local HTTPS)
 SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL=true
-# Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
-SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
 # OAuth RSA keypair generated in Step 5 (separate from Lexik JWT keys)
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY=%kernel.project_dir%/config/jwt/mcp_private.pem
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY=%kernel.project_dir%/config/jwt/mcp_public.pem
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE=
+# Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
+SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
 ###< sylius/admin-mcp-server-plugin ###
 ```
 
