@@ -14,7 +14,7 @@
 
 ---
 
-This plugin turns your Sylius store into an MCP server, allowing AI assistants (Claude, Cursor, etc.) to manage your store through natural language. It provides 171 tools covering all major Sylius resources — products, orders, customers, promotions, shipping, and more — secured by a full OAuth 2.0 Authorization Code + PKCE flow.
+This plugin turns your Sylius store into an MCP server, allowing AI assistants (Claude, Cursor, etc.) to manage your store through natural language. It provides 171 tools covering all major Sylius resources - products, orders, customers, promotions, shipping, and more - secured by a full OAuth 2.0 Authorization Code + PKCE flow.
 
 ## Requirements
 
@@ -26,7 +26,7 @@ This plugin turns your Sylius store into an MCP server, allowing AI assistants (
 
 ## Installation
 
-### Step 1 — Add the plugin via Composer
+### Step 1 - Add the plugin via Composer
 
 ```bash
 composer require sylius/admin-mcp-server-plugin
@@ -56,7 +56,7 @@ composer require sylius/admin-mcp-server-plugin
 >    ```
 > 4. Run `composer install`
 
-### Step 2 — Register bundles
+### Step 2 - Register bundles
 
 Add to your `config/bundles.php`:
 
@@ -69,9 +69,9 @@ return [
 ];
 ```
 
-> **Note**: The Symfony Flex recipe that runs automatically with `composer require` registers these bundles automatically. Verify your `config/bundles.php` contains all three. However, the Flex recipe does **not** create the plugin config file (Step 3), the corrected OAuth config (Step 4), or the routes file (Step 5) — those must be created manually.
+> **Note**: The Symfony Flex recipe that runs automatically with `composer require` registers these bundles automatically. Verify your `config/bundles.php` contains all three. However, the Flex recipe does **not** create the plugin config file (Step 3), the corrected OAuth config (Step 4), or the routes file (Step 5) - those must be created manually.
 
-### Step 3 — Import plugin configuration
+### Step 3 - Import plugin configuration
 
 Create `config/packages/sylius_admin_mcp_server.yaml`:
 
@@ -80,7 +80,7 @@ imports:
     - { resource: "@SyliusAdminMcpServerPlugin/config/config.yaml" }
 ```
 
-### Step 4 — Configure OAuth2 server
+### Step 4 - Configure OAuth2 server
 
 The Flex recipe creates `config/packages/league_oauth2_server.yaml` with generic settings. **Replace its contents** with the following to use your existing JWT keys:
 
@@ -110,7 +110,7 @@ league_oauth2_server:
         in_memory: ~
 ```
 
-### Step 5 — Import routes
+### Step 5 - Import routes
 
 Create `config/routes/sylius_admin_mcp_server.yaml`:
 
@@ -120,7 +120,7 @@ sylius_admin_mcp_server:
     type: yaml
 ```
 
-### Step 6 — Configure environment variables
+### Step 6 - Configure environment variables
 
 Add to your `.env` (or `.env.local`):
 
@@ -128,7 +128,7 @@ Add to your `.env` (or `.env.local`):
 ###> sylius/admin-mcp-server-plugin ###
 # URL of this application's Admin API (used by MCP tools to call the API)
 SYLIUS_ADMIN_MCP_SERVER_API_URL=https://your-domain.com/api/v2/admin/
-# Admin API user credentials — only required if you use the credentials-based token provider.
+# Admin API user credentials - only required if you use the credentials-based token provider.
 # By default the plugin reuses the OAuth Bearer token of the logged-in admin user.
 # To switch to credential-based login, alias the service in your config/services.php:
 #   ->alias('sylius_admin_mcp_server.provider.token', 'sylius_admin_mcp_server.provider.token.credentials');
@@ -136,7 +136,7 @@ SYLIUS_ADMIN_MCP_SERVER_API_EMAIL=api@example.com
 SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 # Set to false to disable SSL verification (useful for local HTTPS)
 SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL=true
-# Random hex string for OAuth token encryption — generate with: openssl rand -hex 32
+# Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
 ###< sylius/admin-mcp-server-plugin ###
 ```
@@ -147,7 +147,7 @@ Generate the encryption key:
 openssl rand -hex 32
 ```
 
-### Step 7 — Generate JWT keypair (if not already done)
+### Step 7 - Generate JWT keypair (if not already done)
 
 Sylius ships with `lexik/jwt-authentication-bundle`. If your JWT keys don't exist yet:
 
@@ -155,7 +155,7 @@ Sylius ships with `lexik/jwt-authentication-bundle`. If your JWT keys don't exis
 php bin/console lexik:jwt:generate-keypair
 ```
 
-### Step 8 — Run database migrations
+### Step 8 - Run database migrations
 
 ```bash
 php bin/console doctrine:migrations:migrate -n
@@ -163,14 +163,14 @@ php bin/console doctrine:migrations:migrate -n
 
 This creates three OAuth tables: `sylius_admin_mcp_oauth_clients`, `sylius_admin_mcp_oauth_authorization_codes`, `sylius_admin_mcp_oauth_refresh_tokens`.
 
-### Step 9 — Clear cache
+### Step 9 - Clear cache
 
 ```bash
 php bin/console cache:clear
 php bin/console cache:warmup
 ```
 
-### Step 10 — Build frontend assets
+### Step 10 - Build frontend assets
 
 The admin authorization page requires Sylius admin panel assets. If you haven't already:
 
@@ -180,7 +180,7 @@ yarn build
 php bin/console assets:install
 ```
 
-### Step 11 — Grant API access to an admin user
+### Step 11 - Grant API access to an admin user
 
 Only admin users with `ROLE_API_ACCESS` can authorize via the OAuth consent page. Grant it to an existing user via SQL:
 
@@ -213,6 +213,75 @@ Expected routes: `/.well-known/oauth-authorization-server`, `/_mcp/oauth/registe
 
 ---
 
+## Connecting MCP Clients
+
+Once the plugin is installed and running, connect an AI assistant using one of the options below.
+
+### Option A - Claude Desktop (local or remote)
+
+Claude Desktop supports both local and remote MCP servers and works out of the box with any HTTPS URL - including `localhost` with a self-signed certificate.
+
+Edit your Claude Desktop configuration file:
+
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "sylius-admin": {
+      "type": "http",
+      "url": "https://your-domain.com/_mcp"
+    }
+  }
+}
+```
+
+Claude Desktop reads the OAuth discovery endpoint (`/.well-known/oauth-authorization-server`) automatically and opens the consent page in your default browser when you first use the server. No manual token management is required.
+
+> **Local development**: Use `"url": "https://127.0.0.1:8003/_mcp"`. Claude Desktop accepts self-signed certificates, so no tunnelling is needed.
+
+### Option B - Claude.ai in the browser (Custom Connectors)
+
+> **Requirements**: Claude.ai **Pro or Max** plan. The server must be publicly accessible over HTTPS with a **valid (non-self-signed) SSL certificate**. `localhost` does not work - Anthropic's servers call your endpoint from their own IP ranges.
+
+1. Open [claude.ai](https://claude.ai) → click your avatar → **Customize Claude** → **Connectors** → **+** → **Add custom connector**
+2. Paste your server URL: `https://your-domain.com/_mcp`
+3. Click **Connect**. Claude.ai reads the `/.well-known/oauth-authorization-server` discovery document automatically and redirects you to your Sylius admin consent page.
+4. Log in as an admin user with `ROLE_API_ACCESS` and click **Allow**.
+
+Claude.ai uses `https://claude.ai/api/mcp/auth_callback` as its redirect URI, which the plugin's dynamic client registration endpoint accepts automatically.
+
+> **Local development without a public server**: Tunnel your local server through a public HTTPS URL using [ngrok](https://ngrok.com), [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/), or [LocalCan](https://www.localcan.com/):
+> ```bash
+> # Example with ngrok:
+> ngrok http https://127.0.0.1:8003
+> # Then use the generated https://xxxx.ngrok-free.app/_mcp URL in claude.ai
+> ```
+
+### Option C - Claude Code (CLI)
+
+```bash
+claude mcp add --transport http sylius-admin https://your-domain.com/_mcp
+```
+
+Claude Code handles the full OAuth PKCE flow automatically on first use (opens a browser window for the consent step).
+
+### Option D - Cursor
+
+In Cursor settings → **MCP** → **Add server**:
+
+```json
+{
+  "sylius-admin": {
+    "url": "https://your-domain.com/_mcp",
+    "type": "http"
+  }
+}
+```
+
+---
+
 ## Security
 
 - All `/_mcp` requests require a valid OAuth 2.0 Bearer token (returns `401` otherwise)
@@ -225,8 +294,8 @@ Expected routes: `/.well-known/oauth-authorization-server`, `/_mcp/oauth/registe
 ## Documentation
 
 - [Authentication Flow (OAuth 2.0 PKCE)](docs/authentication.md)
-- [Available MCP Tools](docs/tools.md) — 171 tools across 34 resource groups
-- [Configuration Reference](docs/configuration.md) — selectively disabling tool groups
+- [Available MCP Tools](docs/tools.md) - 171 tools across 34 resource groups
+- [Configuration Reference](docs/configuration.md) - selectively disabling tool groups
 - [Troubleshooting](docs/troubleshooting.md)
 
 ---
