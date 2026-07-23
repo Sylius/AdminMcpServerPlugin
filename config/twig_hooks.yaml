@@ -3,9 +3,9 @@ sylius_twig_hooks:
         'sylius_admin.admin_user.create.content.form.sections#left':
             access:
                 template: '@SyliusAdminMcpServer/admin_user/form/sections/access.html.twig'
-                priority: -50
+                priority: -100
 
         'sylius_admin.admin_user.update.content.form.sections#left':
             access:
                 template: '@SyliusAdminMcpServer/admin_user/form/sections/access.html.twig'
-                priority: -50
+                priority: -100
