@@ -1,7 +1,7 @@
 league_oauth2_server:
     authorization_server:
-        private_key: '%env(resolve:JWT_SECRET_KEY)%'
-        private_key_passphrase: '%env(JWT_PASSPHRASE)%'
+        private_key: '%env(resolve:SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY)%'
+        private_key_passphrase: '%env(SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE)%'
         encryption_key: '%env(SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY)%'
         encryption_key_type: 'plain'
         enable_client_credentials_grant: false
@@ -10,7 +10,7 @@ league_oauth2_server:
         persist_access_token: false
 
     resource_server:
-        public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
+        public_key: '%env(resolve:SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY)%'
 
     scopes:
         available:

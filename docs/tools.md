@@ -2,7 +2,7 @@
 
 The plugin provides 171 tools organized by resource. All tools require a valid OAuth 2.0 Bearer token.
 
-> The plugin also exposes a Sylius guidelines document as an MCP resource (URI: `sylius://guidelines`), accessible via `resources/list` and `resources/read` — not as a tool.
+> The plugin also exposes a Sylius guidelines document as an MCP resource (URI: `sylius://guidelines`), accessible via `resources/list` and `resources/read` - not as a tool.
 
 ## Administrators (5)
 `list_administrators`, `get_administrator`, `create_administrator`, `update_administrator`, `delete_administrator`

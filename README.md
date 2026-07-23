@@ -26,11 +26,9 @@ This plugin turns your Sylius store into an MCP server, allowing AI assistants (
 
 ## Installation
 
-### Step 1 - Add the plugin via Composer
+### Installation with Symfony Flex recipe
 
-```bash
-composer require sylius/admin-mcp-server-plugin
-```
+When Symfony Flex is active, `composer require sylius/admin-mcp-server-plugin` automatically registers the bundles, imports the plugin configuration, and imports the routes. Continue from Step 2 below.
 
 > **Note on `symfony/type-info` patch** (Sylius 2.2.x): A bug in `symfony/type-info v7.4.x` causes a cache warmup error: `Cannot create union with both "object" and class type`. Apply the patch that ships with the plugin:
 >
@@ -56,71 +54,27 @@ composer require sylius/admin-mcp-server-plugin
 >    ```
 > 4. Run `composer install`
 
-### Step 2 - Register bundles
+#### Step 1 - Add the plugin via Composer
 
-Add to your `config/bundles.php`:
-
-```php
-return [
-    // ... existing bundles ...
-    League\Bundle\OAuth2ServerBundle\LeagueOAuth2ServerBundle::class => ['all' => true],
-    Symfony\AI\McpBundle\McpBundle::class => ['all' => true],
-    Sylius\AdminMcpServerPlugin\SyliusAdminMcpServerPlugin::class => ['all' => true],
-];
+```bash
+composer require sylius/admin-mcp-server-plugin
 ```
 
-> **Note**: The Symfony Flex recipe that runs automatically with `composer require` registers these bundles automatically. Verify your `config/bundles.php` contains all three. However, the Flex recipe does **not** create the plugin config file (Step 3), the corrected OAuth config (Step 4), or the routes file (Step 5) - those must be created manually.
+> **Note on `league_oauth2_server.yaml`**: the plugin ships its own `config/packages/league_oauth2_server.yaml` that configures the OAuth2 server using `SYLIUS_ADMIN_MCP_SERVER_OAUTH_*` environment variables. If your application already has a `config/packages/league_oauth2_server.yaml` (e.g. created by the `league/oauth2-server-bundle` Flex recipe), the plugin's configuration takes precedence and overrides it.
 
-### Step 3 - Import plugin configuration
+#### Step 2 - Generate OAuth keypair
 
-Create `config/packages/sylius_admin_mcp_server.yaml`:
+The plugin uses a dedicated RSA keypair (separate from Lexik JWT) for signing OAuth tokens:
 
-```yaml
-imports:
-    - { resource: "@SyliusAdminMcpServerPlugin/config/config.yaml" }
+```bash
+mkdir -p config/jwt
+openssl genrsa -out config/jwt/mcp_private.pem 4096
+openssl rsa -in config/jwt/mcp_private.pem -pubout -out config/jwt/mcp_public.pem
 ```
 
-### Step 4 - Configure OAuth2 server
+The keys default to `config/jwt/mcp_private.pem` and `config/jwt/mcp_public.pem`. Override via env vars if you want a different location.
 
-The Flex recipe creates `config/packages/league_oauth2_server.yaml` with generic settings. **Replace its contents** with the following to use your existing JWT keys:
-
-```yaml
-# config/packages/league_oauth2_server.yaml
-league_oauth2_server:
-    authorization_server:
-        private_key: '%env(resolve:JWT_SECRET_KEY)%'
-        private_key_passphrase: '%env(JWT_PASSPHRASE)%'
-        encryption_key: '%env(SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY)%'
-        encryption_key_type: 'plain'
-        enable_client_credentials_grant: false
-        enable_password_grant: false
-        enable_implicit_grant: false
-        persist_access_token: false
-
-    resource_server:
-        public_key: '%env(resolve:JWT_PUBLIC_KEY)%'
-
-    scopes:
-        available:
-            - admin_api
-        default:
-            - admin_api
-
-    persistence:
-        in_memory: ~
-```
-
-### Step 5 - Import routes
-
-Create `config/routes/sylius_admin_mcp_server.yaml`:
-
-```yaml
-sylius_admin_mcp_server:
-    resource: "@SyliusAdminMcpServerPlugin/config/routes.yaml"
-    type: yaml
-```
-
-### Step 6 - Configure environment variables
+#### Step 3 - Configure environment variables
 
 Add to your `.env` (or `.env.local`):
 
@@ -136,6 +90,10 @@ SYLIUS_ADMIN_MCP_SERVER_API_EMAIL=api@example.com
 SYLIUS_ADMIN_MCP_SERVER_API_PASSWORD=your-api-password
 # Set to false to disable SSL verification (useful for local HTTPS)
 SYLIUS_ADMIN_MCP_SERVER_VERIFY_SSL=true
+# OAuth RSA keypair generated in Step 2 (separate from Lexik JWT keys)
+SYLIUS_ADMIN_MCP_SERVER_OAUTH_PRIVATE_KEY=%kernel.project_dir%/config/jwt/mcp_private.pem
+SYLIUS_ADMIN_MCP_SERVER_OAUTH_PUBLIC_KEY=%kernel.project_dir%/config/jwt/mcp_public.pem
+SYLIUS_ADMIN_MCP_SERVER_OAUTH_PASSPHRASE=
 # Random hex string for OAuth token encryption - generate with: openssl rand -hex 32
 SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY=your-32-byte-hex-key-here
 ###< sylius/admin-mcp-server-plugin ###
@@ -147,15 +105,7 @@ Generate the encryption key:
 openssl rand -hex 32
 ```
 
-### Step 7 - Generate JWT keypair (if not already done)
-
-Sylius ships with `lexik/jwt-authentication-bundle`. If your JWT keys don't exist yet:
-
-```bash
-php bin/console lexik:jwt:generate-keypair
-```
-
-### Step 8 - Run database migrations
+#### Step 4 - Run database migrations
 
 ```bash
 php bin/console doctrine:migrations:migrate -n
@@ -163,14 +113,14 @@ php bin/console doctrine:migrations:migrate -n
 
 This creates three OAuth tables: `sylius_admin_mcp_oauth_clients`, `sylius_admin_mcp_oauth_authorization_codes`, `sylius_admin_mcp_oauth_refresh_tokens`.
 
-### Step 9 - Clear cache
+#### Step 5 - Clear cache
 
 ```bash
 php bin/console cache:clear
 php bin/console cache:warmup
 ```
 
-### Step 10 - Build frontend assets
+#### Step 6 - Build frontend assets
 
 The admin authorization page requires Sylius admin panel assets. If you haven't already:
 
@@ -180,7 +130,7 @@ yarn build
 php bin/console assets:install
 ```
 
-### Step 11 - Grant API access to an admin user
+#### Step 7 - Grant API access to an admin user
 
 Only admin users with `ROLE_API_ACCESS` can authorize via the OAuth consent page. Grant it to an existing user via SQL:
 
@@ -191,6 +141,12 @@ WHERE email = 'your@admin.com';
 ```
 
 Or create a dedicated API user in your fixtures.
+
+---
+
+### Manual Installation (without Symfony Flex)
+
+If your project does not use Symfony Flex, the bundles, configuration, and routes are not registered automatically. See [docs/manual-installation.md](docs/manual-installation.md) for step-by-step instructions.
 
 ---
 
@@ -296,6 +252,7 @@ In Cursor settings → **MCP** → **Add server**:
 - [Authentication Flow (OAuth 2.0 PKCE)](docs/authentication.md)
 - [Available MCP Tools](docs/tools.md) - 171 tools across 34 resource groups
 - [Configuration Reference](docs/configuration.md) - selectively disabling tool groups
+- [Manual Installation](docs/manual-installation.md) - step-by-step guide for projects without Symfony Flex
 - [Troubleshooting](docs/troubleshooting.md)
 
 ---

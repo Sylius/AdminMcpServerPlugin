@@ -47,10 +47,6 @@ WHERE email = 'api@example.com';
 
 All requests to `/_mcp` require a valid Bearer token. See [Authentication Flow](authentication.md).
 
-## Flex recipe creates wrong `league_oauth2_server.yaml`
-
-The `league/oauth2-server-bundle` Flex recipe generates a config with `OAUTH_PRIVATE_KEY` / `OAUTH_PASSPHRASE` / `OAUTH_ENCRYPTION_KEY`. This plugin uses `JWT_SECRET_KEY` / `JWT_PASSPHRASE` / `SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY` (reusing the existing Sylius JWT keys). Always replace the recipe-generated file with the content shown in [Installation Step 4](../README.md#step-4--configure-oauth2-server).
-
 ## "Got new credentials, but sylius rejected them on reconnect"
 
 This error appears in Claude Code after a successful OAuth browser login when the server is accessed through a public hostname that is not the default (`localhost` / `127.0.0.1`). This includes any tunnel service, a custom domain, or a staging/production URL.
