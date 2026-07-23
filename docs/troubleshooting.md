@@ -50,3 +50,37 @@ All requests to `/_mcp` require a valid Bearer token. See [Authentication Flow](
 ## Flex recipe creates wrong `league_oauth2_server.yaml`
 
 The `league/oauth2-server-bundle` Flex recipe generates a config with `OAUTH_PRIVATE_KEY` / `OAUTH_PASSPHRASE` / `OAUTH_ENCRYPTION_KEY`. This plugin uses `JWT_SECRET_KEY` / `JWT_PASSPHRASE` / `SYLIUS_ADMIN_MCP_SERVER_OAUTH_ENCRYPTION_KEY` (reusing the existing Sylius JWT keys). Always replace the recipe-generated file with the content shown in [Installation Step 4](../README.md#step-4--configure-oauth2-server).
+
+## "Got new credentials, but sylius rejected them on reconnect" (ngrok / reverse proxy)
+
+Claude Code shows this error after a successful OAuth browser login when the server is accessed via ngrok or another tunnel. The root cause is that `symfony/mcp-bundle` validates the `Host` header of every incoming HTTP request against a configurable allowlist. The ngrok hostname is not in the default list, so the MCP bundle silently rejects the request — Claude Code interprets the resulting failure as rejected credentials.
+
+**Fix: add your public hostname to `mcp.http.allowed_hosts`.**
+
+In your `config/packages/sylius_admin_mcp_server.yaml` (or any config file merged into the `mcp:` namespace), add:
+
+```yaml
+mcp:
+    http:
+        allowed_hosts:
+            - 'your-tunnel.ngrok-free.dev'   # your current ngrok hostname
+            - 'localhost'
+            - '127.0.0.1'
+```
+
+Then clear the cache:
+
+```bash
+php bin/console cache:clear
+```
+
+For a production or staging server accessed by its own domain, add that domain to the list:
+
+```yaml
+mcp:
+    http:
+        allowed_hosts:
+            - 'your-domain.com'
+```
+
+> **Tip:** The free ngrok tier generates a new hostname on every restart. If you use ngrok regularly for development, consider a paid plan for a fixed subdomain, or update `allowed_hosts` each time.
