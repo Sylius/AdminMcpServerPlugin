@@ -1,6 +1,6 @@
 {% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
 
-{% block title %}{{ 'sylius_admin_mcp_server.oauth.authorize.title'|trans({}, 'SyliusAdminMcpServer') }}{% endblock %}
+{% block title %}{{ 'sylius_admin_mcp_server.oauth.authorize.title'|trans({}) }}{% endblock %}
 
 {% block body %}
     <div class="container d-flex justify-content-center align-items-center min-vh-100">
@@ -8,22 +8,22 @@
 
             <div class="card-header text-center border-0 pt-4 pb-0 bg-transparent">
                 <h5 class="fw-bold mb-0">
-                    {{ 'sylius_admin_mcp_server.oauth.authorize.title'|trans({}, 'SyliusAdminMcpServer') }}
+                    {{ 'sylius_admin_mcp_server.oauth.authorize.title'|trans({}) }}
                 </h5>
             </div>
 
             <div class="card-body p-4">
                 <p class="mb-3">
-                    {{ 'sylius_admin_mcp_server.oauth.authorize.requesting_access'|trans({'%client_name%': client_name}, 'SyliusAdminMcpServer') }}
+                    {{ 'sylius_admin_mcp_server.oauth.authorize.requesting_access'|trans({'%client_name%': client_name}) }}
                 </p>
 
                 <div class="mb-4 d-flex align-items-center gap-2">
                     <span class="badge bg-primary">{{ scope }}</span>
-                    <small class="text-muted">{{ 'sylius_admin_mcp_server.oauth.authorize.scope_label'|trans({}, 'SyliusAdminMcpServer') }}</small>
+                    <small class="text-muted">{{ 'sylius_admin_mcp_server.oauth.authorize.scope_label'|trans({}) }}</small>
                 </div>
 
                 <p class="text-muted small mb-4">
-                    {{ 'sylius_admin_mcp_server.oauth.authorize.signed_in_as'|trans({}, 'SyliusAdminMcpServer') }}:
+                    {{ 'sylius_admin_mcp_server.oauth.authorize.signed_in_as'|trans({}) }}:
                     <strong>{{ app.user.email }}</strong>
                 </p>
 
@@ -39,10 +39,10 @@
 
                     <div class="d-grid gap-2">
                         <button type="submit" name="approve" value="1" class="btn btn-primary">
-                            {{ 'sylius_admin_mcp_server.oauth.authorize.allow'|trans({}, 'SyliusAdminMcpServer') }}
+                            {{ 'sylius_admin_mcp_server.oauth.authorize.allow'|trans({}) }}
                         </button>
                         <button type="submit" name="approve" value="0" class="btn btn-outline-secondary">
-                            {{ 'sylius_admin_mcp_server.oauth.authorize.deny'|trans({}, 'SyliusAdminMcpServer') }}
+                            {{ 'sylius_admin_mcp_server.oauth.authorize.deny'|trans({}) }}
                         </button>
                     </div>
                 </form>

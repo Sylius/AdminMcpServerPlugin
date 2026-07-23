@@ -1,5 +1,6 @@
 imports:
     - { resource: 'packages/league_oauth2_server.yaml' }
+    - { resource: 'twig_hooks.yaml' }
 
 parameters:
     env(SYLIUS_ADMIN_MCP_SERVER_API_URL): 'https://127.0.0.1:8090/api/v2/admin/'

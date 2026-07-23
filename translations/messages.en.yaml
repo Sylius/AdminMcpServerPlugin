@@ -1,4 +1,10 @@
 sylius_admin_mcp_server:
+    form:
+        admin_user:
+            access:
+                title: 'Access'
+            administration_access: 'Administration Access'
+            api_access: 'API Access'
     oauth:
         authorize:
             title: 'Authorization Request'
