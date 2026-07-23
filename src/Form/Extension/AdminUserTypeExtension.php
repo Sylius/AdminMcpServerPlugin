@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Sylius\AdminMcpServerPlugin\Form\Extension;
 
+use Sylius\AdminMcpServerPlugin\Security\AdminUserRole;
 use Sylius\Bundle\CoreBundle\Form\Type\User\AdminUserType;
 use Sylius\Component\Core\Model\AdminUserInterface;
 use Symfony\Component\Form\AbstractTypeExtension;
@@ -28,13 +29,11 @@ final class AdminUserTypeExtension extends AbstractTypeExtension
         $builder
             ->add('administrationAccess', CheckboxType::class, [
                 'label' => 'sylius_admin_mcp_server.form.admin_user.administration_access',
-                'translation_domain' => 'SyliusAdminMcpServer',
                 'required' => false,
                 'mapped' => false,
             ])
             ->add('apiAccess', CheckboxType::class, [
                 'label' => 'sylius_admin_mcp_server.form.admin_user.api_access',
-                'translation_domain' => 'SyliusAdminMcpServer',
                 'required' => false,
                 'mapped' => false,
             ])
@@ -49,8 +48,8 @@ final class AdminUserTypeExtension extends AbstractTypeExtension
             $form = $event->getForm();
             $roles = $adminUser->getRoles();
 
-            $form->get('administrationAccess')->setData(\in_array('ROLE_ADMINISTRATION_ACCESS', $roles, true));
-            $form->get('apiAccess')->setData(\in_array('ROLE_API_ACCESS', $roles, true));
+            $form->get('administrationAccess')->setData(\in_array(AdminUserRole::ADMINISTRATION_ACCESS, $roles, true));
+            $form->get('apiAccess')->setData(\in_array(AdminUserRole::API_ACCESS, $roles, true));
         });
 
         $builder->addEventListener(FormEvents::POST_SUBMIT, function (FormEvent $event): void {
@@ -65,15 +64,15 @@ final class AdminUserTypeExtension extends AbstractTypeExtension
             $hasApiAccess = (bool) $form->get('apiAccess')->getData();
 
             if ($hasAdminAccess) {
-                $adminUser->addRole('ROLE_ADMINISTRATION_ACCESS');
+                $adminUser->addRole(AdminUserRole::ADMINISTRATION_ACCESS);
             } else {
-                $adminUser->removeRole('ROLE_ADMINISTRATION_ACCESS');
+                $adminUser->removeRole(AdminUserRole::ADMINISTRATION_ACCESS);
             }
 
             if ($hasApiAccess) {
-                $adminUser->addRole('ROLE_API_ACCESS');
+                $adminUser->addRole(AdminUserRole::API_ACCESS);
             } else {
-                $adminUser->removeRole('ROLE_API_ACCESS');
+                $adminUser->removeRole(AdminUserRole::API_ACCESS);
             }
         });
     }

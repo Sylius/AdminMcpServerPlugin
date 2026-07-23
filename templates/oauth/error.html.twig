@@ -1,6 +1,6 @@
 {% extends '@SyliusAdmin/shared/layout/base.html.twig' %}
 
-{% block title %}{{ 'sylius_admin_mcp_server.oauth.error.title'|trans({}, 'SyliusAdminMcpServer') }}{% endblock %}
+{% block title %}{{ 'sylius_admin_mcp_server.oauth.error.title'|trans({}) }}{% endblock %}
 
 {% block body %}
     {% if redirect_url is defined %}
@@ -25,21 +25,21 @@
                 </div>
 
                 <h4 class="fw-bold mb-2">
-                    {{ 'sylius_admin_mcp_server.oauth.error.heading'|trans({}, 'SyliusAdminMcpServer') }}
+                    {{ 'sylius_admin_mcp_server.oauth.error.heading'|trans({}) }}
                 </h4>
 
                 <p class="text-muted mb-4">
-                    {{ message|trans({'%client_name%': client_name|default('')}, 'SyliusAdminMcpServer')|raw }}
+                    {{ message|trans({'%client_name%': client_name|default('')})|raw }}
                 </p>
 
                 {% if redirect_url is defined %}
                     <div class="d-flex align-items-center justify-content-center gap-2 text-muted small">
                         <div class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></div>
-                        <span>{{ 'sylius_admin_mcp_server.oauth.error.redirect_notice'|trans({'%client_name%': client_name|default('')}, 'SyliusAdminMcpServer') }}</span>
+                        <span>{{ 'sylius_admin_mcp_server.oauth.error.redirect_notice'|trans({'%client_name%': client_name|default('')}) }}</span>
                     </div>
                 {% else %}
                     <p class="text-muted small">
-                        {{ 'sylius_admin_mcp_server.oauth.error.try_again'|trans({}, 'SyliusAdminMcpServer') }}
+                        {{ 'sylius_admin_mcp_server.oauth.error.try_again'|trans({}) }}
                     </p>
                 {% endif %}
 
