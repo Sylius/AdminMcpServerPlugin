@@ -2,7 +2,7 @@
 
 The plugin implements OAuth 2.0 Authorization Code flow with PKCE. Below is the complete flow.
 
-## Step 1 — Register an OAuth client
+## Step 1 - Register an OAuth client
 
 ```bash
 curl -X POST "https://your-domain.com/_mcp/oauth/register" \
@@ -27,7 +27,7 @@ Response:
 }
 ```
 
-## Step 2 — Generate PKCE code verifier and challenge
+## Step 2 - Generate PKCE code verifier and challenge
 
 ```python
 import os, base64, hashlib
@@ -37,7 +37,7 @@ print(f"Verifier: {verifier}")
 print(f"Challenge: {challenge}")
 ```
 
-## Step 3 — Redirect user to authorization page
+## Step 3 - Redirect user to authorization page
 
 ```
 GET /admin/mcp/oauth/authorize
@@ -51,7 +51,7 @@ GET /admin/mcp/oauth/authorize
 
 The user must be logged in as an admin with `ROLE_API_ACCESS`. They will see a consent page and can approve or deny the request.
 
-## Step 4 — Exchange authorization code for access token
+## Step 4 - Exchange authorization code for access token
 
 After approval the user is redirected to your `redirect_uri` with a `code` parameter. Exchange it:
 
@@ -75,7 +75,7 @@ Response:
 }
 ```
 
-## Step 5 — Use the access token with MCP
+## Step 5 - Use the access token with MCP
 
 ```bash
 # Initialize MCP session
@@ -105,9 +105,88 @@ curl -X POST "https://your-domain.com/_mcp/oauth/token" \
   -d "refresh_token=YOUR_REFRESH_TOKEN"
 ```
 
-## MCP Client Configuration (Claude Desktop / Cursor)
+## MCP Client Configuration
 
-The plugin follows the MCP HTTP transport specification with OAuth 2.0 PKCE. Discovery endpoints enable automatic client configuration:
+The plugin follows the MCP HTTP transport specification with OAuth 2.0 PKCE. Both discovery endpoints are implemented, enabling fully automatic client configuration - clients only need the base URL:
 
-- `/.well-known/oauth-authorization-server` — OAuth server metadata
-- `/.well-known/oauth-protected-resource` — Resource server metadata
+- `/.well-known/oauth-authorization-server` - OAuth server metadata (issuer, endpoints, scopes, PKCE methods)
+- `/.well-known/oauth-protected-resource` - Resource server metadata
+
+### Client comparison
+
+| Client | Local server | Remote server | Plan required | Notes |
+|--------|:-----------:|:-------------:|:-------------:|-------|
+| Claude Desktop | ✔ | ✔ | Free | Recommended for development |
+| Claude.ai (browser) | ✘ | ✔ | Pro / Max | Public HTTPS + valid cert required |
+| Claude Code (CLI) | ✔ | ✔ | Free | |
+| Cursor | ✔ | ✔ | - | |
+
+---
+
+### Claude Desktop
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
+
+```json
+{
+  "mcpServers": {
+    "sylius-admin": {
+      "type": "http",
+      "url": "https://your-domain.com/_mcp"
+    }
+  }
+}
+```
+
+Restart Claude Desktop. On first use it reads the discovery endpoint, opens the consent page in your browser, and stores the token - no manual configuration needed.
+
+**Local development:** `"url": "https://127.0.0.1:8003/_mcp"` works directly. Claude Desktop accepts self-signed certificates.
+
+---
+
+### Claude.ai in the browser (Custom Connectors)
+
+> **Requirements:** Pro or Max plan. The server must be **publicly reachable over HTTPS with a trusted SSL certificate**. Anthropic calls your `/_mcp` endpoint from their own servers - `localhost` is unreachable from there.
+
+1. Open [claude.ai](https://claude.ai) → avatar → **Customize Claude** → **Connectors** → **+** → **Add custom connector**
+2. Enter your server URL: `https://your-domain.com/_mcp`
+3. Click **Connect**. Claude.ai reads the discovery document and redirects to your Sylius admin consent page.
+4. Log in with an account that has `ROLE_API_ACCESS` and click **Allow**.
+
+Claude.ai registers itself using `https://claude.ai/api/mcp/auth_callback` as the redirect URI. The plugin's dynamic client registration endpoint (`/_mcp/oauth/register`) accepts this automatically - no pre-registration is needed.
+
+**Testing locally with a public URL:** Use a tunnelling service to expose your local server:
+
+```bash
+# ngrok (free tier available)
+ngrok http https://127.0.0.1:8003
+# → use https://xxxx.ngrok-free.app/_mcp in claude.ai
+
+# Cloudflare Tunnel (free)
+cloudflared tunnel --url https://127.0.0.1:8003
+```
+
+---
+
+### Claude Code (CLI)
+
+```bash
+claude mcp add --transport http sylius-admin https://your-domain.com/_mcp
+```
+
+On first use Claude Code opens a browser window for the consent step, then stores the token in your local config. Subsequent calls are silent.
+
+---
+
+### Cursor
+
+In Cursor: **Settings → MCP → Add server**:
+
+```json
+{
+  "sylius-admin": {
+    "url": "https://your-domain.com/_mcp",
+    "type": "http"
+  }
+}
+```
