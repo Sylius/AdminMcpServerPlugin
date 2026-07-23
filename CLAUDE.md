@@ -22,7 +22,7 @@ vendor/bin/console sylius:fixtures:load -n
 vendor/bin/console lexik:jwt:generate-keypair
 
 # Start development server
-symfony server:start -d --port=8003
+symfony server:start -d
 ```
 
 ### Testing
