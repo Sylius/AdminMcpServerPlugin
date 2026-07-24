@@ -60,7 +60,12 @@ When Symfony Flex is active, `composer require sylius/admin-mcp-server-plugin` a
 composer require sylius/admin-mcp-server-plugin
 ```
 
-> **Note on `league_oauth2_server.yaml`**: the plugin ships its own `config/packages/league_oauth2_server.yaml` that configures the OAuth2 server using `SYLIUS_ADMIN_MCP_SERVER_OAUTH_*` environment variables. If your application already has a `config/packages/league_oauth2_server.yaml` (e.g. created by the `league/oauth2-server-bundle` Flex recipe), the plugin's configuration takes precedence and overrides it.
+> **Note on `league_oauth2_server.yaml`**: the plugin ships its own `config/packages/league_oauth2_server.yaml` that configures the OAuth2 server using `SYLIUS_ADMIN_MCP_SERVER_OAUTH_*` environment variables. If the `league/oauth2-server-bundle` Flex recipe has already created a `config/packages/league_oauth2_server.yaml` and `config/routes/league_oauth2_server.yaml` in your project, replace both with empty stubs — otherwise the Flex-generated config conflicts with the plugin's own configuration and causes errors:
+>
+> ```bash
+> echo "# Managed by sylius/admin-mcp-server-plugin" > config/packages/league_oauth2_server.yaml
+> echo "# Routes provided by sylius/admin-mcp-server-plugin" > config/routes/league_oauth2_server.yaml
+> ```
 
 #### Step 2 - Generate OAuth keypair
 
