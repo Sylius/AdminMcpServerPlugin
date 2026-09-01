@@ -42,7 +42,7 @@ final readonly class OAuthServerMetadataProvider
     public function protectedResource(string $baseUrl): array
     {
         return [
-            'resource' => $baseUrl . '/_mcp',
+            'resource' => $baseUrl . '/mcp/admin',
             'authorization_servers' => [$baseUrl],
             'scopes_supported' => ['admin_api'],
             'bearer_methods_supported' => ['header'],
