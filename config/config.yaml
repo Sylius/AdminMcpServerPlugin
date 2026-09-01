@@ -43,7 +43,7 @@ mcp:
                 http: true
                 stdio: false
             http:
-                path: /_mcp
+                path: /mcp/admin
             instructions: |
                 You are managing a Sylius e-commerce store via its Admin API (JSON-LD / Hydra).
 
