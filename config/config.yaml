@@ -35,44 +35,47 @@ api_platform:
             - '%sylius_admin_mcp_server_api_resources_path%'
 
 mcp:
-    app: 'Sylius Admin MCP Server'
-    version: '0.1.0'
-    pagination_limit: 200
-    client_transports:
-        stdio: true
-        http: true
-    discovery:
-        scan_dirs: []
-    instructions: |
-        You are managing a Sylius e-commerce store via its Admin API (JSON-LD / Hydra).
+    servers:
+        sylius_admin:
+            name: 'Sylius Admin MCP Server'
+            version: '0.1.0'
+            transports:
+                http: true
+                stdio: false
+            http:
+                path: /_mcp
+            instructions: |
+                You are managing a Sylius e-commerce store via its Admin API (JSON-LD / Hydra).
 
-        ## IRI identifiers — CRITICAL RULE
-        Every resource returned by the API has an `@id` field — its JSON-LD IRI (e.g. `/api/v2/admin/channels/FASHION_WEB`).
-        Tool parameters that reference another resource (channels, zones, taxons, currencies, locales, etc.) MUST receive the full IRI string from a previous response `@id` field.
-        NEVER construct or guess an IRI. ALWAYS obtain it by calling the appropriate list_* or get_* tool first.
+                ## IRI identifiers — CRITICAL RULE
+                Every resource returned by the API has an `@id` field — its JSON-LD IRI (e.g. `/api/v2/admin/channels/FASHION_WEB`).
+                Tool parameters that reference another resource (channels, zones, taxons, currencies, locales, etc.) MUST receive the full IRI string from a previous response `@id` field.
+                NEVER construct or guess an IRI. ALWAYS obtain it by calling the appropriate list_* or get_* tool first.
 
-        ## Workflow — always list before reference
-        Before referencing any resource in a create or update call, first call the matching list_* tool:
-        - list_channels → get channel IRIs for product/shipping-method/payment-method creation
-        - list_zones → get zone IRIs for shipping methods and tax rates
-        - list_locales, list_currencies → get locale/currency IRIs for channel creation
-        - list_tax_categories → get tax category IRIs for tax rates
-        - list_taxons → get taxon IRIs for product taxon assignments
-        Use the `@id` value from those responses directly as the parameter value. Do not modify it.
+                ## Workflow — always list before reference
+                Before referencing any resource in a create or update call, first call the matching list_* tool:
+                - list_channels → get channel IRIs for product/shipping-method/payment-method creation
+                - list_zones → get zone IRIs for shipping methods and tax rates
+                - list_locales, list_currencies → get locale/currency IRIs for channel creation
+                - list_tax_categories → get tax category IRIs for tax rates
+                - list_taxons → get taxon IRIs for product taxon assignments
+                Use the `@id` value from those responses directly as the parameter value. Do not modify it.
 
-        ## Resource identifiers (for get_*, update_*, delete_* tools)
-        - Most resources: `code` (string) — products, taxons, channels, zones, promotions, etc.
-        - Customers and addresses: `id` (integer).
-        - Orders: `tokenValue` (string).
-        - Product associations: `id` (integer, from list_product_associations).
+                ## Resource identifiers (for get_*, update_*, delete_* tools)
+                - Most resources: `code` (string) — products, taxons, channels, zones, promotions, etc.
+                - Customers and addresses: `id` (integer).
+                - Orders: `tokenValue` (string).
+                - Product associations: `id` (integer, from list_product_associations).
 
-        ## Monetary amounts
-        All prices and amounts are in the smallest currency unit: 1000 = 10.00 EUR/USD.
+                ## Monetary amounts
+                All prices and amounts are in the smallest currency unit: 1000 = 10.00 EUR/USD.
 
-        ## Key workflows
-        - Every product needs at least one variant with a price per channel to be purchasable.
-        - After create_product: call create_product_variant (with price) and create_product_taxon (assign category).
-        - Slug fields are auto-generated from the name — omit unless the user wants a custom URL.
-        - Catalog promotions process asynchronously — never delete one immediately after creating it.
-        - To disable a customer login: use delete_customer_user (customers themselves cannot be deleted).
-        - For update_* tools: call get_* first to get the current JSON, modify only the needed fields, pass the full modified JSON as body.
+                ## Key workflows
+                - Every product needs at least one variant with a price per channel to be purchasable.
+                - After create_product: call create_product_variant (with price) and create_product_taxon (assign category).
+                - Slug fields are auto-generated from the name — omit unless the user wants a custom URL.
+                - Catalog promotions process asynchronously — never delete one immediately after creating it.
+                - To disable a customer login: use delete_customer_user (customers themselves cannot be deleted).
+                - For update_* tools: call get_* first to get the current JSON, modify only the needed fields, pass the full modified JSON as body.
+            registry:
+                tools: ['Sylius\AdminMcpServerPlugin\Tool\']

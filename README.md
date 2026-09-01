@@ -21,6 +21,7 @@ This plugin turns your Sylius store into an MCP server, allowing AI assistants (
 - PHP 8.2+
 - Sylius 2.1 or 2.2
 - Symfony 7.4
+- `symfony/mcp-bundle` ^0.13
 - MySQL or PostgreSQL
 - Node.js 20+ and Yarn (for frontend assets)
 
@@ -155,6 +156,36 @@ If your project does not use Symfony Flex, the bundles, configuration, and route
 
 ---
 
+## Coexistence with Sylius Shop MCP Server Plugin
+
+This plugin can coexist with [`sylius/mcp-server-plugin`](https://github.com/Sylius/McpServerPlugin) (the shop MCP plugin) in the same Sylius application, because `symfony/mcp-bundle ^0.13` supports multiple named MCP servers with separate HTTP endpoints.
+
+The two plugins use distinct server names and routes:
+
+| Plugin | Server name | Route name | HTTP endpoint |
+|--------|------------|------------|--------------|
+| Admin (this plugin) | `sylius_admin` | `_mcp_endpoint_sylius_admin` | `/_mcp` |
+| Shop | `sylius_shop` | `_mcp_endpoint_sylius_shop` | `/shop/_mcp` |
+
+Both plugins must declare `symfony/mcp-bundle: ^0.13` in their `composer.json`. Installing both is then straightforward:
+
+```bash
+composer require sylius/admin-mcp-server-plugin sylius/mcp-server-plugin
+```
+
+Connect an AI client to both servers simultaneously:
+
+```json
+{
+  "mcpServers": {
+    "sylius-admin": { "type": "http", "url": "https://your-domain.com/_mcp" },
+    "sylius-shop":  { "type": "http", "url": "https://your-domain.com/shop/_mcp" }
+  }
+}
+```
+
+---
+
 ## Verification
 
 After installation, verify everything is working:
@@ -170,7 +201,7 @@ php bin/console debug:router | grep mcp
 curl -sk https://your-domain.com/.well-known/oauth-authorization-server | python3 -m json.tool
 ```
 
-Expected routes: `/.well-known/oauth-authorization-server`, `/_mcp/oauth/register`, `/admin/mcp/oauth/authorize`, `/_mcp/oauth/token`, `/_mcp`.
+Expected routes: `/.well-known/oauth-authorization-server`, `/_mcp/oauth/register`, `/admin/mcp/oauth/authorize`, `/_mcp/oauth/token`, `/_mcp` (`_mcp_endpoint_sylius_admin`).
 
 ---
 
