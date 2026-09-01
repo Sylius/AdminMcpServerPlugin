@@ -23,7 +23,7 @@ update_shipping_method(code, body) → JSON of the updated shipping method.
 
 IMPORTANT: First call get_shipping_method to get the current JSON, then modify only the fields you want to change, and pass the full modified JSON as body. This preserves all required fields including translation @ids.
 
-Convenience shorthands (only when you want to change the rate): pass amount (int, smallest currency unit e.g. 500=5.00) or percentage (float, e.g. 0.1=10%) instead of configuration — the tool builds configuration for all channels automatically.
+Convenience shorthands (only when you want to change the rate): pass amount (int, smallest currency unit e.g. 500=5.00) or percentage (float, e.g. 0.1=10%%) instead of configuration — the tool builds configuration for all channels automatically.
 DESC,
 )]
 final readonly class Update

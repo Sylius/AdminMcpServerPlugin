@@ -24,7 +24,7 @@ update_catalog_promotion(code, body) → JSON of the updated catalog promotion.
 You can pass a partial body with only the fields you want to change — e.g. {"name":"New Name"} or {"enabled":false} works without fetching the full JSON first. To change scopes or actions, include only those arrays and the tool will merge/strip meta automatically. For translations with @id, fetch first to preserve the @id of existing locales.
 
 scopes examples: [{"type":"for_taxons","configuration":{"taxons":["TAXON_CODE"]}}] or [{"type":"for_variants","configuration":{"variants":["VARIANT_CODE"]}}]
-actions examples: [{"type":"percentage_discount","configuration":{"amount":0.2}}] (20% off) or [{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] (ALL channels required)
+actions examples: [{"type":"percentage_discount","configuration":{"amount":0.2}}] (20%% off) or [{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] (ALL channels required)
 Note: nested @id/@type/id in scopes/actions are stripped automatically (Sylius rejects them on PUT).
 DESC,
 )]

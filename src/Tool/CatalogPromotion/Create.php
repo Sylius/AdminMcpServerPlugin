@@ -24,7 +24,7 @@ create_catalog_promotion — Creates a catalog promotion (automatic discount app
 REQUIRED: code (unique ID, e.g. "SUMMER_SALE"), name (internal name), channels (array of channel IRIs from list_channels @id, e.g. ["/api/v2/admin/channels/FASHION_WEB"]).
 
 translations (JSON string) — customer-facing labels per locale. Provide all languages at once (the LLM can generate good translations):
-'{"en_US": {"label": "Summer Sale", "description": "10% off all summer items"}, "pl_PL": {"label": "Letnia wyprzedaż", "description": "10% taniej na wszystkie letnie produkty"}}'
+'{"en_US": {"label": "Summer Sale", "description": "10%% off all summer items"}, "pl_PL": {"label": "Letnia wyprzedaż", "description": "10%% taniej na wszystkie letnie produkty"}}'
 If omitted, name is used as label for en_US.
 
 scopes (JSON string) — which products to discount:
@@ -34,10 +34,10 @@ scopes (JSON string) — which products to discount:
 - Specific products: '[{"type":"for_products","configuration":{"products":["PRODUCT_CODE"]}}]'
 
 actions (JSON string) — what discount to apply:
-- Percentage off (e.g. 20%): '[{"type":"percentage_discount","configuration":{"amount":0.2}}]'
+- Percentage off (e.g. 20%%): '[{"type":"percentage_discount","configuration":{"amount":0.2}}]'
 - Fixed amount off per channel: '[{"type":"fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]' (amount in smallest unit: 1000 = 10.00)
 
-Ask user: which products/categories to discount? What type of discount (% or fixed amount)?
+Ask user: which products/categories to discount? What type of discount (%% or fixed amount)?
 DESC,
 )]
 final readonly class Create

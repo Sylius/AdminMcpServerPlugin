@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'list_tax_rates',
-    description: 'list_tax_rates(page?, itemsPerPage?) → JSON Hydra collection of Sylius tax rates. Each rate has: id, code, name, amount (float, e.g. 0.07 = 7%), includedInPrice, calculator, category (IRI), zone (IRI), startDate, endDate.',
+    description: 'list_tax_rates(page?, itemsPerPage?) → JSON Hydra collection of Sylius tax rates. Each rate has: id, code, name, amount (float, e.g. 0.07 = 7%%), includedInPrice, calculator, category (IRI), zone (IRI), startDate, endDate.',
 )]
 final readonly class Index
 {

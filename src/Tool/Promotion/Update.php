@@ -26,7 +26,7 @@ You can pass a partial body with only the fields you want to change — e.g. {"n
 To ADD or MODIFY rules/actions: call get_promotion first, copy the existing rules/actions array, append or modify entries, then call update_promotion with the new array.
 
 rules examples: [{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}] — min order 50.00; [{"type":"cart_quantity","configuration":{"count":3}}] — min 3 items
-actions examples: [{"type":"order_percentage_discount","configuration":{"percentage":0.1}}] — 10% off order; [{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] — fixed 10.00 off (ALL channels required)
+actions examples: [{"type":"order_percentage_discount","configuration":{"percentage":0.1}}] — 10%% off order; [{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}] — fixed 10.00 off (ALL channels required)
 Note: fixed-discount rules/actions missing channels are auto-filled with zero amounts.
 Note: if description is no longer needed pass null (not empty string "") — Sylius requires description to be null or at least 2 characters.
 DESC,
