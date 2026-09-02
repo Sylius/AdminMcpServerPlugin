@@ -22,7 +22,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 create_product_attribute — Creates a product attribute definition (e.g. "Material", "Brand", "Weight"). Attributes are metadata displayed on the product page.
 
 REQUIRED: code (unique slug, e.g. "hat_material"), type, name (display label).
-TYPE options: text=free text like "100% cotton", integer=whole number, float=decimal like 1.5, checkbox=yes/no toggle, date=date only, datetime=date+time, select=predefined choices from a dropdown.
+TYPE options: text=free text like "100%% cotton", integer=whole number, float=decimal like 1.5, checkbox=yes/no toggle, date=date only, datetime=date+time, select=predefined choices from a dropdown.
 
 After creating an attribute definition, assign values to specific products using set_product_attribute_value. Use list_product_attributes to check if an attribute already exists before creating a new one.
 DESC,

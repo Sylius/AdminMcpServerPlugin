@@ -26,7 +26,7 @@ REQUIRED: code (unique ID, e.g. "DHL_EXPRESS"), name (e.g. "DHL Express"), zone 
 calculator types — also specify the matching parameter:
 - "flat_rate" — same price regardless of order size; also pass amount=1000 (1000 = 10.00 EUR/USD, smallest currency unit)
 - "per_unit_rate" — price × number of items; also pass amount=500 (price per item in smallest currency unit)
-- "percentage_discount" — reduces shipping cost by a percentage; also pass percentage=0.1 (0.1 = 10% off, 1.0 = free)
+- "percentage_discount" — reduces shipping cost by a percentage; also pass percentage=0.1 (0.1 = 10%% off, 1.0 = free)
 
 The system automatically applies the amount/percentage to all channels — just provide once.
 NOTE: the price parameter is called "amount" (not "price"). Pass amount=<value>.

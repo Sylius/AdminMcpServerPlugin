@@ -16,10 +16,9 @@
         "league/oauth2-server-bundle": "^1.1",
         "sylius/sylius": "^2.1",
         "sylius/telemetry": "^1.0",
-        "symfony/mcp-bundle": "^0.11"
+        "symfony/mcp-bundle": "^0.13"
     },
     "require-dev": {
-        "cweagans/composer-patches": "^2.0",
         "behat/behat": "^3.16",
         "dbrekelmans/bdi": "^1.4",
         "dmore/behat-chrome-extension": "^1.4",
@@ -48,12 +47,13 @@
         "symfony/intl": "^6.4 || ^7.4",
         "symfony/runtime": "^6.4 || ^7.4",
         "symfony/web-profiler-bundle": "^6.4 || ^7.4",
+        "symfony/property-info": "^7.3",
+        "symfony/type-info": ">=7.2 <7.4",
         "symfony/webpack-encore-bundle": "^2.2"
     },
     "config": {
         "sort-packages": true,
         "allow-plugins": {
-            "cweagans/composer-patches": true,
             "dealerdirect/phpcodesniffer-composer-installer": false,
             "php-http/discovery": false,
             "phpstan/extension-installer": true,
@@ -68,12 +68,7 @@
         "symfony": {
             "require": "^7.4"
         },
-        "public-dir": "vendor/sylius/test-application/public",
-        "patches": {
-            "symfony/type-info": {
-                "Fix: Cannot create union with both object and class type (api-platform/core#8312)": "patches/symfony-type-info-union-fix.patch"
-            }
-        }
+        "public-dir": "vendor/sylius/test-application/public"
     },
     "autoload": {
         "psr-4": {

@@ -9,7 +9,7 @@ sylius_admin_mcp_server_oauth_well_known_resource:
     methods: [GET]
 
 sylius_admin_mcp_server_oauth_register:
-    path: /_mcp/oauth/register
+    path: /mcp/admin/oauth/register
     controller: Sylius\AdminMcpServerPlugin\Controller\OAuth\RegistrationController
     methods: [POST]
 
@@ -19,6 +19,6 @@ sylius_admin_mcp_server_oauth_authorize:
     methods: [GET, POST]
 
 sylius_admin_mcp_server_oauth_token:
-    path: /_mcp/oauth/token
+    path: /mcp/admin/oauth/token
     controller: Sylius\AdminMcpServerPlugin\Controller\OAuth\TokenController
     methods: [POST]

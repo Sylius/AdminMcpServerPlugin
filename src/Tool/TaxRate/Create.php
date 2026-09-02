@@ -18,7 +18,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
     name: 'create_tax_rate',
-    description: 'create_tax_rate(code, name, amount, category, zone, includedInPrice?, calculator?) → JSON object of the newly created Sylius tax rate. amount is a float (e.g. 0.23 = 23%). category is the IRI from list_tax_categories @id. zone is the IRI from list_zones @id. calculator defaults to "default".',
+    description: 'create_tax_rate(code, name, amount, category, zone, includedInPrice?, calculator?) → JSON object of the newly created Sylius tax rate. amount is a float (e.g. 0.23 = 23%%). category is the IRI from list_tax_categories @id. zone is the IRI from list_zones @id. calculator defaults to "default".',
 )]
 final readonly class Create
 {

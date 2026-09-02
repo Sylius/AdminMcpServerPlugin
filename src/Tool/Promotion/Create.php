@@ -21,7 +21,7 @@ use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
     description: <<<'DESC'
 create_promotion — Creates a cart promotion (discount applied at checkout when conditions are met). Prerequisites: run list_channels to get channel IRIs.
 
-REQUIRED: code (unique ID, e.g. "SUMMER10"), name (e.g. "10% Summer Discount"), channels (array of channel IRIs from list_channels @id).
+REQUIRED: code (unique ID, e.g. "SUMMER10"), name (e.g. "10%% Summer Discount"), channels (array of channel IRIs from list_channels @id).
 
 rules (JSON string) — WHEN to apply the discount (optional, leave '[]' for always):
 - Minimum order total: '[{"type":"item_total","configuration":{"CHANNEL_CODE":{"amount":5000}}}]' (5000 = 50.00; must include ALL channel codes)
@@ -31,14 +31,14 @@ rules (JSON string) — WHEN to apply the discount (optional, leave '[]' for alw
 - Nth order for customer: '[{"type":"nth_order","configuration":{"nth":5}}]'
 
 actions (JSON string) — WHAT discount to give (required):
-- % off whole order: '[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]' (0.1 = 10%)
-- % off each item: '[{"type":"unit_percentage_discount","configuration":{"percentage":0.15}}]'
-- % off shipping: '[{"type":"shipping_percentage_discount","configuration":{"percentage":1.0}}]' (free shipping)
+- %% off whole order: '[{"type":"order_percentage_discount","configuration":{"percentage":0.1}}]' (0.1 = 10%%)
+- %% off each item: '[{"type":"unit_percentage_discount","configuration":{"percentage":0.15}}]'
+- %% off shipping: '[{"type":"shipping_percentage_discount","configuration":{"percentage":1.0}}]' (free shipping)
 - Fixed amount off order: '[{"type":"order_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":1000}}}]'
 - Fixed amount off each item: '[{"type":"unit_fixed_discount","configuration":{"CHANNEL_CODE":{"amount":200}}}]'
 
 NOTE for amount-based rules/actions: configuration must include ALL channel codes in the system. Use list_channels to get them all. Unlike update_promotion, create_promotion does NOT auto-fill missing channels — you must list all channels explicitly.
-Ask user: what is the discount (% or amount)? Any minimum order condition? Which channels?
+Ask user: what is the discount (%% or amount)? Any minimum order condition? Which channels?
 DESC,
 )]
 final readonly class Create

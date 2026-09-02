@@ -25,8 +25,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 final readonly class McpBearerAuthListener
 {
     private const array PUBLIC_PATHS = [
-        '/_mcp/oauth/register',
-        '/_mcp/oauth/token',
+        '/mcp/admin/oauth/register',
+        '/mcp/admin/oauth/token',
     ];
 
     /**
@@ -44,7 +44,7 @@ final readonly class McpBearerAuthListener
         $request = $event->getRequest();
         $path = $request->getPathInfo();
 
-        if (!str_starts_with($path, '/_mcp')) {
+        if (!str_starts_with($path, '/mcp/admin')) {
             return;
         }
 
