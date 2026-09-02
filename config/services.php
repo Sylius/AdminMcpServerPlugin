@@ -24,8 +24,7 @@ return static function (ContainerConfigurator $container): void {
 
     $services->set('sylius_admin_mcp_server.mcp.loader.plugin_discovery', PluginDiscoveryLoader::class)
         ->args([service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp'])
-        ->tag('mcp.loader');
+        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set('sylius_admin_mcp_server.mcp.current_session', CurrentSession::class);
 
