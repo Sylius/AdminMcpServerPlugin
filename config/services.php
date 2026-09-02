@@ -15,16 +15,11 @@ namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use Mcp\Event\RequestEvent;
 use Sylius\AdminMcpServerPlugin\EventListener\BindSessionListener;
-use Sylius\AdminMcpServerPlugin\Loader\PluginDiscoveryLoader;
 use Sylius\AdminMcpServerPlugin\Session\CurrentSession;
 
 return static function (ContainerConfigurator $container): void {
     $container->import('services/**');
     $services = $container->services();
-
-    $services->set('sylius_admin_mcp_server.mcp.loader.plugin_discovery', PluginDiscoveryLoader::class)
-        ->args([service('logger')])
-        ->tag('monolog.logger', ['channel' => 'mcp']);
 
     $services->set('sylius_admin_mcp_server.mcp.current_session', CurrentSession::class);
 
