@@ -21,7 +21,7 @@ use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: OAuthClientRepository::class)]
 #[ORM\Table(name: 'sylius_admin_mcp_oauth_clients')]
-final class OAuthClient extends AbstractClient implements ClientEntityInterface
+class OAuthClient extends AbstractClient implements ClientEntityInterface
 {
     #[ORM\Id]
     #[ORM\Column(type: 'uuid')]
