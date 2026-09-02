@@ -17,7 +17,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'sylius_admin_mcp_oauth_authorization_codes')]
-final class OAuthAuthorizationCode
+class OAuthAuthorizationCode
 {
     #[ORM\Column(options: ['default' => false])]
     private bool $revoked = false;
