@@ -164,8 +164,8 @@ The two plugins use distinct server names and routes:
 
 | Plugin | Server name | Route name | HTTP endpoint |
 |--------|------------|------------|--------------|
-| Admin (this plugin) | `sylius_admin` | `_mcp_endpoint_sylius_admin` | `/_mcp` |
-| Shop | `sylius_shop` | `_mcp_endpoint_sylius_shop` | `/shop/_mcp` |
+| Admin (this plugin) | `sylius_admin` | `_mcp_endpoint_sylius_admin` | `/mcp/admin` |
+| Shop | `sylius_shop` | `_mcp_endpoint_sylius_shop` | `/mcp/shop` |
 
 Both plugins must declare `symfony/mcp-bundle: ^0.13` in their `composer.json`. Installing both is then straightforward:
 
@@ -178,8 +178,8 @@ Connect an AI client to both servers simultaneously:
 ```json
 {
   "mcpServers": {
-    "sylius-admin": { "type": "http", "url": "https://your-domain.com/_mcp" },
-    "sylius-shop":  { "type": "http", "url": "https://your-domain.com/shop/_mcp" }
+    "sylius-admin": { "type": "http", "url": "https://your-domain.com/mcp/admin" },
+    "sylius-shop":  { "type": "http", "url": "https://your-domain.com/mcp/shop" }
   }
 }
 ```
@@ -201,7 +201,7 @@ php bin/console debug:router | grep mcp
 curl -sk https://your-domain.com/.well-known/oauth-authorization-server | python3 -m json.tool
 ```
 
-Expected routes: `/.well-known/oauth-authorization-server`, `/_mcp/oauth/register`, `/admin/mcp/oauth/authorize`, `/_mcp/oauth/token`, `/_mcp` (`_mcp_endpoint_sylius_admin`).
+Expected routes: `/.well-known/oauth-authorization-server`, `/mcp/admin/oauth/register`, `/admin/mcp/oauth/authorize`, `/mcp/admin/oauth/token`, `/mcp/admin` (`_mcp_endpoint_sylius_admin`).
 
 ---
 
@@ -223,7 +223,7 @@ Edit your Claude Desktop configuration file:
   "mcpServers": {
     "sylius-admin": {
       "type": "http",
-      "url": "https://your-domain.com/_mcp"
+      "url": "https://your-domain.com/mcp/admin"
     }
   }
 }
@@ -231,14 +231,14 @@ Edit your Claude Desktop configuration file:
 
 Claude Desktop reads the OAuth discovery endpoint (`/.well-known/oauth-authorization-server`) automatically and opens the consent page in your default browser when you first use the server. No manual token management is required.
 
-> **Local development**: Use `"url": "https://127.0.0.1:8003/_mcp"`. Claude Desktop accepts self-signed certificates, so no tunnelling is needed.
+> **Local development**: Use `"url": "https://127.0.0.1:8003/mcp/admin"`. Claude Desktop accepts self-signed certificates, so no tunnelling is needed.
 
 ### Option B - Claude.ai in the browser (Custom Connectors)
 
 > **Requirements**: Claude.ai **Pro or Max** plan. The server must be publicly accessible over HTTPS with a **valid (non-self-signed) SSL certificate**. `localhost` does not work - Anthropic's servers call your endpoint from their own IP ranges.
 
 1. Open [claude.ai](https://claude.ai) → click your avatar → **Customize Claude** → **Connectors** → **+** → **Add custom connector**
-2. Paste your server URL: `https://your-domain.com/_mcp`
+2. Paste your server URL: `https://your-domain.com/mcp/admin`
 3. Click **Connect**. Claude.ai reads the `/.well-known/oauth-authorization-server` discovery document automatically and redirects you to your Sylius admin consent page.
 4. Log in as an admin user with `ROLE_API_ACCESS` and click **Allow**.
 
@@ -248,13 +248,13 @@ Claude.ai uses `https://claude.ai/api/mcp/auth_callback` as its redirect URI, wh
 > ```bash
 > # Example with ngrok:
 > ngrok http https://127.0.0.1:8003
-> # Then use the generated https://xxxx.ngrok-free.app/_mcp URL in claude.ai
+> # Then use the generated https://xxxx.ngrok-free.app/mcp/admin URL in claude.ai
 > ```
 
 ### Option C - Claude Code (CLI)
 
 ```bash
-claude mcp add --transport http sylius-admin https://your-domain.com/_mcp
+claude mcp add --transport http sylius-admin https://your-domain.com/mcp/admin
 ```
 
 Claude Code handles the full OAuth PKCE flow automatically on first use (opens a browser window for the consent step).
@@ -266,7 +266,7 @@ In Cursor settings → **MCP** → **Add server**:
 ```json
 {
   "sylius-admin": {
-    "url": "https://your-domain.com/_mcp",
+    "url": "https://your-domain.com/mcp/admin",
     "type": "http"
   }
 }
@@ -276,7 +276,7 @@ In Cursor settings → **MCP** → **Add server**:
 
 ## Security
 
-- All `/_mcp` requests require a valid OAuth 2.0 Bearer token (returns `401` otherwise)
+- All `/mcp/admin` requests require a valid OAuth 2.0 Bearer token (returns `401` otherwise)
 - Authorization is limited to admin users with `ROLE_API_ACCESS`
 - Tokens expire after 1 hour; refresh tokens are valid for 30 days
 - PKCE (Proof Key for Code Exchange) prevents authorization code interception attacks
