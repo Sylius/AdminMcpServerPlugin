@@ -16,7 +16,7 @@ namespace Sylius\AdminMcpServerPlugin\Entity\OAuth;
 use League\OAuth2\Server\Entities\ScopeEntityInterface;
 use League\OAuth2\Server\Entities\Traits\EntityTrait;
 
-final class OAuthScope implements ScopeEntityInterface
+class OAuthScope implements ScopeEntityInterface
 {
     use EntityTrait;
 
