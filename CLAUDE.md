@@ -6,7 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Setup
 ```bash
-# Install dependencies (requires PHP 8.2+, Composer)
+# Install dependencies (requires PHP 8.2+, Composer; see the README table for
+# the supported PHP / Sylius / Symfony combinations)
 composer install
 
 # Build frontend assets (requires Node.js 20+, Yarn)
@@ -29,15 +30,12 @@ symfony server:start -d
 ```bash
 # PHPUnit tests
 vendor/bin/phpunit
-
-# Behat tests (non-JS)
-vendor/bin/behat --strict --tags="~@javascript&&~@mink:chromedriver"
 ```
 
 ### Code Quality
 ```bash
-# PHPStan (level max)
-vendor/bin/phpstan analyse -c phpstan.neon -l max src/
+# PHPStan (level 6 over src/, matching CI)
+vendor/bin/phpstan analyse -c phpstan.neon -l 6 src/
 
 # Coding standards
 vendor/bin/ecs check src/ config/

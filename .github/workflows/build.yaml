@@ -31,11 +31,23 @@ jobs:
             matrix:
                 php: ["8.3"]
                 symfony: ["^7.4"]
-                sylius: ["~2.1.0", "~2.2.0"]
+                sylius: ["~2.2.0", "~2.3.0"]
                 database: ["mysql:8.4"]
                 node: ["22.x"]
 
                 include:
+                    # Lowest supported stack: Sylius 2.2 with PHP 8.2
+                    - php: "8.2"
+                      symfony: "^7.4"
+                      sylius: "~2.2.0"
+                      database: "mysql:8.4"
+                      node: "22.x"
+                    # Sylius 2.3 on Symfony 8.0 with PHP 8.4
+                    - php: "8.4"
+                      symfony: "^8.0"
+                      sylius: "~2.3.0"
+                      database: "mysql:8.4"
+                      node: "22.x"
                     - php: "8.3"
                       symfony: "^7.4"
                       sylius: "~2.2.0"
@@ -98,6 +110,10 @@ jobs:
             -
                 name: Validate container
                 run: vendor/bin/console lint:container
+
+            -
+                name: Validate Behat configuration
+                run: vendor/bin/behat --dry-run --allow-no-tests
 
             -
                 name: Run ECS

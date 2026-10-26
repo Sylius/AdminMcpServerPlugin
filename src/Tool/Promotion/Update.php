@@ -75,7 +75,7 @@ final readonly class Update
         return array_map(function (array $item) use (&$allChannelCodes): array {
             unset($item['@id'], $item['@type'], $item['id']);
 
-            /** @var array<string, mixed> $config */
+            /** @var array<array-key, mixed> $config */
             $config = \is_array($item['configuration'] ?? null) ? $item['configuration'] : [];
             if (!$this->hasChannelKeys($config)) {
                 return $item;
@@ -108,7 +108,10 @@ final readonly class Update
     /**
      * Returns true if the config array has uppercase string keys (channel codes).
      *
-     * @param array<string, mixed> $config
+     * Decoded JSON object keys that look numeric arrive as ints, so the keys are not
+     * guaranteed to be strings here.
+     *
+     * @param array<array-key, mixed> $config
      */
     private function hasChannelKeys(array $config): bool
     {

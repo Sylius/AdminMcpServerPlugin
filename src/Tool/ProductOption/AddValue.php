@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductOption;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Exception\ToolCallException;
 use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
@@ -41,13 +42,23 @@ final readonly class AddValue
         $existing = json_decode($this->client->get(sprintf('product-options/%s', $optionCode)), true);
 
         // Collect existing values with @id so Sylius recognises them as existing (not new)
+        $existingValues = \is_array($existing) ? ($existing['values'] ?? []) : [];
+        if (!\is_array($existingValues)) {
+            $existingValues = [];
+        }
+
         $values = [];
-        foreach ($existing['values'] ?? [] as $valueIri) {
+        foreach ($existingValues as $valueIri) {
+            if (!\is_scalar($valueIri)) {
+                throw new ToolCallException('Every product option value must be a scalar IRI.');
+            }
+
             $code = basename((string) $valueIri);
             $valueData = json_decode(
                 $this->client->get(sprintf('product-options/%s/values/%s', $optionCode, $code)),
                 true,
             );
+            $valueData = \is_array($valueData) ? $valueData : [];
             $values[] = [
                 '@id' => $valueData['@id'] ?? $valueIri,
                 'code' => $code,
@@ -67,7 +78,7 @@ final readonly class AddValue
         }
 
         // Preserve existing translations
-        $translations = $existing['translations'] ?? [];
+        $translations = \is_array($existing) ? ($existing['translations'] ?? []) : [];
 
         return $this->client->put(sprintf('product-options/%s', $optionCode), [
             'translations' => $translations,

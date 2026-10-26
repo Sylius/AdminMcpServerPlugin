@@ -22,7 +22,9 @@ Requires Node.js 20+. If using nvm: `nvm use 20`.
 
 ## "Cannot create union with both object and class type" during cache warmup
 
-The `symfony/type-info` patch is not applied. See [Installation Step 1](../README.md#step-1--add-the-plugin-via-composer) for patch instructions.
+Seen on Sylius 2.2 with `symfony/type-info` 7.4 (upstream: api-platform/core#8312).
+The plugin no longer ships a patch for it — update `symfony/type-info` to a release
+that contains the fix.
 
 ## Plugin migration not running / not visible
 

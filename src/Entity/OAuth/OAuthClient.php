@@ -27,6 +27,7 @@ class OAuthClient extends AbstractClient implements ClientEntityInterface
     #[ORM\Column(type: 'uuid')]
     private Uuid $id;
 
+    /** @var non-empty-string */
     #[ORM\Column(length: 80, unique: true)]
     private string $clientId;
 
@@ -50,6 +51,10 @@ class OAuthClient extends AbstractClient implements ClientEntityInterface
     #[ORM\Column]
     private \DateTimeImmutable $createdAt;
 
+    /**
+     * @param list<string> $redirectUris
+     * @param list<string> $grantTypes
+     */
     private function __construct(
         string $clientId,
         ?string $clientSecretHash,
@@ -70,6 +75,10 @@ class OAuthClient extends AbstractClient implements ClientEntityInterface
         $this->createdAt = new \DateTimeImmutable();
     }
 
+    /**
+     * @param list<string> $redirectUris
+     * @param list<string> $grantTypes
+     */
     public static function register(
         array $redirectUris,
         string $clientName,
@@ -97,7 +106,11 @@ class OAuthClient extends AbstractClient implements ClientEntityInterface
         return $this->clientId;
     }
 
-    /** ClientEntityInterface */
+    /**
+     * ClientEntityInterface
+     *
+     * @return non-empty-string
+     */
     public function getIdentifier(): string
     {
         return $this->clientId;
