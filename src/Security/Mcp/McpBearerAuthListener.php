@@ -24,7 +24,8 @@ use Symfony\Component\HttpKernel\Event\RequestEvent;
 
 final readonly class McpBearerAuthListener
 {
-    private const array PUBLIC_PATHS = [
+    /** @var list<string> */
+    private const PUBLIC_PATHS = [
         '/mcp/admin/oauth/register',
         '/mcp/admin/oauth/token',
     ];
@@ -70,8 +71,10 @@ final readonly class McpBearerAuthListener
             return;
         }
 
-        $userIdentifier = (string) $validatedRequest->getAttribute('oauth_user_id', '');
-        $adminUser = $this->adminUserRepository->findOneByEmail($userIdentifier);
+        $userIdentifier = $validatedRequest->getAttribute('oauth_user_id');
+        $adminUser = \is_string($userIdentifier) && $userIdentifier !== ''
+            ? $this->adminUserRepository->findOneByEmail($userIdentifier)
+            : null;
 
         if ($adminUser === null) {
             $event->setResponse($this->tokenErrorResponse('Invalid token user'));

@@ -17,10 +17,16 @@ use League\OAuth2\Server\Entities\UserEntityInterface;
 
 final readonly class UserEntity implements UserEntityInterface
 {
+    /**
+     * @param non-empty-string $email
+     */
     public function __construct(private string $email)
     {
     }
 
+    /**
+     * @return non-empty-string
+     */
     public function getIdentifier(): string
     {
         return $this->email;

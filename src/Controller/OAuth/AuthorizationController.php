@@ -133,7 +133,12 @@ final readonly class AuthorizationController
             );
         }
 
-        $authRequest->setUser(new UserEntity($user->getEmail() ?? ''));
+        $email = $user->getEmail();
+        if ($email === null || $email === '') {
+            return new Response('Admin user has no e-mail address.', Response::HTTP_BAD_REQUEST);
+        }
+
+        $authRequest->setUser(new UserEntity($email));
         $authRequest->setAuthorizationApproved($approve === '1');
 
         try {

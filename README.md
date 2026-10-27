@@ -18,9 +18,14 @@ This plugin turns your Sylius store into an MCP server, allowing AI assistants (
 
 ## Requirements
 
-- PHP 8.2+
-- Sylius 2.1 or 2.2
-- Symfony 7.4
+- PHP 8.2+, Sylius 2.1–2.3, Symfony 7.4 or 8.0 — in the combinations below,
+  because Sylius 2.3 raised its own floor to PHP 8.3 and Symfony 8.0 to PHP 8.4:
+
+  | PHP | Sylius | Symfony |
+  |---|---|---|
+  | 8.2 | 2.1, 2.2 | 7.4 |
+  | 8.3 | 2.1, 2.2, 2.3 | 7.4 |
+  | 8.4 | 2.3 | 8.0 |
 - `symfony/mcp-bundle` ^0.13
 - MySQL or PostgreSQL
 - Node.js 20+ and Yarn (for frontend assets)
@@ -30,30 +35,6 @@ This plugin turns your Sylius store into an MCP server, allowing AI assistants (
 ### Installation with Symfony Flex recipe
 
 When Symfony Flex is active, `composer require sylius/admin-mcp-server-plugin` automatically registers the bundles, imports the plugin configuration, and imports the routes. Continue from Step 2 below.
-
-> **Note on `symfony/type-info` patch** (Sylius 2.2.x): A bug in `symfony/type-info v7.4.x` causes a cache warmup error: `Cannot create union with both "object" and class type`. Apply the patch that ships with the plugin:
->
-> ```bash
-> patch vendor/symfony/type-info/TypeContext/TypeContextFactory.php \
->   vendor/sylius/admin-mcp-server-plugin/patches/symfony-type-info-union-fix.patch
-> ```
->
-> To re-apply this patch automatically after every `composer update`, you can use [cweagans/composer-patches](https://github.com/cweagans/composer-patches):
->
-> 1. `composer require --dev cweagans/composer-patches`
-> 2. Copy the patch to your project: `mkdir -p patches && cp vendor/sylius/admin-mcp-server-plugin/patches/symfony-type-info-union-fix.patch patches/`
-> 3. Add to your `composer.json`:
->    ```json
->    "config": { "allow-plugins": { "cweagans/composer-patches": true } },
->    "extra": {
->        "patches": {
->            "symfony/type-info": {
->                "Fix: Cannot create union with both object and class type": "patches/symfony-type-info-union-fix.patch"
->            }
->        }
->    }
->    ```
-> 4. Run `composer install`
 
 #### Step 1 - Add the plugin via Composer
 

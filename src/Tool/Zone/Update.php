@@ -37,8 +37,26 @@ final readonly class Update
     public function __invoke(string $code, string $body): string
     {
         $b = json_decode($body, true) ?? [];
+        if (!\is_array($b)) {
+            throw new \TypeError('Zone update body must decode to a JSON object.');
+        }
+
         if (isset($b['memberCodes'])) {
-            $b['members'] = array_map(static fn (string $c) => ['code' => $c], $b['memberCodes']);
+            $memberCodes = $b['memberCodes'];
+            if (!\is_array($memberCodes)) {
+                throw new \TypeError('memberCodes must be an array of zone member codes.');
+            }
+
+            $members = [];
+            foreach ($memberCodes as $memberCode) {
+                if (!\is_scalar($memberCode)) {
+                    throw new \TypeError('Every memberCodes entry must be a scalar zone member code.');
+                }
+
+                $members[] = ['code' => (string) $memberCode];
+            }
+
+            $b['members'] = $members;
             unset($b['memberCodes']);
         }
 

@@ -48,10 +48,19 @@ final readonly class Create
     ): string {
         // Auto-fetch product channels so we can price all of them (Sylius requires it)
         $productData = json_decode($this->client->get(sprintf('products/%s', basename($product))), true);
-        $productChannelCodes = array_map(
-            static fn (string $iri) => basename($iri),
-            $productData['channels'] ?? [],
-        );
+        $productChannels = \is_array($productData) ? ($productData['channels'] ?? []) : [];
+        if (!\is_array($productChannels)) {
+            $productChannels = [];
+        }
+
+        $productChannelCodes = [];
+        foreach ($productChannels as $iri) {
+            if (!\is_scalar($iri)) {
+                throw new \TypeError('Every product channel must be a scalar IRI.');
+            }
+
+            $productChannelCodes[] = basename((string) $iri);
+        }
 
         // Build channelPricings: one price for all channels, then override with specific values
         $pricings = [];
@@ -61,8 +70,22 @@ final readonly class Create
 
         if ($channelPrices !== '') {
             $overrides = json_decode($channelPrices, true) ?? [];
+            if (!\is_array($overrides)) {
+                $overrides = [];
+            }
+
             foreach ($overrides as $ch => $p) {
-                $pricings[$ch] = ['price' => (int) $p];
+                // Mirrors the plain (int) cast this used to do, for every type
+                // json_decode() can produce: [] and null give 0, a non-empty array gives 1.
+                if (\is_array($p)) {
+                    $price = [] === $p ? 0 : 1;
+                } elseif (\is_scalar($p)) {
+                    $price = (int) $p;
+                } else {
+                    $price = 0;
+                }
+
+                $pricings[$ch] = ['price' => $price];
             }
         }
 

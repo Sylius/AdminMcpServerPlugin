@@ -31,15 +31,27 @@ final readonly class ClientRegistrar
      */
     public function register(array $data): array
     {
-        $redirectUris = $data['redirect_uris'] ?? null;
-        if (!\is_array($redirectUris) || $redirectUris === []) {
+        $rawRedirectUris = $data['redirect_uris'] ?? null;
+        if (!\is_array($rawRedirectUris)) {
             throw new OAuthException('invalid_client_metadata', 'redirect_uris is required');
+        }
+
+        $redirectUris = array_values(array_filter($rawRedirectUris, 'is_string'));
+        if ($redirectUris === [] || \count($redirectUris) !== \count($rawRedirectUris)) {
+            throw new OAuthException('invalid_client_metadata', 'redirect_uris must be a non-empty list of strings');
         }
 
         $clientName = \is_string($data['client_name'] ?? null) ? $data['client_name'] : 'MCP Client';
         $authMethod = \is_string($data['token_endpoint_auth_method'] ?? null) ? $data['token_endpoint_auth_method'] : 'none';
-        /** @var list<string> $grantTypes */
-        $grantTypes = \is_array($data['grant_types'] ?? null) ? $data['grant_types'] : ['authorization_code', 'refresh_token'];
+
+        $grantTypes = ['authorization_code', 'refresh_token'];
+        $rawGrantTypes = $data['grant_types'] ?? null;
+        if (\is_array($rawGrantTypes)) {
+            $grantTypes = array_values(array_filter($rawGrantTypes, 'is_string'));
+            if ($grantTypes === [] || \count($grantTypes) !== \count($rawGrantTypes)) {
+                throw new OAuthException('invalid_client_metadata', 'grant_types must be a non-empty list of strings');
+            }
+        }
         $plainSecret = $authMethod !== 'none' ? bin2hex(random_bytes(32)) : null;
 
         $client = OAuthClient::register(

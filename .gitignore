@@ -9,6 +9,7 @@
 
 /.phpunit.result.cache
 /behat.yml
+/behat.php
 /phpunit.xml
 /compose.override.yml
 .phpunit.result.cache
@@ -17,6 +18,8 @@
 /.php-version
 /php.ini
 
+/.env.local
+/.env.*.local
 /tests/TestApplication/.env.local
 /tests/TestApplication/.env.*.local
 

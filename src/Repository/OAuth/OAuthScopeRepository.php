@@ -20,7 +20,8 @@ use Sylius\AdminMcpServerPlugin\Entity\OAuth\OAuthScope;
 
 final class OAuthScopeRepository implements ScopeRepositoryInterface
 {
-    private const array AVAILABLE_SCOPES = ['admin_api'];
+    /** @var list<string> */
+    private const AVAILABLE_SCOPES = ['admin_api'];
 
     public function getScopeEntityByIdentifier(string $identifier): ?ScopeEntityInterface
     {
