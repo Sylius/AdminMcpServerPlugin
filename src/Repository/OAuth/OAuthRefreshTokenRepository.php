@@ -26,7 +26,7 @@ final class OAuthRefreshTokenRepository implements RefreshTokenRepositoryInterfa
     {
     }
 
-    public function getNewRefreshToken(): ?RefreshTokenEntityInterface
+    public function getNewRefreshToken(): RefreshTokenEntityInterface
     {
         return new RefreshTokenEntity();
     }

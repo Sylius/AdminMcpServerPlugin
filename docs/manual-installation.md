@@ -1,29 +1,5 @@
 # Manual Installation (without Symfony Flex)
 
-> **Note on `symfony/type-info` patch** (Sylius 2.2.x): A bug in `symfony/type-info v7.4.x` causes a cache warmup error: `Cannot create union with both "object" and class type`. Apply the patch that ships with the plugin:
->
-> ```bash
-> patch vendor/symfony/type-info/TypeContext/TypeContextFactory.php \
->   vendor/sylius/admin-mcp-server-plugin/patches/symfony-type-info-union-fix.patch
-> ```
->
-> To re-apply this patch automatically after every `composer update`, you can use [cweagans/composer-patches](https://github.com/cweagans/composer-patches):
->
-> 1. `composer require --dev cweagans/composer-patches`
-> 2. Copy the patch to your project: `mkdir -p patches && cp vendor/sylius/admin-mcp-server-plugin/patches/symfony-type-info-union-fix.patch patches/`
-> 3. Add to your `composer.json`:
->    ```json
->    "config": { "allow-plugins": { "cweagans/composer-patches": true } },
->    "extra": {
->        "patches": {
->            "symfony/type-info": {
->                "Fix: Cannot create union with both object and class type": "patches/symfony-type-info-union-fix.patch"
->            }
->        }
->    }
->    ```
-> 4. Run `composer install`
-
 ## Step 1 - Add the plugin via Composer
 
 ```bash

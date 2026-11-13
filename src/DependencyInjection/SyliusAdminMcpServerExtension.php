@@ -65,6 +65,7 @@ final class SyliusAdminMcpServerExtension extends AbstractResourceExtension impl
 
     public function load(array $configs, ContainerBuilder $container): void
     {
+        /** @var array{tools: array<string, bool>} $config */
         $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new PhpFileLoader($container, new FileLocator(__DIR__ . '/../../config'));

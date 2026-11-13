@@ -17,7 +17,13 @@ final class HttpApiClientTest extends TestCase
     public function testAttachesBearerTokenAndReturnsBody(): void
     {
         $client = new MockHttpClient(function (string $method, string $url, array $options): MockResponse {
-            self::assertContains('Authorization: Bearer tok-123', $options['headers']);
+            $headers = $options['headers'] ?? null;
+
+            if (!is_iterable($headers)) {
+                self::fail('The request was sent without headers.');
+            }
+
+            self::assertContains('Authorization: Bearer tok-123', $headers);
 
             return new MockResponse('RESPONSE_BODY');
         });

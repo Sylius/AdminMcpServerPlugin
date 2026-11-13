@@ -133,7 +133,16 @@ final readonly class AuthorizationController
             );
         }
 
-        $authRequest->setUser(new UserEntity($user->getEmail() ?? ''));
+        $email = $user->getEmail();
+        if ($email === null || $email === '') {
+            return $this->renderError(
+                'sylius_admin_mcp_server.oauth.error.no_email_address',
+                $authRequest->getRedirectUri() . '?error=server_error&error_description=Admin+user+has+no+e-mail+address',
+                $clientName,
+            );
+        }
+
+        $authRequest->setUser(new UserEntity($email));
         $authRequest->setAuthorizationApproved($approve === '1');
 
         try {
