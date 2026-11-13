@@ -40,11 +40,14 @@ final readonly class AddValue
         string $localeCode = 'en_US',
     ): string {
         $existing = json_decode($this->client->get(sprintf('product-options/%s', $optionCode)), true);
+        if (!\is_array($existing)) {
+            throw new ToolCallException(sprintf('Product option %s response must be a valid JSON object.', $optionCode));
+        }
 
         // Collect existing values with @id so Sylius recognises them as existing (not new)
-        $existingValues = \is_array($existing) ? ($existing['values'] ?? []) : [];
+        $existingValues = $existing['values'] ?? [];
         if (!\is_array($existingValues)) {
-            $existingValues = [];
+            throw new ToolCallException(sprintf('Product option %s values must be an array.', $optionCode));
         }
 
         $values = [];
