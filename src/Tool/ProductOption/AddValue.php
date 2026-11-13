@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductOption;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Exception\ToolCallException;
 use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
@@ -39,15 +40,31 @@ final readonly class AddValue
         string $localeCode = 'en_US',
     ): string {
         $existing = json_decode($this->client->get(sprintf('product-options/%s', $optionCode)), true);
+        if (!\is_array($existing)) {
+            throw new ToolCallException(sprintf('Product option %s response must be a valid JSON object.', $optionCode));
+        }
 
         // Collect existing values with @id so Sylius recognises them as existing (not new)
+        $existingValues = $existing['values'] ?? [];
+        if (!\is_array($existingValues)) {
+            throw new ToolCallException(sprintf('Product option %s values must be an array.', $optionCode));
+        }
+
         $values = [];
-        foreach ($existing['values'] ?? [] as $valueIri) {
+        foreach ($existingValues as $valueIri) {
+            if (!\is_scalar($valueIri)) {
+                throw new ToolCallException('Every product option value must be a scalar IRI.');
+            }
+
             $code = basename((string) $valueIri);
             $valueData = json_decode(
                 $this->client->get(sprintf('product-options/%s/values/%s', $optionCode, $code)),
                 true,
             );
+            if (!\is_array($valueData)) {
+                throw new ToolCallException(sprintf('Product option value %s response must be a valid JSON object.', $code));
+            }
+
             $values[] = [
                 '@id' => $valueData['@id'] ?? $valueIri,
                 'code' => $code,

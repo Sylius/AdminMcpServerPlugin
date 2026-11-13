@@ -70,8 +70,10 @@ final readonly class McpBearerAuthListener
             return;
         }
 
-        $userIdentifier = (string) $validatedRequest->getAttribute('oauth_user_id', '');
-        $adminUser = $this->adminUserRepository->findOneByEmail($userIdentifier);
+        $userIdentifier = $validatedRequest->getAttribute('oauth_user_id');
+        $adminUser = \is_string($userIdentifier) && $userIdentifier !== ''
+            ? $this->adminUserRepository->findOneByEmail($userIdentifier)
+            : null;
 
         if ($adminUser === null) {
             $event->setResponse($this->tokenErrorResponse('Invalid token user'));

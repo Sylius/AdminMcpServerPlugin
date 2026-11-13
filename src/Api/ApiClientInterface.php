@@ -21,17 +21,17 @@ interface ApiClientInterface
     public function get(string $path, array $query = []): string;
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<array-key, mixed> $body
      */
     public function post(string $path, array $body = []): string;
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<array-key, mixed> $body
      */
     public function put(string $path, array $body = []): string;
 
     /**
-     * @param array<string, mixed> $body
+     * @param array<array-key, mixed> $body
      */
     public function patch(string $path, array $body = []): string;
 

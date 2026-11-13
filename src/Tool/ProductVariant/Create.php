@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Sylius\AdminMcpServerPlugin\Tool\ProductVariant;
 
 use Mcp\Capability\Attribute\McpTool;
+use Mcp\Exception\ToolCallException;
 use Sylius\AdminMcpServerPlugin\Api\ApiClientInterface;
 
 #[McpTool(
@@ -48,10 +49,19 @@ final readonly class Create
     ): string {
         // Auto-fetch product channels so we can price all of them (Sylius requires it)
         $productData = json_decode($this->client->get(sprintf('products/%s', basename($product))), true);
-        $productChannelCodes = array_map(
-            static fn (string $iri) => basename($iri),
-            $productData['channels'] ?? [],
-        );
+        $productChannels = \is_array($productData) ? ($productData['channels'] ?? []) : [];
+        if (!\is_array($productChannels)) {
+            $productChannels = [];
+        }
+
+        $productChannelCodes = [];
+        foreach ($productChannels as $iri) {
+            if (!\is_scalar($iri)) {
+                throw new ToolCallException('Every product channel must be a scalar IRI.');
+            }
+
+            $productChannelCodes[] = basename((string) $iri);
+        }
 
         // Build channelPricings: one price for all channels, then override with specific values
         $pricings = [];
@@ -60,8 +70,16 @@ final readonly class Create
         }
 
         if ($channelPrices !== '') {
-            $overrides = json_decode($channelPrices, true) ?? [];
+            $overrides = json_decode($channelPrices, true);
+            if (!\is_array($overrides)) {
+                throw new ToolCallException('channelPrices must be a valid JSON object, e.g. {"FASHION_WEB":2500}');
+            }
+
             foreach ($overrides as $ch => $p) {
+                if (!is_numeric($p)) {
+                    throw new ToolCallException(sprintf('Price for channel %s must be numeric, got: %s', $ch, gettype($p)));
+                }
+
                 $pricings[$ch] = ['price' => (int) $p];
             }
         }
