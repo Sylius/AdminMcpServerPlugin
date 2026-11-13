@@ -36,7 +36,7 @@
         "symfony/runtime": "^6.4 || ^7.4 || ^8.0",
         "symfony/web-profiler-bundle": "^6.4 || ^7.4 || ^8.0",
         "symfony/property-info": "^7.4 || ^8.0",
-        "symfony/type-info": "^7.5 || ^8.0",
+        "symfony/type-info": "^7.4.24 || ^8.1.12",
         "symfony/webpack-encore-bundle": "^2.4"
     },
     "config": {

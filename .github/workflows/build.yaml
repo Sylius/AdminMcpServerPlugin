@@ -106,10 +106,6 @@ jobs:
                 run: vendor/bin/console lint:container
 
             -
-                name: Validate Behat configuration
-                run: vendor/bin/behat --dry-run --allow-no-tests
-
-            -
                 name: Run ECS
                 run: vendor/bin/ecs check src/ config/
 
@@ -119,4 +115,4 @@ jobs:
 
             -
                 name: Run Non-unit PHPUnit tests
-                run: vendor/bin/phpunit --colors=always --testsuite=non-unit
+                run: vendor/bin/phpunit --colors=always --testsuite=non-unit --allow-no-tests

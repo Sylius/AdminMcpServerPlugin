@@ -84,7 +84,7 @@ final readonly class AddValue
         }
 
         // Preserve existing translations
-        $translations = \is_array($existing) ? ($existing['translations'] ?? []) : [];
+        $translations = $existing['translations'] ?? [];
 
         return $this->client->put(sprintf('product-options/%s', $optionCode), [
             'translations' => $translations,
