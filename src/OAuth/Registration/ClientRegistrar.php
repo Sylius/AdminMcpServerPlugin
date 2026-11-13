@@ -41,6 +41,12 @@ final readonly class ClientRegistrar
             throw new OAuthException('invalid_client_metadata', 'redirect_uris must be a non-empty list of strings');
         }
 
+        foreach ($redirectUris as $uri) {
+            if (!filter_var($uri, \FILTER_VALIDATE_URL)) {
+                throw new OAuthException('invalid_client_metadata', 'redirect_uris must be valid URLs');
+            }
+        }
+
         $clientName = \is_string($data['client_name'] ?? null) ? $data['client_name'] : 'MCP Client';
         $authMethod = \is_string($data['token_endpoint_auth_method'] ?? null) ? $data['token_endpoint_auth_method'] : 'none';
 

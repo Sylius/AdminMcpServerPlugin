@@ -57,17 +57,28 @@ final class ClientRegistrarTest extends TestCase
     public function testThrowsExceptionWhenRedirectUrisAreMissing(): void
     {
         $this->expectException(OAuthException::class);
-        $this->expectExceptionMessage('redirect_uris is required');
+        $this->expectExceptionMessage('redirect_uris must be a list of strings');
 
         $this->registrar->register([
             'client_name' => 'Test Client',
         ]);
     }
 
+    public function testThrowsExceptionWhenRedirectUrisAreInvalidUrls(): void
+    {
+        $this->expectException(OAuthException::class);
+        $this->expectExceptionMessage('redirect_uris must be valid URLs');
+
+        $this->registrar->register([
+            'client_name' => 'Test Client',
+            'redirect_uris' => ['not-a-url'],
+        ]);
+    }
+
     public function testThrowsExceptionWhenRedirectUrisAreEmpty(): void
     {
         $this->expectException(OAuthException::class);
-        $this->expectExceptionMessage('redirect_uris is required');
+        $this->expectExceptionMessage('redirect_uris must be a non-empty list of strings');
 
         $this->registrar->register([
             'client_name' => 'Test Client',
@@ -78,7 +89,7 @@ final class ClientRegistrarTest extends TestCase
     public function testThrowsExceptionWhenRedirectUrisAreNotArray(): void
     {
         $this->expectException(OAuthException::class);
-        $this->expectExceptionMessage('redirect_uris is required');
+        $this->expectExceptionMessage('redirect_uris must be a list of strings');
 
         $this->registrar->register([
             'client_name' => 'Test Client',
